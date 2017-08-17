@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <ItemGroup>
+    <PackageReference Include="Unity" Version="4.0.1" />
+    <PackageReference Include="Unity.Interception" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ByrneLabs.Commons.Ioc\ByrneLabs.Commons.Ioc.csproj" />
+  </ItemGroup>
+
+</Project>

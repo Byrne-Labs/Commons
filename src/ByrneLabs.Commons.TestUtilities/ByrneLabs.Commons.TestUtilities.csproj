@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
+    <PackageReference Include="xunit" Version="2.3.0-beta4-build3742" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ByrneLabs.Commons\ByrneLabs.Commons.csproj" />
+  </ItemGroup>
+</Project>
