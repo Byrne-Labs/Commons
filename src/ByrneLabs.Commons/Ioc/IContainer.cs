@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ByrneLabs.Commons.Ioc
 {
     [PublicAPI]
+    [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "This class is technically a collection but only secondarily to being a container.")]
     public interface IContainer : IServiceCollection, IServiceProvider, IDisposable
     {
         IDictionary<Type, Type> RegisteredTypes { get; }

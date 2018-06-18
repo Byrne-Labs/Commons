@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ByrneLabs.Commons.Ioc.DotNetCore
 {
+    [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "This class is technically a collection but only secondarily to being a container.")]
     public class DotNetCoreContainerProvider : BaseContainerProvider
     {
         private readonly List<string> _dirtyServiceProviders = new List<string>();
@@ -122,6 +124,7 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore
 
             return enumerator;
         }
+
         public override int IndexOf(ServiceDescriptor item)
         {
             LockName(null);

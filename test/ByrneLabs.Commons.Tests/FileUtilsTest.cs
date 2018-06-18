@@ -11,7 +11,6 @@ namespace ByrneLabs.Commons.Tests
         {
             var directory = new DirectoryInfo("c:\\test1\\test2");
             var file = new FileInfo($"{directory.FullName}\\test.txt");
-
             var relativePath = directory.GetRelativePath(file);
 
             Assert.Equal("test.txt", relativePath);

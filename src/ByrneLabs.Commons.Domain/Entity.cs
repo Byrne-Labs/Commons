@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Domain
 {
-    public abstract class Entity : IEntity, ICloneable
+    [PublicAPI]
+    public abstract class Entity : IEntity, INotifyPropertyChanged, ICloneable
     {
         protected Entity()
         {
@@ -19,7 +23,7 @@ namespace ByrneLabs.Commons.Domain
 
         public Guid EntityId { get; set; }
 
-        public bool HasChanged => throw new NotImplementedException();
+        public bool HasChanged { get; protected set; }
 
         public Guid InstanceId { get; }
 
@@ -33,13 +37,13 @@ namespace ByrneLabs.Commons.Domain
             {
                 clone = clonedObjects[obj];
             }
-            else if (obj is Entity && !clonedObjects.Values.Contains(obj))
+            else if (obj is Entity entity && !clonedObjects.Values.Contains(entity))
             {
-                clone = ((Entity) obj).MemberwiseClone();
-                clonedObjects.Add(obj, clone);
+                clone = entity.MemberwiseClone();
+                clonedObjects.Add(entity, clone);
                 foreach (var property in clone.GetType().GetRuntimeProperties().Where(propertyCheck => propertyCheck.CanRead && propertyCheck.CanWrite))
                 {
-                    var propertyValue = property.GetValue(obj);
+                    var propertyValue = property.GetValue(entity);
                     if (propertyValue != null)
                     {
                         var clonedPropertyValue = Clone(propertyValue, clonedObjects, depth);
@@ -47,14 +51,14 @@ namespace ByrneLabs.Commons.Domain
                     }
                 }
             }
-            else if (obj is IList)
+            else if (obj is IList list)
             {
-                var defaultConstructor = obj.GetType().GetTypeInfo().DeclaredConstructors.SingleOrDefault(constructor => constructor.IsPublic && constructor.GetParameters().Length == 0);
+                var defaultConstructor = list.GetType().GetTypeInfo().DeclaredConstructors.SingleOrDefault(constructor => constructor.IsPublic && constructor.GetParameters().Length == 0);
                 if (defaultConstructor != null)
                 {
                     var clonedList = (IList) defaultConstructor.Invoke(Array.Empty<object>());
-                    clonedObjects.Add(obj, clonedList);
-                    foreach (var clonedItem in ((IList) obj).Cast<object>().Select(item => Clone(item, clonedObjects, depth)))
+                    clonedObjects.Add(list, clonedList);
+                    foreach (var clonedItem in list.Cast<object>().Select(item => Clone(item, clonedObjects, depth)))
                     {
                         clonedList.Add(clonedItem);
                     }
@@ -63,7 +67,7 @@ namespace ByrneLabs.Commons.Domain
                 }
                 else
                 {
-                    clone = obj;
+                    clone = list;
                 }
             }
             else if (obj.GetType().IsArray)
@@ -79,10 +83,10 @@ namespace ByrneLabs.Commons.Domain
 
                 clone = clonedArray;
             }
-            else if (obj is ICloneable)
+            else if (obj is ICloneable cloneable)
             {
-                clone = ((ICloneable) obj).Clone();
-                clonedObjects.Add(obj, clone);
+                clone = cloneable.Clone();
+                clonedObjects.Add(cloneable, clone);
             }
             else
             {
@@ -104,7 +108,7 @@ namespace ByrneLabs.Commons.Domain
             var equals = true;
             if (!ReferenceEquals(entityA, entityB))
             {
-                if (ReferenceEquals(null, entityA) || ReferenceEquals(null, entityB) || entityA.GetType() != entityB.GetType())
+                if (entityA is null || entityB is null || entityA.GetType() != entityB.GetType())
                 {
                     equals = false;
                 }
@@ -120,10 +124,9 @@ namespace ByrneLabs.Commons.Domain
                             break;
                         }
 
-                        var propertyEntityA = propertyValueA as Entity;
                         var propertyEntityB = propertyValueB as Entity;
 
-                        if (propertyEntityA != null)
+                        if (propertyValueA is Entity propertyEntityA)
                         {
                             var compare1 = new Tuple<Entity, Entity>(propertyEntityA, propertyEntityB);
                             var compare2 = new Tuple<Entity, Entity>(propertyEntityB, propertyEntityA);
@@ -165,6 +168,13 @@ namespace ByrneLabs.Commons.Domain
             return stringBuilder.ToString();
         }
 
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            HasChanged = true;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         [SuppressMessage("Microsoft.Usage", "CA2233:OperationsShouldNotOverflow", MessageId = "nestedCount+1", Justification = "A stack overflow would occur long before we would have 2147483648 nesting levels")]
         [SuppressMessage("Microsoft.Usage", "CA2233:OperationsShouldNotOverflow", MessageId = "nestedCount-1", Justification = "A stack overflow would occur long before we would have 2147483648 nesting levels")]
         private void ReflectionToString(StringBuilder builder, int nestedCount, ICollection<Entity> outputEntities)
@@ -194,5 +204,7 @@ namespace ByrneLabs.Commons.Domain
                 }
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

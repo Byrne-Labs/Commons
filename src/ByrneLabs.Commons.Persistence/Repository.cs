@@ -17,7 +17,6 @@ namespace ByrneLabs.Commons.Persistence
         private static string _defaultBulkUpdateCommand;
         [SuppressMessage("ReSharper", "StaticMemberInGenericType", Justification = "We want this to be static to each generic type")]
         private static string _defaultSelectCommand;
-
         protected virtual string BulkInsertCommand
         {
             get
@@ -37,7 +36,6 @@ namespace ByrneLabs.Commons.Persistence
                 }
             }
         }
-
         protected virtual string BulkUpdateCommand
         {
             get

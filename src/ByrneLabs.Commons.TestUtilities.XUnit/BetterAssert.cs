@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using JetBrains.Annotations;
 using Xunit;
 
-namespace ByrneLabs.Commons.TestUtilities
+namespace ByrneLabs.Commons.TestUtilities.XUnit
 {
+    [PublicAPI]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "There are currently some unused methods that are logical additions and will likely be used in the future")]
     public static class BetterAssert
     {
@@ -30,13 +32,11 @@ namespace ByrneLabs.Commons.TestUtilities
         public static void IsNotEmpty(object value, string message, params object[] args)
         {
             Assert.NotNull(value);
-            var stringValue = value as string;
-            var enumerableValue = value as IEnumerable;
-            if (stringValue != null)
+            if (value is string stringValue)
             {
                 Assert.False(string.IsNullOrEmpty(stringValue), string.Format(CultureInfo.InvariantCulture, message, args) ?? "String is empty");
             }
-            else if (enumerableValue != null)
+            else if (value is IEnumerable enumerableValue)
             {
                 Assert.True(enumerableValue.Cast<object>().Any(), string.Format(CultureInfo.InvariantCulture, message, args) ?? "Enumerable is empty");
             }

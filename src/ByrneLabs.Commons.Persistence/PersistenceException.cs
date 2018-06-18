@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using ByrneLabs.Commons.Domain;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Persistence
 {
+    [PublicAPI]
     public class PersistenceException : Exception
     {
         public PersistenceException() : this(null, null, new List<Entity>())
