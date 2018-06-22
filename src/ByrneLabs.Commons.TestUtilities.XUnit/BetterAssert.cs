@@ -5,12 +5,13 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Xunit;
+using Xunit.Sdk;
 
 namespace ByrneLabs.Commons.TestUtilities.XUnit
 {
     [PublicAPI]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "There are currently some unused methods that are logical additions and will likely be used in the future")]
-    public static class BetterAssert
+    public class BetterAssert : Assert
     {
         public static void ContainsSame<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
@@ -19,8 +20,17 @@ namespace ByrneLabs.Commons.TestUtilities.XUnit
 
         public static void ContainsSame<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message, params object[] args)
         {
-            Assert.Collection(actual, actualItem => Assert.True(expected.Contains(actualItem), string.Format(CultureInfo.InvariantCulture, message, args)));
-            Assert.Collection(expected, expectedItem => Assert.True(actual.Contains(expectedItem), string.Format(CultureInfo.InvariantCulture, message, args)));
+            Collection(actual, actualItem => True(expected.Contains(actualItem), string.Format(CultureInfo.InvariantCulture, message, args)));
+            Collection(expected, expectedItem => True(actual.Contains(expectedItem), string.Format(CultureInfo.InvariantCulture, message, args)));
+        }
+
+        public static void Count(int expected, IEnumerable value)
+        {
+            var count = value.Cast<object>().Count();
+            if (expected != count)
+            {
+                throw new AssertCollectionCountException(expected, count);
+            }
         }
 
         [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "Suggested change would mean potentially requring caller to create an array to clarify if parameter was a message or format arguement")]
@@ -31,22 +41,15 @@ namespace ByrneLabs.Commons.TestUtilities.XUnit
 
         public static void IsNotEmpty(object value, string message, params object[] args)
         {
-            Assert.NotNull(value);
+            NotNull(value);
             if (value is string stringValue)
             {
-                Assert.False(string.IsNullOrEmpty(stringValue), string.Format(CultureInfo.InvariantCulture, message, args) ?? "String is empty");
+                False(string.IsNullOrEmpty(stringValue), string.Format(CultureInfo.InvariantCulture, message, args) ?? "String is empty");
             }
             else if (value is IEnumerable enumerableValue)
             {
-                Assert.True(enumerableValue.Cast<object>().Any(), string.Format(CultureInfo.InvariantCulture, message, args) ?? "Enumerable is empty");
+                True(enumerableValue.Cast<object>().Any(), string.Format(CultureInfo.InvariantCulture, message, args) ?? "Enumerable is empty");
             }
-        }
-
-        public static T IsType<T>(object value)
-        {
-            Assert.NotNull(value);
-            Assert.Equal(typeof(T), value.GetType());
-            return (T) value;
         }
     }
 }

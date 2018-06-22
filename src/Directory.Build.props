@@ -37,7 +37,7 @@
         <PackageProjectUrl>https://github.com/ByrneLabs/Commons</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ByrneLabs/Commons</RepositoryUrl>
         <AssemblyVersion>1.0.0</AssemblyVersion>
-        <FileVersion>1.0.0.5</FileVersion>
-        <Version>1.0.0.5-alpha</Version>
+        <FileVersion>1.0.0.7</FileVersion>
+        <Version>1.0.0.7-alpha</Version>
     </PropertyGroup>
 </Project>
