@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ByrneLabs.Commons.Ioc.DotNetCore
 {
     [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "This class is technically a collection but only secondarily to being a container.")]
-    public class DotNetCoreContainerProvider : BaseContainerProvider
+    public class DotNetCoreContainerProvider : ContainerProvider
     {
         private readonly List<string> _dirtyServiceProviders = new List<string>();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _nameLocks = new ConcurrentDictionary<string, SemaphoreSlim>();
@@ -151,23 +151,23 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore
 
         public override void RegisterInterceptor(Type target, Type interceptor, string name) => throw new NotSupportedException("The ASP.NET Core dependency injection framework does not support method interception");
 
-        public override void RegisterType(Type fromType, Type toType, string name, ObjectLifetime objectLifetime = ObjectLifetime.Transient)
+        public override void RegisterType(Type fromType, Type toType, string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             LockName(name);
             var services = GetNamedServiceCollection(name);
-            switch (objectLifetime)
+            switch (serviceLifetime)
             {
-                case ObjectLifetime.Transient:
+                case ServiceLifetime.Transient:
                     services.AddTransient(fromType, toType);
                     break;
-                case ObjectLifetime.PerContainer:
+                case ServiceLifetime.Singleton:
                     services.AddSingleton(fromType, toType);
                     break;
-                case ObjectLifetime.Scoped:
+                case ServiceLifetime.Scoped:
                     services.AddScoped(fromType, toType);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(objectLifetime), objectLifetime, null);
+                    throw new ArgumentOutOfRangeException(nameof(serviceLifetime), serviceLifetime, null);
             }
 
             UnlockName(name);

@@ -3,7 +3,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Dapper.Contrib" Version="1.50.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ByrneLabs.Commons.Domain\ByrneLabs.Commons.Domain.csproj" />

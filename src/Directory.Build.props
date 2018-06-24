@@ -1,6 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Project>
+    <PropertyGroup>
+        <BuildNumber>10</BuildNumber>
+        <ReleaseType>-alpha</ReleaseType>
+        <AssemblyVersion>1.0.0.$(BuildNumber)</AssemblyVersion>
+        <FileVersion>$(AssemblyVersion)</FileVersion>
+        <Version>$(FileVersion)$(ReleaseType)</Version>
+    </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.1">
@@ -36,8 +43,5 @@
         <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl-3.0.txt</PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/ByrneLabs/Commons</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ByrneLabs/Commons</RepositoryUrl>
-        <AssemblyVersion>1.0.0</AssemblyVersion>
-        <FileVersion>1.0.0.7</FileVersion>
-        <Version>1.0.0.7-alpha</Version>
     </PropertyGroup>
 </Project>

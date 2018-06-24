@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ByrneLabs.Commons.Ioc
 {
     [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "This class is technically a collection but only secondarily to being a container.")]
-    public abstract class BaseContainerProvider : IContainer
+    public abstract class ContainerProvider : IContainer
     {
         private static readonly string[] _ignoredAutoRegistryAssemblies = { "mscorlib", "system.", "microsoft." };
         private readonly object _lockSync = new object();
@@ -51,29 +51,13 @@ namespace ByrneLabs.Commons.Ioc
 
         public abstract void RegisterInterceptor(Type target, Type interceptor, string name);
 
-        public abstract void RegisterType(Type fromType, Type toType, string name, ObjectLifetime objectLifetime = ObjectLifetime.Transient);
+        public abstract void RegisterType(Type fromType, Type toType, string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
 
         public abstract bool Remove(ServiceDescriptor item);
 
         public abstract void RemoveAt(int index);
 
         public abstract object Resolve(Type type, string name);
-
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void AutoRegister()
-        {
-            lock (_lockSync)
-            {
-                if (!_initialized)
-                {
-                    var nonSystemAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(IsAssemblyNotIgnored).ToList();
-                    var registrars = nonSystemAssemblies.SelectMany(GetRegistrars).ToList();
-                    Register(registrars);
-                    AppDomain.CurrentDomain.AssemblyLoad += OnCurrentDomainOnAssemblyLoad;
-                    _initialized = true;
-                }
-            }
-        }
 
         public bool CanResolve<T>() => CanResolve(typeof(T));
 
@@ -109,11 +93,11 @@ namespace ByrneLabs.Commons.Ioc
 
         public virtual void RegisterInterceptor(Type target, Type interceptor) => RegisterInterceptor(target, interceptor, null);
 
-        public virtual void RegisterType<TFrom, TTo>(ObjectLifetime objectLifetime = ObjectLifetime.Transient) where TTo : TFrom => RegisterType(typeof(TFrom), typeof(TTo), objectLifetime);
+        public virtual void RegisterType<TFrom, TTo>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient) where TTo : TFrom => RegisterType(typeof(TFrom), typeof(TTo), serviceLifetime);
 
-        public virtual void RegisterType<TFrom, TTo>(string name, ObjectLifetime objectLifetime = ObjectLifetime.Transient) where TTo : TFrom => RegisterType(typeof(TFrom), typeof(TTo), name, objectLifetime);
+        public virtual void RegisterType<TFrom, TTo>(string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient) where TTo : TFrom => RegisterType(typeof(TFrom), typeof(TTo), name, serviceLifetime);
 
-        public virtual void RegisterType(Type fromType, Type toType, ObjectLifetime objectLifetime = ObjectLifetime.Transient) => RegisterType(fromType, toType, null, objectLifetime);
+        public virtual void RegisterType(Type fromType, Type toType, ServiceLifetime serviceLifetime = ServiceLifetime.Transient) => RegisterType(fromType, toType, null, serviceLifetime);
 
         public virtual T Resolve<T>(string name) => (T) Resolve(typeof(T), name);
 
@@ -122,6 +106,22 @@ namespace ByrneLabs.Commons.Ioc
         public virtual T Resolve<T>() => (T) Resolve(typeof(T), null);
 
         protected abstract void Dispose(bool disposedManaged);
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        protected void AutoRegister()
+        {
+            lock (_lockSync)
+            {
+                if (!_initialized)
+                {
+                    var nonSystemAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(IsAssemblyNotIgnored).ToList();
+                    var registrars = nonSystemAssemblies.SelectMany(GetRegistrars).ToList();
+                    Register(registrars);
+                    AppDomain.CurrentDomain.AssemblyLoad += OnCurrentDomainOnAssemblyLoad;
+                    _initialized = true;
+                }
+            }
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

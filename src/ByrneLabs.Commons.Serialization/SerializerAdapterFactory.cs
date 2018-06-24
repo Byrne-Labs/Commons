@@ -9,7 +9,7 @@ namespace ByrneLabs.Commons.Serialization
     public static class SerializerAdapterFactory
     {
         private static IList<ISerializerAdapter> _adapters;
-        private static readonly object LockSync = new object();
+        private static readonly object _lockSync = new object();
 
         public static void AddAdapter<T>()
         {
@@ -19,7 +19,7 @@ namespace ByrneLabs.Commons.Serialization
         public static void AddAdapter(Type adapterType)
         {
             Initialize();
-            lock (LockSync)
+            lock (_lockSync)
             {
                 var adapter = (ISerializerAdapter) Activator.CreateInstance(adapterType);
                 _adapters.Add(adapter);
@@ -29,7 +29,7 @@ namespace ByrneLabs.Commons.Serialization
         public static ISerializerAdapter GetAdapter(string contentMediaType)
         {
             Initialize();
-            lock (LockSync)
+            lock (_lockSync)
             {
                 return _adapters.SingleOrDefault(adapter => adapter.SupportedContentMediaTypes.Contains(contentMediaType));
             }
@@ -38,7 +38,7 @@ namespace ByrneLabs.Commons.Serialization
         [SuppressMessage("ReSharper", "LoopCanBePartlyConvertedToQuery", Justification = "Code is easier to read with more logic in the loop")]
         private static void Initialize()
         {
-            lock (LockSync)
+            lock (_lockSync)
             {
                 if (_adapters == null)
                 {

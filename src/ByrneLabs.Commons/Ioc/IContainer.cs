@@ -42,13 +42,13 @@ namespace ByrneLabs.Commons.Ioc
 
         void RegisterInterceptor(Type target, Type interceptor);
 
-        void RegisterType<TFrom, TTo>(ObjectLifetime objectLifetime = ObjectLifetime.Transient) where TTo : TFrom;
+        void RegisterType<TFrom, TTo>(ServiceLifetime serviceLifetime = ServiceLifetime.Transient) where TTo : TFrom;
 
-        void RegisterType<TFrom, TTo>(string name, ObjectLifetime objectLifetime = ObjectLifetime.Transient) where TTo : TFrom;
+        void RegisterType<TFrom, TTo>(string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient) where TTo : TFrom;
 
-        void RegisterType(Type fromType, Type toType, ObjectLifetime objectLifetime = ObjectLifetime.Transient);
+        void RegisterType(Type fromType, Type toType, ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
 
-        void RegisterType(Type fromType, Type toType, string name, ObjectLifetime objectLifetime = ObjectLifetime.Transient);
+        void RegisterType(Type fromType, Type toType, string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
 
         T Resolve<T>(string name);
 

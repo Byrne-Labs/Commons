@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+﻿using Xunit;
 
 namespace ByrneLabs.Commons.Tests
 {
     [Trait("Category", "Unit Test")]
-  public class StringUtilsTest
+    public class StringUtilsTest
     {
         [Fact]
         public void TestContainsCount()
@@ -20,27 +17,6 @@ namespace ByrneLabs.Commons.Tests
             Assert.Equal(2, "asdfasdf".ContainsCount("as"));
             Assert.Equal(2, "asdfasdf".ContainsCount("sd"));
             Assert.Equal(2, "asdfasdf".ContainsCount("df"));
-        }
-
-        [Fact]
-        public void TestNthIndexOf()
-        {
-            Assert.Equal(-1, "asdfasdfasdf".NthIndexOf("fdsa", 1));
-            Assert.Equal(0, "asdfasdfasdf".NthIndexOf("asdf", 1));
-            Assert.Equal(4, "asdfasdfasdf".NthIndexOf("asdf", 2));
-            Assert.Equal(8, "asdfasdfasdf".NthIndexOf("asdf", 3));
-            Assert.Equal(-1, "asdfasdfasdf".NthIndexOf("asdf", 4));
-        }
-
-
-        [Fact]
-        public void TestSubstringAfterLast()
-        {
-            Assert.Equal(string.Empty, "asdfasdf".SubstringAfterLast("fdsa"));
-            Assert.Equal("df", "asdf".SubstringAfterLast("as"));
-            Assert.Equal(string.Empty, "asdf".SubstringAfterLast("df"));
-            Assert.Equal("df", "asdfasdf".SubstringAfterLast("as"));
-            Assert.Equal(string.Empty, "asdfasdf".SubstringAfterLast("df"));
         }
 
         [Fact]
@@ -59,6 +35,26 @@ namespace ByrneLabs.Commons.Tests
             Assert.Equal((2, 3), "asdf\nasdf\nasdf".GetLineAndColumnNumber(7));
 
             Assert.Equal((3, 4), "asdf\nasdf\nasdf".GetLineAndColumnNumber(13));
+        }
+
+        [Fact]
+        public void TestNthIndexOf()
+        {
+            Assert.Equal(-1, "asdfasdfasdf".NthIndexOf("fdsa", 1));
+            Assert.Equal(0, "asdfasdfasdf".NthIndexOf("asdf", 1));
+            Assert.Equal(4, "asdfasdfasdf".NthIndexOf("asdf", 2));
+            Assert.Equal(8, "asdfasdfasdf".NthIndexOf("asdf", 3));
+            Assert.Equal(-1, "asdfasdfasdf".NthIndexOf("asdf", 4));
+        }
+
+        [Fact]
+        public void TestSubstringAfterLast()
+        {
+            Assert.Equal(string.Empty, "asdfasdf".SubstringAfterLast("fdsa"));
+            Assert.Equal("df", "asdf".SubstringAfterLast("as"));
+            Assert.Equal(string.Empty, "asdf".SubstringAfterLast("df"));
+            Assert.Equal("df", "asdfasdf".SubstringAfterLast("as"));
+            Assert.Equal(string.Empty, "asdfasdf".SubstringAfterLast("df"));
         }
     }
 }

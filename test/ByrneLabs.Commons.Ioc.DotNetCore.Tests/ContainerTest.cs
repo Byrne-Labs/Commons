@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace ByrneLabs.Commons.Ioc.DotNetCore.Tests
@@ -10,7 +11,7 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore.Tests
         {
             var container = new DotNetCoreContainerProvider(false);
 
-            container.RegisterType<object, object>(ObjectLifetime.PerContainer);
+            container.RegisterType<object, object>(ServiceLifetime.Singleton);
 
             var firstReference = container.Resolve<object>();
             var secondReference = container.Resolve<object>();
