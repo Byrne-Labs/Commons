@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using ByrneLabs.Commons.Ioc;
 
 namespace ByrneLabs.Commons.TestUtilities
 {
     public interface ITestHelper : ITestDataProvider, IDisposable
     {
-        IServiceProvider ServiceProvider { get; }
+        IContainer Container { get; }
     }
 
     public interface ITestHelper<out TInterface> : ITestHelper where TInterface : class

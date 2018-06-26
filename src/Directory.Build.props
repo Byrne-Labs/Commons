@@ -2,7 +2,7 @@
 
 <Project>
     <PropertyGroup>
-        <BuildNumber>10</BuildNumber>
+        <BuildNumber>14</BuildNumber>
         <ReleaseType>-alpha</ReleaseType>
         <AssemblyVersion>1.0.0.$(BuildNumber)</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>
@@ -40,6 +40,8 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <Company>Byrne Labs</Company>
         <Product>Byrne Labs Commons</Product>
+        <Owners>byrnelabs</Owners>
+        <Authors>byrnelabs</Authors>
         <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl-3.0.txt</PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/ByrneLabs/Commons</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ByrneLabs/Commons</RepositoryUrl>

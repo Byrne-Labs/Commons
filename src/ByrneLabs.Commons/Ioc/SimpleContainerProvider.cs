@@ -5,7 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ByrneLabs.Commons.Ioc
 {
+#pragma warning disable CA1710 // Identifiers should have correct suffix -- This implements ICollection but it is primarily a container - Jonathan Byrne 06/26/2018
     public class SimpleContainerProvider : ContainerProvider
+#pragma warning restore CA1710 // Identifiers should have correct suffix
     {
         private readonly IContainer _parentContainer;
         private List<NamedServiceDescriptor> _serviceRegistry = new List<NamedServiceDescriptor>();

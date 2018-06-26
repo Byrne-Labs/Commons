@@ -1,4 +1,5 @@
 ﻿using System;
+using ByrneLabs.Commons.Ioc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ByrneLabs.Commons.TestUtilities
@@ -7,17 +8,17 @@ namespace ByrneLabs.Commons.TestUtilities
     {
         private TInterface _testedObject;
 
-        protected TestHelper(IServiceProvider serviceProvider, IServiceCollection services, params ITestDataProvider[] domainEntityTestDomainEntities) : base(domainEntityTestDomainEntities)
+        protected TestHelper(IContainer container, params ITestDataProvider[] domainEntityTestDomainEntities) : base(domainEntityTestDomainEntities)
         {
             if (typeof(TInterface) != typeof(object))
             {
-                services.AddSingleton<TInterface, TImplementation>();
+                container.AddSingleton<TInterface, TImplementation>();
             }
 
-            ServiceProvider = serviceProvider;
+            Container = container;
         }
 
-        public IServiceProvider ServiceProvider { get; }
+        public IContainer Container { get; }
 
         public TInterface TestedObject
         {
@@ -28,7 +29,7 @@ namespace ByrneLabs.Commons.TestUtilities
                     throw new NotSupportedException("This operation is not valid when no tested type was specified");
                 }
 
-                return _testedObject ?? (_testedObject = ServiceProvider.GetRequiredService<TInterface>());
+                return _testedObject ?? (_testedObject = Container.GetRequiredService<TInterface>());
             }
         }
 
@@ -42,7 +43,7 @@ namespace ByrneLabs.Commons.TestUtilities
         {
             if (disposedManaged)
             {
-                (ServiceProvider as IDisposable)?.Dispose();
+                Container.Dispose();
             }
         }
     }
