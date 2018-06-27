@@ -1,9 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ByrneLabs.Commons.Domain;
 using ByrneLabs.Commons.Ioc;
+using ByrneLabs.Commons.Persistence;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace ByrneLabs.Commons.TestUtilities
 {
+    [PublicAPI]
     public abstract class TestHelper<TInterface, TImplementation> : TestDataAggregator, ITestHelper<TInterface> where TInterface : class where TImplementation : class, TInterface
     {
         private TInterface _testedObject;
@@ -45,6 +52,27 @@ namespace ByrneLabs.Commons.TestUtilities
             {
                 Container.Dispose();
             }
+        }
+
+        protected Mock<TRepository> MockRepository<TEntity, TRepository>(MockBehavior mockBehavior = MockBehavior.Strict) where TEntity : IEntity where TRepository : class, IRepository<TEntity>
+        {
+            var mockEntities = TestData<TEntity>().ToList();
+            var mockRepository = new Mock<TRepository>(mockBehavior);
+            mockRepository.Setup(r => r.Delete(It.IsAny<IEnumerable<TEntity>>())).Callback((IEnumerable<TEntity> entities) => entities.Select(mockEntities.Remove));
+            mockRepository.Setup(r => r.FindAll()).Returns(mockEntities.Select(mockEntity => mockEntity.Clone(CloneDepth.Shallow)).Cast<TEntity>().ToList().AsReadOnly());
+            mockRepository.Setup(r => r.Save(It.IsAny<IEnumerable<TEntity>>())).Callback((IEnumerable<TEntity> entities) =>
+            {
+                foreach (var entity in entities.Where(entity => entity.EntityId == null))
+                {
+                    entity.EntityId = Guid.NewGuid();
+                }
+
+                mockEntities.Where(mockEntity => entities.Any(entity => entity.EntityId == mockEntity.EntityId)).Select(mockEntities.Remove);
+                mockEntities.AddRange(entities);
+            });
+            Container.RegisterInstance(mockRepository.Object);
+
+            return mockRepository;
         }
     }
 }
