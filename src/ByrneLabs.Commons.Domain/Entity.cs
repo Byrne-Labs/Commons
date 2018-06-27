@@ -14,14 +14,14 @@ using JetBrains.Annotations;
 namespace ByrneLabs.Commons.Domain
 {
     [PublicAPI]
-    public abstract class Entity : IEntity, INotifyPropertyChanged, ICloneable
+    public abstract class Entity : IEntity
     {
         protected Entity()
         {
             InstanceId = Guid.NewGuid();
         }
 
-        public Guid EntityId { get; set; }
+        public Guid? EntityId { get; set; }
 
         public bool HasChanged { get; protected set; }
 

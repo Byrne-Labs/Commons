@@ -1,9 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace ByrneLabs.Commons.Domain
 {
-    public interface IEntity
+    public interface IEntity : INotifyPropertyChanged, ICloneable
     {
-        Guid EntityId { get; set; }
+        Guid? EntityId { get; set; }
     }
 }
