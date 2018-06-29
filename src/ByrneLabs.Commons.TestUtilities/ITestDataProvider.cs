@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.TestUtilities
 {
+    [PublicAPI]
     public interface ITestDataProvider
     {
         bool CanProvide(Type type);

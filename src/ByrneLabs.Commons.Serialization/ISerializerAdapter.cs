@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Serialization
 {
+    [PublicAPI]
     public interface ISerializerAdapter
     {
         SerializationContentFormat ContentFormat { get; }

@@ -56,5 +56,15 @@ namespace ByrneLabs.Commons.Tests
             Assert.Equal("df", "asdfasdf".SubstringAfterLast("as"));
             Assert.Equal(string.Empty, "asdfasdf".SubstringAfterLast("df"));
         }
+
+        [Fact]
+        public void TestSubstringBeforeLast()
+        {
+            Assert.Equal(string.Empty, "asdfasdf".SubstringBeforeLast("fdsa"));
+            Assert.Equal(string.Empty, "asdf".SubstringBeforeLast("as"));
+            Assert.Equal("as", "asdf".SubstringBeforeLast("df"));
+            Assert.Equal("asdf", "asdfasdf".SubstringBeforeLast("as"));
+            Assert.Equal("asdfas", "asdfasdf".SubstringBeforeLast("df"));
+        }
     }
 }

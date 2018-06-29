@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Serialization
 {
+    [PublicAPI]
     public static class SerializerAdapterFactory
     {
         private static IList<ISerializerAdapter> _adapters;

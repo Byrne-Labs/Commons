@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.TestUtilities
 {
+    [PublicAPI]
     public static class DataGenerator
     {
         public static IEnumerable<object> Generate(Type type, int count, bool deep = true)

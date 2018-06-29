@@ -6,9 +6,11 @@ using System.Linq;
 using ByrneLabs.Commons.Domain;
 using Dapper;
 using Dapper.Contrib.Extensions;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Persistence
 {
+    [PublicAPI]
     public abstract class Repository<TInterface, TImplementation> : IRepository<TInterface> where TImplementation : Entity, TInterface
     {
         [SuppressMessage("ReSharper", "StaticMemberInGenericType", Justification = "We want this to be static to each generic type")]

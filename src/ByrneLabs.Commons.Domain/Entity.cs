@@ -140,9 +140,9 @@ namespace ByrneLabs.Commons.Domain
                                 }
                             }
                         }
-                        else if (propertyValueA is IEnumerable && !(propertyValueA is string))
+                        else if (propertyValueA is IEnumerable enumerable && !(enumerable is string))
                         {
-                            var enumerableA = (propertyValueA as IEnumerable).Cast<object>();
+                            var enumerableA = enumerable.Cast<object>();
                             var enumerableB = (propertyValueB as IEnumerable).Cast<object>();
                             equals = enumerableA.All(enumerableB.Contains) && enumerableB.All(enumerableA.Contains);
                         }
@@ -169,6 +169,7 @@ namespace ByrneLabs.Commons.Domain
         }
 
         [NotifyPropertyChangedInvocator]
+        [SuppressMessage("ReSharper", "VirtualMemberNeverOverridden.Global", Justification = "False positive -- this should not be possible on a public API")]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             HasChanged = true;

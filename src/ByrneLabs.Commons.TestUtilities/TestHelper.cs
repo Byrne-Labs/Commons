@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ByrneLabs.Commons.Domain;
 using ByrneLabs.Commons.Ioc;
@@ -54,7 +55,8 @@ namespace ByrneLabs.Commons.TestUtilities
             }
         }
 
-        protected Mock<TRepository> MockRepository<TEntity, TRepository>(MockBehavior mockBehavior = MockBehavior.Strict) where TEntity : IEntity where TRepository : class, IRepository<TEntity>
+        [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed", Justification = "For the purposes of a mocked repository, we don't care if the removed entity was present")]
+        protected Mock<TRepository> MockRepository<TEntity, TRepository>(MockBehavior mockBehavior = MockBehavior.Strict) where TEntity : class, IEntity where TRepository : class, IRepository<TEntity>
         {
             var mockEntities = TestData<TEntity>().ToList();
             var mockRepository = new Mock<TRepository>(mockBehavior);

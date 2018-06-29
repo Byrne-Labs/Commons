@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons
 {
+    [PublicAPI]
     public static class ReflectionHelper
     {
         private static readonly Type[] _simpleTypes = { typeof(string), typeof(bool), typeof(bool?), typeof(short), typeof(short?), typeof(int), typeof(int?), typeof(double), typeof(double?), typeof(DateTime), typeof(DateTime?), typeof(byte), typeof(byte?) };

@@ -1,14 +1,19 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using ByrneLabs.Commons.Serialization;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.WebApi.Client
 {
+    [PublicAPI]
     public static class HttpClientExtensions
     {
-        public static Task<HttpResponseMessage> PostAsync<T>(this HttpClient httpClient, string requestUri, T content, string contentMediaType = null)
+        public static Task<HttpResponseMessage> PostAsync<T>(this HttpClient httpClient, string requestUri, T content, string contentMediaType = null) => PostAsync(httpClient, new Uri(requestUri), content, contentMediaType);
+
+        public static Task<HttpResponseMessage> PostAsync<T>(this HttpClient httpClient, Uri requestUri, T content, string contentMediaType = null)
         {
             var realContentMediaType = string.IsNullOrWhiteSpace(contentMediaType) ? httpClient.DefaultRequestHeaders.Accept.FirstOrDefault()?.MediaType : contentMediaType;
             var serializerAdapter = SerializerAdapterFactory.GetAdapter(realContentMediaType);

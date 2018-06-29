@@ -1,7 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons
 {
+    [PublicAPI]
     public abstract class ServiceConsumer
     {
         protected ServiceConsumer(IServiceProvider serviceProvider)

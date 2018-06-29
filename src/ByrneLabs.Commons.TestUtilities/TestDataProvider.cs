@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.TestUtilities
 {
+    [PublicAPI]
     public abstract class TestDataProvider : ITestDataProvider
     {
         private readonly IDictionary<Type, IList> _testData = new Dictionary<Type, IList>();
@@ -86,6 +89,7 @@ namespace ByrneLabs.Commons.TestUtilities
             _testData[typeof(T)] = testData.ToList();
         }
 
+        [SuppressMessage("ReSharper", "VirtualMemberNeverOverridden.Global", Justification = "False positive -- this should not be possible on a public API")]
         protected virtual IList StoredTestData(Type type)
         {
             AssertCanProvide(type);

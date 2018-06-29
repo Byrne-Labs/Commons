@@ -4,9 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using EnsureThat;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons
 {
+    [PublicAPI]
     public static class FileUtils
     {
         public static DirectoryInfo Combine(this DirectoryInfo parentDirectory, params string[] childDirectories) => new DirectoryInfo(Path.Combine(parentDirectory.FullName, Path.Combine(childDirectories)));
