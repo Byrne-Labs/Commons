@@ -27,10 +27,10 @@ namespace ByrneLabs.Commons.TestUtilities
 
         public virtual bool CanProvide(Type type)
         {
-            return _testData.Keys.Any(storedType => storedType.IsSubclassOf(type));
+            return _testData.Keys.Any(storedType => storedType.CanBeCastAs(type));
         }
 
-        public T Random<T>() => (T)Random(typeof(T), 1, 1).Cast<object>().First();
+        public T Random<T>() => (T) Random(typeof(T), 1, 1).Cast<object>().First();
 
         public object Random(Type type) => Random(type, 1, 1).Cast<object>().First();
 
@@ -51,7 +51,7 @@ namespace ByrneLabs.Commons.TestUtilities
         public virtual IEnumerable TestData(Type type)
         {
             AssertCanProvide(type);
-            return _testData.Where(data => data.Key.IsSubclassOf(type)).SelectMany(data => data.Value.Cast<object>()).ToList();
+            return _testData.Where(data => data.Key.CanBeCastAs(type)).SelectMany(data => data.Value.Cast<object>()).ToList();
         }
 
         protected abstract object Initialize(Type type);
@@ -76,8 +76,8 @@ namespace ByrneLabs.Commons.TestUtilities
                 /*
                  * We add it first so the create method will not throw a not supported exception
                  */
-                _testData.Add(type.Item1, null);
-                while (_testData[type.Item1] == null || _testData[type.Item1].Count < type.Item2)
+                _testData.Add(type.Item1, new ArrayList());
+                while (_testData[type.Item1].Count < type.Item2)
                 {
                     _testData[type.Item1].Add(Initialize(type.Item1));
                 }

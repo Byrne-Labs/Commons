@@ -4,4 +4,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
     <PackageReference Include="MsgPack.Cli" Version="1.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ByrneLabs.Commons\ByrneLabs.Commons.csproj" />
+  </ItemGroup>
 </Project>

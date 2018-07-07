@@ -45,7 +45,7 @@ namespace ByrneLabs.Commons.Serialization
                 if (_adapters == null)
                 {
                     _adapters = new List<ISerializerAdapter>();
-                    foreach (var adapterType in typeof(SerializerAdapterFactory).GetTypeInfo().Assembly.DefinedTypes.Where(type => type.IsSubclassOf(typeof(ISerializerAdapter))))
+                    foreach (var adapterType in typeof(SerializerAdapterFactory).GetTypeInfo().Assembly.DefinedTypes.Where(type => type.CanBeCastAs<ISerializerAdapter>()))
                     {
                         var adapter = (ISerializerAdapter) Activator.CreateInstance(adapterType.BaseType);
                         _adapters.Add(adapter);

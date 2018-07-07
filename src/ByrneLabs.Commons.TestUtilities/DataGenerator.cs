@@ -28,7 +28,7 @@ namespace ByrneLabs.Commons.TestUtilities
 
         public static object Generate(Type type, bool deep = true) => Generate(type, deep, false);
 
-        private static bool CanGenerate(Type targetType) => ReflectionHelper.IsSimple(targetType) ||
+        private static bool CanGenerate(Type targetType) => targetType.IsSimple() ||
                                                             typeof(IList).GetTypeInfo().IsAssignableFrom(targetType) && targetType.GenericTypeArguments.Length == 1 && CanGenerate(targetType.GenericTypeArguments[0]) ||
                                                             typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(targetType) && targetType.GetTypeInfo().IsInterface && targetType.GenericTypeArguments.Length == 1 && CanGenerate(targetType.GenericTypeArguments[0]) ||
                                                             !targetType.Namespace.StartsWith("System", StringComparison.Ordinal) && targetType.GetTypeInfo().GetConstructor(Array.Empty<Type>()) != null;

@@ -1,41 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+﻿using Xunit;
 
 namespace ByrneLabs.Commons.Tests
 {
     public class ReflectionHelperTest
     {
-
         private class ClassA : IInterfaceA
         {
-
         }
 
         private class ClassB : ClassA, IInterfaceB
         {
-
         }
 
         private class ClassC : IInterfaceC
         {
-
         }
 
         private interface IInterfaceA
         {
-
         }
 
         private interface IInterfaceB
         {
-
         }
 
         private interface IInterfaceC : IInterfaceB
         {
-
         }
 
         [Fact]
