@@ -30,7 +30,7 @@ namespace ByrneLabs.Commons.TestUtilities
             return _testData.Keys.Any(storedType => storedType.IsSubclassOf(type));
         }
 
-        public T Random<T>() => (T) Random(typeof(T), 1, 1).Cast<object>().First();
+        public T Random<T>() => (T)Random(typeof(T), 1, 1).Cast<object>().First();
 
         public object Random(Type type) => Random(type, 1, 1).Cast<object>().First();
 
@@ -77,7 +77,7 @@ namespace ByrneLabs.Commons.TestUtilities
                  * We add it first so the create method will not throw a not supported exception
                  */
                 _testData.Add(type.Item1, null);
-                while (_testData[type.Item1].Count < type.Item2)
+                while (_testData[type.Item1] == null || _testData[type.Item1].Count < type.Item2)
                 {
                     _testData[type.Item1].Add(Initialize(type.Item1));
                 }
