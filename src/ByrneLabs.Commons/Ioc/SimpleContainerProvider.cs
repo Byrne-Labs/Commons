@@ -11,7 +11,6 @@ namespace ByrneLabs.Commons.Ioc
 #pragma warning restore CA1710 // Identifiers should have correct suffix
     {
         private readonly bool _autoRegister;
-        private readonly IContainer _parentContainer;
         private List<NamedServiceDescriptor> _serviceRegistry = new List<NamedServiceDescriptor>();
 
         public SimpleContainerProvider(bool autoRegister)
@@ -27,7 +26,7 @@ namespace ByrneLabs.Commons.Ioc
         public SimpleContainerProvider(IContainer parentContainer, bool autoRegister)
         {
             _autoRegister = autoRegister;
-            _parentContainer = parentContainer;
+            ParentContainer = parentContainer;
             RegisterInstance<IContainer>(this);
             if (autoRegister)
             {
@@ -64,6 +63,8 @@ namespace ByrneLabs.Commons.Ioc
         }
 
         public override bool IsReadOnly => false;
+
+        public override IContainer ParentContainer { get; }
 
         public override IDictionary<Type, Type> RegisteredTypes
         {
@@ -184,10 +185,10 @@ namespace ByrneLabs.Commons.Ioc
                 object serviceInstance;
                 switch (registeredService)
                 {
-                    case null when _parentContainer == null:
+                    case null when ParentContainer == null:
                         throw new ArgumentException("No service descriptor found");
                     case null:
-                        serviceInstance = _parentContainer.Resolve(type, name);
+                        serviceInstance = ParentContainer.Resolve(type, name);
                         break;
                     default:
                         if (registeredService.ImplementationInstance != null)
@@ -201,6 +202,7 @@ namespace ByrneLabs.Commons.Ioc
                             {
                                 throw new InvalidOperationException("Cannot create an object that has more than one constructor");
                             }
+
                             if (constructors.Length == 0)
                             {
                                 serviceInstance = Activator.CreateInstance(registeredService.ImplementationType);
@@ -217,6 +219,7 @@ namespace ByrneLabs.Commons.Ioc
 
                                     parameters.Add(Resolve(parameter.ParameterType));
                                 }
+
                                 serviceInstance = Activator.CreateInstance(registeredService.ImplementationType, parameters.ToArray());
                             }
                         }

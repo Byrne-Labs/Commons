@@ -41,10 +41,11 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore
             }
         }
 
-        private DotNetCoreContainerProvider(ConcurrentDictionary<string, IServiceCollection> services, ConcurrentDictionary<string, IServiceScope> serviceScopes)
+        private DotNetCoreContainerProvider(ConcurrentDictionary<string, IServiceCollection> services, ConcurrentDictionary<string, IServiceScope> serviceScopes, IContainer parent)
         {
             _services = services;
             _serviceScopes = serviceScopes;
+            ParentContainer = parent;
         }
 
         public override ServiceDescriptor this[int index]
@@ -67,6 +68,8 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore
         public override int Count => GetNamedServiceCollection(null, false).Count;
 
         public override bool IsReadOnly => false;
+
+        public override IContainer ParentContainer { get; }
 
         public override IDictionary<Type, Type> RegisteredTypes => _services[string.Empty].Where(service => !ReferenceEquals(service.ImplementationInstance, this)).ToDictionary(service => service.ServiceType, service => service.ImplementationType);
 
@@ -113,7 +116,7 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore
         {
             var childServiceProviders = new ConcurrentDictionary<string, IServiceScope>(_serviceProviders.Select(pair => new KeyValuePair<string, IServiceScope>(pair.Key, pair.Value.CreateScope())));
             var servicesCopy = new ConcurrentDictionary<string, IServiceCollection>(_services.Select(pair => new KeyValuePair<string, IServiceCollection>(pair.Key, new ServiceCollection { pair.Value })));
-            return new DotNetCoreContainerProvider(servicesCopy, childServiceProviders);
+            return new DotNetCoreContainerProvider(servicesCopy, childServiceProviders, this);
         }
 
         public override IEnumerator<ServiceDescriptor> GetEnumerator()

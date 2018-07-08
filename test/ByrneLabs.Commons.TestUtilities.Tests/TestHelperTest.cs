@@ -15,10 +15,7 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
         [Fact]
         public void TestTestHelper()
         {
-            var container = DefaultContainer.CreateEmptyContainer();
-            container.Register<ContainerConfig>();
-
-            var testHelper = new TestHelperA<IServiceA, ServiceA>(container);
+            var testHelper = new TestHelperA<IServiceA, ServiceA>();
             var serviceA = testHelper.TestedObject;
 
             var entityA1s = serviceA.FindAllEntityA1();
@@ -177,15 +174,13 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
 
         public class TestHelperA : TestHelperA<object, object>
         {
-            public TestHelperA(IContainer container) : base(container)
-            {
-            }
         }
 
         public class TestHelperA<TInterface, TImplementation> : TestHelper<TInterface, TImplementation> where TInterface : class where TImplementation : class, TInterface
         {
-            public TestHelperA(IContainer container) : base(container, new TestDataProviderA())
+            public TestHelperA() : base(DefaultContainer.CreateEmptyContainer(), new TestDataProviderA())
             {
+                Container.ParentContainer.Register<ContainerConfig>();
                 if (typeof(TInterface) != typeof(IEntityA1Repository))
                 {
                     SetupMockEntityA1Repository();

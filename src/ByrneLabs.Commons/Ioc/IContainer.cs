@@ -10,6 +10,8 @@ namespace ByrneLabs.Commons.Ioc
     [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "This class is technically a collection but only secondarily to being a container.")]
     public interface IContainer : IServiceCollection, IServiceProvider, IDisposable
     {
+        IContainer ParentContainer { get; }
+
         IDictionary<Type, Type> RegisteredTypes { get; }
 
         bool CanResolve<T>();

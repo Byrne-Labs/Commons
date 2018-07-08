@@ -23,6 +23,8 @@ namespace ByrneLabs.Commons.Ioc
 
         public abstract bool IsReadOnly { get; }
 
+        public abstract IContainer ParentContainer { get; }
+
         public abstract IDictionary<Type, Type> RegisteredTypes { get; }
 
         private static IEnumerable<IContainerRegistrar> GetRegistrars(Assembly assembly) => assembly.GetTypes().Where(type => !type.IsInterface && typeof(IContainerRegistrar).IsAssignableFrom(type)).Select(type => (IContainerRegistrar) Activator.CreateInstance(type)).ToList();
