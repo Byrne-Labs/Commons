@@ -54,7 +54,7 @@ namespace ByrneLabs.Commons.TestUtilities
             return _testData.Where(data => data.Key.CanBeCastAs(type)).SelectMany(data => data.Value.Cast<object>()).ToList();
         }
 
-        protected abstract object Initialize(Type type);
+        protected abstract object CreateTestObject(Type type);
 
         protected void AssertCanProvide(Type type)
         {
@@ -79,7 +79,7 @@ namespace ByrneLabs.Commons.TestUtilities
                 _testData.Add(type.Item1, new ArrayList());
                 while (_testData[type.Item1].Count < type.Item2)
                 {
-                    _testData[type.Item1].Add(Initialize(type.Item1));
+                    _testData[type.Item1].Add(CreateTestObject(type.Item1));
                 }
             }
         }

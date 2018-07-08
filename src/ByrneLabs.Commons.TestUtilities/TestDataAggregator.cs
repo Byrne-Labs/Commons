@@ -9,9 +9,9 @@ namespace ByrneLabs.Commons.TestUtilities
     {
         private readonly IList<ITestDataProvider> _dataProviders;
 
-        public TestDataAggregator(params ITestDataProvider[] domainEntityTestDomainEntities)
+        public TestDataAggregator(params ITestDataProvider[] testDataProviders)
         {
-            _dataProviders = new List<ITestDataProvider>(domainEntityTestDomainEntities);
+            _dataProviders = new List<ITestDataProvider>(testDataProviders);
         }
 
         public override bool CanProvide(Type type)
@@ -38,6 +38,6 @@ namespace ByrneLabs.Commons.TestUtilities
             _dataProviders.Add(testDataProvider);
         }
 
-        protected override object Initialize(Type type) => throw new NotSupportedException();
+        protected override object CreateTestObject(Type type) => throw new NotSupportedException();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,11 +10,14 @@ namespace ByrneLabs.Commons.Ioc
     public class SimpleContainerProvider : ContainerProvider
 #pragma warning restore CA1710 // Identifiers should have correct suffix
     {
+        private readonly bool _autoRegister;
         private readonly IContainer _parentContainer;
         private List<NamedServiceDescriptor> _serviceRegistry = new List<NamedServiceDescriptor>();
 
         public SimpleContainerProvider(bool autoRegister)
         {
+            _autoRegister = autoRegister;
+            RegisterInstance<IContainer>(this);
             if (autoRegister)
             {
                 AutoRegister();
@@ -22,7 +26,9 @@ namespace ByrneLabs.Commons.Ioc
 
         public SimpleContainerProvider(IContainer parentContainer, bool autoRegister)
         {
+            _autoRegister = autoRegister;
             _parentContainer = parentContainer;
+            RegisterInstance<IContainer>(this);
             if (autoRegister)
             {
                 AutoRegister();
@@ -107,7 +113,7 @@ namespace ByrneLabs.Commons.Ioc
             }
         }
 
-        public override IContainer CreateChildContainer() => throw new NotSupportedException();
+        public override IContainer CreateChildContainer() => new SimpleContainerProvider(this, _autoRegister);
 
         public override IEnumerator<ServiceDescriptor> GetEnumerator()
         {
@@ -184,9 +190,35 @@ namespace ByrneLabs.Commons.Ioc
                         serviceInstance = _parentContainer.Resolve(type, name);
                         break;
                     default:
-                        if (registeredService.ServiceType != null)
+                        if (registeredService.ImplementationInstance != null)
                         {
-                            serviceInstance = Activator.CreateInstance(registeredService.ServiceType);
+                            serviceInstance = registeredService.ImplementationInstance;
+                        }
+                        else if (registeredService.ImplementationType != null)
+                        {
+                            var constructors = registeredService.ImplementationType.GetConstructors();
+                            if (constructors.Length > 1)
+                            {
+                                throw new InvalidOperationException("Cannot create an object that has more than one constructor");
+                            }
+                            if (constructors.Length == 0)
+                            {
+                                serviceInstance = Activator.CreateInstance(registeredService.ImplementationType);
+                            }
+                            else
+                            {
+                                var parameters = new ArrayList();
+                                foreach (var parameter in constructors.First().GetParameters())
+                                {
+                                    if (!CanResolve(parameter.ParameterType))
+                                    {
+                                        throw new InvalidOperationException($"Cannot create an object for parameter of type {parameter.ParameterType.FullName}");
+                                    }
+
+                                    parameters.Add(Resolve(parameter.ParameterType));
+                                }
+                                serviceInstance = Activator.CreateInstance(registeredService.ImplementationType, parameters.ToArray());
+                            }
                         }
                         else if (registeredService.ImplementationFactory != null)
                         {
@@ -194,7 +226,7 @@ namespace ByrneLabs.Commons.Ioc
                         }
                         else
                         {
-                            serviceInstance = registeredService.ImplementationInstance;
+                            throw new InvalidOperationException("Insufficient information to return instance");
                         }
 
                         break;

@@ -16,14 +16,14 @@ namespace ByrneLabs.Commons.TestUtilities
     {
         private TInterface _testedObject;
 
-        protected TestHelper(IContainer container, params ITestDataProvider[] domainEntityTestDomainEntities) : base(domainEntityTestDomainEntities)
+        protected TestHelper(IContainer container, params ITestDataProvider[] testDataProviders) : base(testDataProviders)
         {
-            if (typeof(TInterface) != typeof(object))
-            {
-                container.AddSingleton<TInterface, TImplementation>();
-            }
+            Container = container.CreateChildContainer();
 
-            Container = container;
+            if (typeof(TInterface) != typeof(object) && !Container.RegisteredTypes.Contains(new KeyValuePair<Type, Type>(typeof(TInterface), typeof(TImplementation))))
+            {
+                Container.AddSingleton<TInterface, TImplementation>();
+            }
         }
 
         public IContainer Container { get; }
