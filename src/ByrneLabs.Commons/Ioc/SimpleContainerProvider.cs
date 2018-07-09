@@ -140,6 +140,14 @@ namespace ByrneLabs.Commons.Ioc
             }
         }
 
+        public override void RegisterFactory<T>(Func<IServiceProvider, object> factory, string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        {
+            lock (_serviceRegistry)
+            {
+                _serviceRegistry.Add(new NamedServiceDescriptor(typeof(T), factory, serviceLifetime, name));
+            }
+        }
+
         public override void RegisterInstance(Type registrationType, object instance, string name)
         {
             lock (_serviceRegistry)

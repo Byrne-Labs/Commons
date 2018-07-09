@@ -2,7 +2,7 @@
 
 <Project>
     <PropertyGroup>
-        <BuildNumber>31</BuildNumber>
+        <BuildNumber>34</BuildNumber>
         <ReleaseType>-alpha</ReleaseType>
         <AssemblyVersion>1.0.0.$(BuildNumber)</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>

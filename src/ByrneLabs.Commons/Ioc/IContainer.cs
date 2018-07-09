@@ -26,6 +26,10 @@ namespace ByrneLabs.Commons.Ioc
 
         void Register<T>() where T : IContainerRegistrar;
 
+        void RegisterFactory<T>(Func<IServiceProvider, object> factory, ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
+
+        void RegisterFactory<T>(Func<IServiceProvider, object> factory, string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
+
         void RegisterInstance<T>(T instance);
 
         void RegisterInstance<T>(T instance, string name);

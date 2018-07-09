@@ -4,6 +4,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ByrneLabs.Commons.Domain;
+using ByrneLabs.Commons.Ioc;
 using Dapper;
 using Dapper.Contrib.Extensions;
 using JetBrains.Annotations;
@@ -19,6 +20,15 @@ namespace ByrneLabs.Commons.Persistence
         private static string _defaultBulkUpdateCommand;
         [SuppressMessage("ReSharper", "StaticMemberInGenericType", Justification = "We want this to be static to each generic type")]
         private static string _defaultSelectCommand;
+        private readonly string _connectionFactoryName;
+        private readonly IContainer _container;
+
+        protected Repository(string connectionFactoryName, IContainer container)
+        {
+            _connectionFactoryName = connectionFactoryName;
+            _container = container;
+        }
+
         protected virtual string BulkInsertCommand
         {
             get
@@ -106,6 +116,6 @@ namespace ByrneLabs.Commons.Persistence
             }
         }
 
-        protected IDbConnection CreateConnection() => throw new NotImplementedException();
+        protected IDbConnection CreateConnection() => _container.Resolve<IConnectionFactoryRegistry>().GetConnection(_connectionFactoryName);
     }
 }

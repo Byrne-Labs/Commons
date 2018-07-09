@@ -144,6 +144,14 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore
             UnlockName(null);
         }
 
+        public override void RegisterFactory<T>(Func<IServiceProvider, object> factory, string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+        {
+            LockName(name);
+            var services = GetNamedServiceCollection(name);
+            services.Add(new NamedServiceDescriptor(typeof(T), factory, serviceLifetime, name));
+            UnlockName(name);
+        }
+
         public override void RegisterInstance(Type registrationType, object instance, string name)
         {
             LockName(name);

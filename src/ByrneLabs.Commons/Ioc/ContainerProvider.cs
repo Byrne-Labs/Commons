@@ -49,6 +49,8 @@ namespace ByrneLabs.Commons.Ioc
 
         public abstract void Insert(int index, ServiceDescriptor item);
 
+        public abstract void RegisterFactory<T>(Func<IServiceProvider, object> factory, string name, ServiceLifetime serviceLifetime = ServiceLifetime.Transient);
+
         public abstract void RegisterInstance(Type registrationType, object instance, string name);
 
         public abstract void RegisterInterceptor(Type target, Type interceptor, string name);
@@ -80,6 +82,8 @@ namespace ByrneLabs.Commons.Ioc
             var registrar = Activator.CreateInstance<T>();
             registrar.RegisterComponents(this);
         }
+
+        public void RegisterFactory<T>(Func<IServiceProvider, object> factory, ServiceLifetime serviceLifetime = ServiceLifetime.Transient) => RegisterFactory<T>(factory, null, serviceLifetime);
 
         public virtual void RegisterInstance<T>(T instance) => RegisterInstance(typeof(T), instance, null);
 
