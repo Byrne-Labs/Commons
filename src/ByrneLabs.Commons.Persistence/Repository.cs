@@ -41,7 +41,7 @@ namespace ByrneLabs.Commons.Persistence
                         properties.AddRange(typeof(TImplementation).GetProperties().Where(property => property.CanRead && property.CanWrite && !string.Equals(property.Name, nameof(Entity.EntityId), StringComparison.Ordinal)).Select(property => property.Name));
                         var columns = string.Join(", ", properties);
                         var parameters = string.Join(", ", properties.Select(property => "@" + property));
-                        _defaultBulkInsertCommand = $"INSERT {typeof(TImplementation).Name} ({columns}) VALUES ({parameters})";
+                        _defaultBulkInsertCommand = $"INSERT {TableName} ({columns}) VALUES ({parameters})";
                     }
 
                     return _defaultBulkInsertCommand;
@@ -57,7 +57,7 @@ namespace ByrneLabs.Commons.Persistence
                     if (_defaultBulkUpdateCommand == null)
                     {
                         var properties = typeof(TImplementation).GetProperties().Where(property => property.CanRead && property.CanWrite && !string.Equals(property.Name, nameof(Entity.EntityId), StringComparison.Ordinal)).Select(property => property.Name + " = " + "@" + property.Name);
-                        _defaultBulkUpdateCommand = $"UPDATE {typeof(TImplementation).Name} SET {string.Join(", ", properties)} WHERE {KeyColumnName} = @EntityId";
+                        _defaultBulkUpdateCommand = $"UPDATE {TableName} SET {string.Join(", ", properties)} WHERE {KeyColumnName} = @EntityId";
                     }
 
                     return _defaultBulkUpdateCommand;
@@ -67,7 +67,9 @@ namespace ByrneLabs.Commons.Persistence
 
         protected virtual string KeyColumnName => typeof(TImplementation).Name + "Id";
 
-        protected virtual string SelectCommand => _defaultSelectCommand ?? (_defaultSelectCommand = $"SELECT * FROM {typeof(TImplementation).Name}");
+        protected virtual string SelectCommand => _defaultSelectCommand ?? (_defaultSelectCommand = $"SELECT * FROM {TableName}");
+
+        protected virtual string TableName => typeof(TImplementation).Name;
 
         public virtual void Delete(IEnumerable<TInterface> items)
         {
@@ -80,6 +82,18 @@ namespace ByrneLabs.Commons.Persistence
                     transaction.Commit();
                     throw new PersistenceException("Some entities were not deleted", failedDeletes);
                 }
+            }
+        }
+
+        public virtual TInterface Find(Guid entityId) => Find(new[] { entityId }).SingleOrDefault();
+
+        public virtual IEnumerable<TInterface> Find(IEnumerable<Guid> entityIds)
+        {
+            using (var connection = CreateConnection())
+            {
+                var command = $"{SelectCommand} WHERE {KeyColumnName} IN (@EntityIds)";
+
+                return connection.Query<TImplementation>(command, entityIds);
             }
         }
 

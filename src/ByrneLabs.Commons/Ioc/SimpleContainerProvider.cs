@@ -16,7 +16,7 @@ namespace ByrneLabs.Commons.Ioc
         public SimpleContainerProvider(bool autoRegister)
         {
             _autoRegister = autoRegister;
-            RegisterInstance<IContainer>(this);
+            RegisterInstance(typeof(IContainer), this, null);
             if (autoRegister)
             {
                 AutoRegister();
@@ -27,7 +27,7 @@ namespace ByrneLabs.Commons.Ioc
         {
             _autoRegister = autoRegister;
             ParentContainer = parentContainer;
-            RegisterInstance<IContainer>(this);
+            RegisterInstance(typeof(IContainer), this, null);
             if (autoRegister)
             {
                 AutoRegister();
@@ -148,7 +148,7 @@ namespace ByrneLabs.Commons.Ioc
             }
         }
 
-        public override void RegisterInstance(Type registrationType, object instance, string name)
+        public sealed override void RegisterInstance(Type registrationType, object instance, string name)
         {
             lock (_serviceRegistry)
             {

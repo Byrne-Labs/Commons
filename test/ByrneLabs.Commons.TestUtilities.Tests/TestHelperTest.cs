@@ -18,6 +18,7 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
             var testHelper = new TestHelperA<IServiceA, ServiceA>();
             var serviceA = testHelper.TestedObject;
 
+            // ReSharper disable once InconsistentNaming
             var entityA1s = serviceA.FindAllEntityA1();
             Assert.NotEmpty(entityA1s);
 
@@ -33,6 +34,7 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
 
         #region Hammer Mocks
 
+        // ReSharper disable All
         public class ContainerConfig : IContainerRegistrar
         {
             public void RegisterComponents(IContainer container)
@@ -55,6 +57,10 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
             {
             }
 
+            public IEntityA1 Find(Guid entityId) => throw new NotImplementedException();
+
+            public IEnumerable<IEntityA1> Find(IEnumerable<Guid> entityIds) => throw new NotImplementedException();
+
             public IEnumerable<IEntityA1> FindAll() => Enumerable.Empty<IEntityA1>();
 
             public void Save(IEnumerable<IEntityA1> items)
@@ -72,6 +78,10 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
             public void Delete(IEnumerable<IEntityA2> items)
             {
             }
+
+            public IEntityA2 Find(Guid entityId) => throw new NotImplementedException();
+
+            public IEnumerable<IEntityA2> Find(IEnumerable<Guid> entityIds) => throw new NotImplementedException();
 
             public IEnumerable<IEntityA2> FindAll() => Enumerable.Empty<IEntityA2>();
 
@@ -92,6 +102,10 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
             public void Delete(IEnumerable<IEntityA3> items)
             {
             }
+
+            public IEntityA3 Find(Guid entityId) => throw new NotImplementedException();
+
+            public IEnumerable<IEntityA3> Find(IEnumerable<Guid> entityIds) => throw new NotImplementedException();
 
             public IEnumerable<IEntityA3> FindAll() => Enumerable.Empty<IEntityA3>();
 

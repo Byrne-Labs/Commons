@@ -1,9 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <PackageReference Include="xunit.assert" Version="2.3.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ByrneLabs.Commons.Persistence\ByrneLabs.Commons.Persistence.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <!-- "IsPackable" should be true by default but is for some reason it is not.  The NuGet package will not generate without this line. - Jonathan Byrne 07/10/2018 -->
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="xunit" Version="2.3.1" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\ByrneLabs.Commons.Persistence\ByrneLabs.Commons.Persistence.csproj" />
+        <ProjectReference Include="..\ByrneLabs.Commons.TestUtilities.XUnit\ByrneLabs.Commons.TestUtilities.XUnit.csproj" />
+        <ProjectReference Include="..\ByrneLabs.Commons.TestUtilities\ByrneLabs.Commons.TestUtilities.csproj" />
+    </ItemGroup>
 </Project>
