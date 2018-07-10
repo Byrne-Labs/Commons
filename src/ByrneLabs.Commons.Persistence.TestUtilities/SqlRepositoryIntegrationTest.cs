@@ -82,7 +82,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         [Trait("Test Type", "Integration Test")]
         public virtual void IntegrationTestFindById()
         {
-            var container = DefaultContainer.CreateChildContainer();
+            var container = GetIntegrationTestContainer();
             var entityIds = GetEntityIds(container);
             var repository = container.Resolve<TRepositoryInterface>();
             foreach (var entityId in entityIds)
@@ -97,7 +97,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         [Trait("Test Type", "Integration Test")]
         public virtual void IntegrationTestFindByIds()
         {
-            var container = DefaultContainer.CreateChildContainer();
+            var container = GetIntegrationTestContainer();
             var entityIds = GetEntityIds(container);
             var repository = container.Resolve<TRepositoryInterface>();
             var entities = repository.Find(entityIds);
@@ -162,11 +162,11 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             }
         }
 
-        protected abstract Guid CreateEntityId(params object[] primaryKeys);
-
-        protected abstract string CreateQueryForPrimaryKeys();
-
         protected abstract ITestHelper<TRepositoryInterface> GetNewRepositoryTestHelper();
+
+        protected virtual Guid CreateEntityId(params object[] primaryKeys) => (Guid) primaryKeys[0];
+
+        protected virtual string CreateQueryForPrimaryKeys() => $"SELECT {typeof(TEntity).Name}Id FROM {typeof(TEntity).Name}";
 
         protected virtual void Dispose(bool disposedManaged)
         {
@@ -199,7 +199,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             return entityIds;
         }
 
-        protected void SetupTest(IContainer container)
+        protected virtual IContainer GetIntegrationTestContainer()
         {
             var emptyDatabaseDataFile = new FileInfo(EmptyTestDatabaseDataFilePath);
             var emptyDatabaseLogFile = new FileInfo(EmptyTestDatabaseLogFilePath);
@@ -212,7 +212,10 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             _temporaryDatabaseFiles.Add(tempDatabaseDataFile);
             _temporaryDatabaseFiles.Add(tempDatabaseLogFile);
 
+            var container = DefaultContainer.CreateChildContainer();
             container.Resolve<IConnectionFactoryRegistry>().RegisterFactory(ConnectionName, () => new SqlConnection($"Data Source=(LocalDB)\\MSSQLLocalDB; AttachDbFilename={tempDatabaseDataFile.FullName}; Integrated Security=True; User Instance=True"));
+
+            return container;
         }
     }
 }
