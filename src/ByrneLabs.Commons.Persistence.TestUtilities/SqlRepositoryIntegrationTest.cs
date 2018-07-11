@@ -16,13 +16,11 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
     [PublicAPI]
     public abstract class SqlRepositoryIntegrationTest<TRepositoryInterface, TEntity> : IDisposable where TRepositoryInterface : class, IRepository<TEntity> where TEntity : IEntity
     {
-        private IList<FileInfo> _temporaryDatabaseFiles = new List<FileInfo>();
+        private readonly object _lockSync = new object();
 
         protected abstract string ConnectionName { get; }
 
-        protected abstract string EmptyTestDatabaseDataFilePath { get; }
-
-        protected abstract string EmptyTestDatabaseLogFilePath { get; }
+        protected abstract string EmptyTestDatabaseFilePath { get; }
 
         protected static void AssertValid(IEntity entity) => AssertValid(new[] { entity });
 
@@ -49,7 +47,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                 {
                     if (typeof(IEntity).IsAssignableFrom(property.PropertyType))
                     {
-                        var value = (IEntity) property.GetValue(entity);
+                        var value = (IEntity)property.GetValue(entity);
                         if (value != null)
                         {
                             otherEntities.Add(value);
@@ -57,7 +55,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     }
                     else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
                     {
-                        var enumerable = (IEnumerable) property.GetValue(entity);
+                        var enumerable = (IEnumerable)property.GetValue(entity);
                         if (enumerable != null)
                         {
                             otherEntities.AddRange(enumerable.OfType<IEntity>());
@@ -164,15 +162,24 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
 
         protected abstract ITestHelper<TRepositoryInterface> GetNewRepositoryTestHelper();
 
-        protected virtual Guid CreateEntityId(params object[] primaryKeys) => (Guid) primaryKeys[0];
+        protected virtual Guid CreateEntityId(params object[] primaryKeys) => (Guid)primaryKeys[0];
 
         protected virtual string CreateQueryForPrimaryKeys() => $"SELECT {typeof(TEntity).Name}Id FROM {typeof(TEntity).Name}";
 
         protected virtual void Dispose(bool disposedManaged)
         {
-            foreach (var temporaryDatabaseFile in _temporaryDatabaseFiles)
+            var testDatabasesDirectory = new DirectoryInfo(Path.GetTempPath() + "\\IntegrationTestDatabases");
+
+            foreach (var testDatabaseDirectory in testDatabasesDirectory.EnumerateDirectories())
             {
-                temporaryDatabaseFile.Delete();
+                try
+                {
+                    testDatabaseDirectory.Delete(true);
+                }
+                catch
+                {
+                    // We don't care why the delete failed, we will just skip it
+                }
             }
         }
 
@@ -192,6 +199,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     var entityId = CreateEntityId(fieldValues);
                     entityIds.Add(entityId);
                 }
+                connection.Close();
             }
 
             Assert.NotEmpty(entityIds);
@@ -201,19 +209,20 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
 
         protected virtual IContainer GetIntegrationTestContainer()
         {
-            var emptyDatabaseDataFile = new FileInfo(EmptyTestDatabaseDataFilePath);
-            var emptyDatabaseLogFile = new FileInfo(EmptyTestDatabaseLogFilePath);
+            var emptyDatabaseDataFile = new FileInfo(EmptyTestDatabaseFilePath);
             Assert.True(emptyDatabaseDataFile.Exists, $"The path for the empty database data file is not valid: '{emptyDatabaseDataFile.FullName}'");
-            Assert.True(emptyDatabaseLogFile.Exists, $"The path for the empty database log file is not valid: '{emptyDatabaseLogFile.FullName}'");
+            var instanceId = Guid.NewGuid().ToString().Replace("-", string.Empty);
 
-            var tempDatabasePath = Path.GetTempFileName();
-            var tempDatabaseDataFile = emptyDatabaseDataFile.CopyTo($"{tempDatabasePath}\\{emptyDatabaseDataFile.Name}");
-            var tempDatabaseLogFile = emptyDatabaseDataFile.CopyTo($"{tempDatabasePath}\\{emptyDatabaseLogFile.Name}");
-            _temporaryDatabaseFiles.Add(tempDatabaseDataFile);
-            _temporaryDatabaseFiles.Add(tempDatabaseLogFile);
+            var tempDatabaseDirectory = new DirectoryInfo($"{Path.GetTempPath()}\\IntegrationTestDatabases\\{instanceId}");
+            tempDatabaseDirectory.Create();
+            var dataFileName = $"{tempDatabaseDirectory.FullName}\\{emptyDatabaseDataFile.Name.SubstringBeforeLast(".")}-{instanceId}.mdf";
+            lock (_lockSync)
+            {
+                emptyDatabaseDataFile.CopyTo(dataFileName);
+            }
 
             var container = DefaultContainer.CreateChildContainer();
-            container.Resolve<IConnectionFactoryRegistry>().RegisterFactory(ConnectionName, () => new SqlConnection($"Data Source=(LocalDB)\\MSSQLLocalDB; AttachDbFilename={tempDatabaseDataFile.FullName}; Integrated Security=True; User Instance=True"));
+            container.Resolve<IConnectionFactoryRegistry>().RegisterFactory(ConnectionName, () => new SqlConnection($"Data Source=(LocalDB)\\MSSQLLocalDB; AttachDbFilename={dataFileName}; Integrated Security=True"));
 
             return container;
         }
