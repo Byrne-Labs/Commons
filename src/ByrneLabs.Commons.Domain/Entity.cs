@@ -19,6 +19,7 @@ namespace ByrneLabs.Commons.Domain
         protected Entity()
         {
             InstanceId = Guid.NewGuid();
+            NeverPersisted = true;
         }
 
         public Guid? EntityId { get; set; }

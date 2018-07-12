@@ -22,6 +22,15 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
 
         protected abstract string EmptyTestDatabaseFilePath { get; }
 
+        protected virtual string TableName
+        {
+            get
+            {
+                var entityType = typeof(TEntity);
+                return entityType.IsInterface && entityType.Name.Length > 1 && entityType.Name.Substring(0, 2).IsAllUpper() ? entityType.Name.Substring(1) : entityType.Name;
+            }
+        }
+
         protected static void AssertValid(IEntity entity) => AssertValid(new[] { entity });
 
         protected static void AssertValid(IEnumerable<TEntity> entities) => AssertValid(entities.Cast<IEntity>().ToList());
@@ -47,7 +56,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                 {
                     if (typeof(IEntity).IsAssignableFrom(property.PropertyType))
                     {
-                        var value = (IEntity)property.GetValue(entity);
+                        var value = (IEntity) property.GetValue(entity);
                         if (value != null)
                         {
                             otherEntities.Add(value);
@@ -55,7 +64,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     }
                     else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
                     {
-                        var enumerable = (IEnumerable)property.GetValue(entity);
+                        var enumerable = (IEnumerable) property.GetValue(entity);
                         if (enumerable != null)
                         {
                             otherEntities.AddRange(enumerable.OfType<IEntity>());
@@ -80,14 +89,18 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         [Trait("Test Type", "Integration Test")]
         public virtual void IntegrationTestFindById()
         {
-            var container = GetIntegrationTestContainer();
-            var entityIds = GetEntityIds(container);
-            var repository = container.Resolve<TRepositoryInterface>();
-            foreach (var entityId in entityIds)
+            using (var testHelper = GetNewRepositoryTestHelper())
             {
-                var entity = repository.Find(entityId);
-                AssertValid(entity);
-                Assert.Equal(entityId, entity.EntityId.Value);
+                var testEntities = testHelper.TestData<TEntity>();
+                testHelper.TestedObject.Save(testEntities);
+
+                var entityIds = GetEntityIds(testHelper.Container);
+                foreach (var entityId in entityIds)
+                {
+                    var entity = testHelper.TestedObject.Find(entityId);
+                    AssertValid(entity);
+                    Assert.Equal(entityId, entity.EntityId.Value);
+                }
             }
         }
 
@@ -95,12 +108,28 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         [Trait("Test Type", "Integration Test")]
         public virtual void IntegrationTestFindByIds()
         {
-            var container = GetIntegrationTestContainer();
-            var entityIds = GetEntityIds(container);
-            var repository = container.Resolve<TRepositoryInterface>();
-            var entities = repository.Find(entityIds);
-            AssertValid(entities);
-            BetterAssert.ContainsSame(entityIds, entities.Select(entity => entity.EntityId.Value).ToArray());
+            using (var testHelper = GetNewRepositoryTestHelper())
+            {
+                var testEntities = testHelper.TestData<TEntity>();
+                testHelper.TestedObject.Save(testEntities);
+
+                var entityIds = GetEntityIds(testHelper.Container);
+                var entities = testHelper.TestedObject.Find(entityIds);
+                AssertValid(entities);
+                BetterAssert.ContainsSame(entityIds, entities.Select(entity => entity.EntityId.Value).ToArray());
+            }
+        }
+
+        [Fact]
+        [Trait("Test Type", "Integration Test")]
+        public void IntegrationTestSave()
+        {
+            using (var testHelper = GetNewRepositoryTestHelper())
+            {
+                var testEntities = testHelper.TestData<TEntity>();
+                testHelper.TestedObject.Save(testEntities);
+                AssertValid(testHelper.TestData<TEntity>());
+            }
         }
 
         [Fact]
@@ -144,6 +173,9 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         {
             using (var testHelper = GetNewRepositoryTestHelper())
             {
+                var testEntities = testHelper.TestData<TEntity>();
+                testHelper.TestedObject.Save(testEntities);
+
                 var entityIds = testHelper.TestData<TEntity>().RandomItems(10, 10).Select(entity => entity.EntityId.Value).Distinct().ToArray();
                 var foundEntities = testHelper.TestedObject.Find(entityIds);
                 AssertValid(foundEntities);
@@ -162,9 +194,9 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
 
         protected abstract ITestHelper<TRepositoryInterface> GetNewRepositoryTestHelper();
 
-        protected virtual Guid CreateEntityId(params object[] primaryKeys) => (Guid)primaryKeys[0];
+        protected virtual Guid CreateEntityId(params object[] primaryKeys) => (Guid) primaryKeys[0];
 
-        protected virtual string CreateQueryForPrimaryKeys() => $"SELECT {typeof(TEntity).Name}Id FROM {typeof(TEntity).Name}";
+        protected virtual string CreateQueryForPrimaryKeys() => $"SELECT {TableName}Id FROM {TableName}";
 
         protected virtual void Dispose(bool disposedManaged)
         {
@@ -199,6 +231,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     var entityId = CreateEntityId(fieldValues);
                     entityIds.Add(entityId);
                 }
+
                 connection.Close();
             }
 
@@ -221,7 +254,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                 emptyDatabaseDataFile.CopyTo(dataFileName);
             }
 
-            var container = DefaultContainer.CreateChildContainer();
+            var container = new SimpleContainerProvider(true);
             container.Resolve<IConnectionFactoryRegistry>().RegisterFactory(ConnectionName, () => new SqlConnection($"Data Source=(LocalDB)\\MSSQLLocalDB; AttachDbFilename={dataFileName}; Integrated Security=True"));
 
             return container;

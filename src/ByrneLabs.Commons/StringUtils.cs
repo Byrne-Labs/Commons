@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using EnsureThat;
 using JetBrains.Annotations;
 
@@ -37,6 +38,10 @@ namespace ByrneLabs.Commons
 
             return (line, column);
         }
+
+        public static bool IsAllLower(this string value) => !string.IsNullOrEmpty(value) && Regex.IsMatch(value, @"[a-z]+");
+
+        public static bool IsAllUpper(this string value) => !string.IsNullOrEmpty(value) && Regex.IsMatch(value, @"[A-Z]+");
 
         public static string Join(this IEnumerable<string> value, string seperator) => string.Join(seperator, value);
 

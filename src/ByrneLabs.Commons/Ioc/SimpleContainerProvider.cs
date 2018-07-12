@@ -11,6 +11,7 @@ namespace ByrneLabs.Commons.Ioc
 #pragma warning restore CA1710 // Identifiers should have correct suffix
     {
         private readonly bool _autoRegister;
+        private readonly IDictionary<NamedServiceDescriptor, object> _singletonInstances = new Dictionary<NamedServiceDescriptor, object>();
         private List<NamedServiceDescriptor> _serviceRegistry = new List<NamedServiceDescriptor>();
 
         public SimpleContainerProvider(bool autoRegister)
@@ -23,15 +24,10 @@ namespace ByrneLabs.Commons.Ioc
             }
         }
 
-        public SimpleContainerProvider(IContainer parentContainer, bool autoRegister)
+        public SimpleContainerProvider(IContainer parentContainer)
         {
-            _autoRegister = autoRegister;
             ParentContainer = parentContainer;
             RegisterInstance(typeof(IContainer), this, null);
-            if (autoRegister)
-            {
-                AutoRegister();
-            }
         }
 
         public override ServiceDescriptor this[int index]
@@ -114,7 +110,7 @@ namespace ByrneLabs.Commons.Ioc
             }
         }
 
-        public override IContainer CreateChildContainer() => new SimpleContainerProvider(this, _autoRegister);
+        public override IContainer CreateChildContainer() => new SimpleContainerProvider(this);
 
         public override IEnumerator<ServiceDescriptor> GetEnumerator()
         {
@@ -144,6 +140,11 @@ namespace ByrneLabs.Commons.Ioc
         {
             lock (_serviceRegistry)
             {
+                if (_serviceRegistry.Any(serviceDescriptor => serviceDescriptor.Name == name && serviceDescriptor.ServiceType == typeof(T)))
+                {
+                    throw new ArgumentException("A service descriptor with the same service type and name has already been registered");
+                }
+
                 _serviceRegistry.Add(new NamedServiceDescriptor(typeof(T), factory, serviceLifetime, name));
             }
         }
@@ -152,6 +153,11 @@ namespace ByrneLabs.Commons.Ioc
         {
             lock (_serviceRegistry)
             {
+                if (_serviceRegistry.Any(serviceDescriptor => serviceDescriptor.Name == name && serviceDescriptor.ServiceType == registrationType))
+                {
+                    throw new ArgumentException("A service descriptor with the same service type and name has already been registered");
+                }
+
                 _serviceRegistry.Add(new NamedServiceDescriptor(registrationType, instance, name));
             }
         }
@@ -165,6 +171,11 @@ namespace ByrneLabs.Commons.Ioc
         {
             lock (_serviceRegistry)
             {
+                if (_serviceRegistry.Any(serviceDescriptor => serviceDescriptor.Name == name && serviceDescriptor.ServiceType == fromType))
+                {
+                    throw new ArgumentException("A service descriptor with the same service type and name has already been registered");
+                }
+
                 _serviceRegistry.Add(new NamedServiceDescriptor(fromType, toType, serviceLifetime, name));
             }
         }
@@ -189,9 +200,9 @@ namespace ByrneLabs.Commons.Ioc
         {
             lock (_serviceRegistry)
             {
-                var registeredService = _serviceRegistry.SingleOrDefault(serviceDescriptor => serviceDescriptor.ServiceType == type && serviceDescriptor.Name == name);
+                var registeredServiceDescriptor = _serviceRegistry.SingleOrDefault(serviceDescriptor => serviceDescriptor.ServiceType == type && serviceDescriptor.Name == name);
                 object serviceInstance;
-                switch (registeredService)
+                switch (registeredServiceDescriptor)
                 {
                     case null when ParentContainer == null:
                         throw new ArgumentException("No service descriptor found");
@@ -199,45 +210,57 @@ namespace ByrneLabs.Commons.Ioc
                         serviceInstance = ParentContainer.Resolve(type, name);
                         break;
                     default:
-                        if (registeredService.ImplementationInstance != null)
+                        if (_singletonInstances.ContainsKey(registeredServiceDescriptor))
                         {
-                            serviceInstance = registeredService.ImplementationInstance;
-                        }
-                        else if (registeredService.ImplementationType != null)
-                        {
-                            var constructors = registeredService.ImplementationType.GetConstructors();
-                            if (constructors.Length > 1)
-                            {
-                                throw new InvalidOperationException("Cannot create an object that has more than one constructor");
-                            }
-
-                            if (constructors.Length == 0)
-                            {
-                                serviceInstance = Activator.CreateInstance(registeredService.ImplementationType);
-                            }
-                            else
-                            {
-                                var parameters = new ArrayList();
-                                foreach (var parameter in constructors.First().GetParameters())
-                                {
-                                    if (!CanResolve(parameter.ParameterType))
-                                    {
-                                        throw new InvalidOperationException($"Cannot create an object for parameter of type {parameter.ParameterType.FullName}");
-                                    }
-
-                                    parameters.Add(Resolve(parameter.ParameterType));
-                                }
-
-                                serviceInstance = Activator.CreateInstance(registeredService.ImplementationType, parameters.ToArray());
-                            }
-                        }
-                        else if (registeredService.ImplementationFactory != null)
-                        {
-                            serviceInstance = registeredService.ImplementationFactory.Invoke(this);
+                            serviceInstance = _singletonInstances[registeredServiceDescriptor];
                         }
                         else
                         {
-                            throw new InvalidOperationException("Insufficient information to return instance");
+                            if (registeredServiceDescriptor.ImplementationInstance != null)
+                            {
+                                serviceInstance = registeredServiceDescriptor.ImplementationInstance;
+                            }
+                            else if (registeredServiceDescriptor.ImplementationType != null)
+                            {
+                                var constructors = registeredServiceDescriptor.ImplementationType.GetConstructors();
+                                if (constructors.Length > 1)
+                                {
+                                    throw new InvalidOperationException("Cannot create an object that has more than one constructor");
+                                }
+
+                                if (constructors.Length == 0)
+                                {
+                                    serviceInstance = Activator.CreateInstance(registeredServiceDescriptor.ImplementationType);
+                                }
+                                else
+                                {
+                                    var parameters = new ArrayList();
+                                    foreach (var parameter in constructors.First().GetParameters())
+                                    {
+                                        if (!CanResolve(parameter.ParameterType))
+                                        {
+                                            throw new InvalidOperationException($"Cannot create an object for parameter of type {parameter.ParameterType.FullName}");
+                                        }
+
+                                        parameters.Add(Resolve(parameter.ParameterType));
+                                    }
+
+                                    serviceInstance = Activator.CreateInstance(registeredServiceDescriptor.ImplementationType, parameters.ToArray());
+                                }
+                            }
+                            else if (registeredServiceDescriptor.ImplementationFactory != null)
+                            {
+                                serviceInstance = registeredServiceDescriptor.ImplementationFactory.Invoke(this);
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("Insufficient information to return instance");
+                            }
+
+                            if (registeredServiceDescriptor.Lifetime == ServiceLifetime.Scoped || registeredServiceDescriptor.Lifetime == ServiceLifetime.Singleton)
+                            {
+                                _singletonInstances.Add(registeredServiceDescriptor, serviceInstance);
+                            }
                         }
 
                         break;
