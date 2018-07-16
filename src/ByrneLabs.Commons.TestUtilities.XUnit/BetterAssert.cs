@@ -15,13 +15,21 @@ namespace ByrneLabs.Commons.TestUtilities.XUnit
     {
         public static void ContainsSame<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
-            ContainsSame(expected, actual, null, null);
+            ContainsSame(expected, actual, "Expected '{0}' but was actually '{1}'", string.Join(",", expected.Select(expectedItem => expectedItem.ToString())), string.Join(",", actual.Select(actualItem => actualItem.ToString())));
         }
 
         public static void ContainsSame<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message, params object[] args)
         {
-            Collection(actual, actualItem => True(expected.Contains(actualItem), string.Format(CultureInfo.InvariantCulture, message, args)));
-            Collection(expected, expectedItem => True(actual.Contains(expectedItem), string.Format(CultureInfo.InvariantCulture, message, args)));
+            True(expected == null && actual == null || expected != null && actual != null && expected.Count() == actual.Count());
+            foreach (var actualItem in actual)
+            {
+                True(expected.Any(expectedItem => object.Equals(actualItem, expectedItem)), string.Format(CultureInfo.InvariantCulture, message, args));
+            }
+
+            foreach (var expectedItem in expected)
+            {
+                True(actual.Any(actualItem => object.Equals(expectedItem, actualItem)), string.Format(CultureInfo.InvariantCulture, message, args));
+            }
         }
 
         public static void Count(int expected, IEnumerable value)

@@ -151,7 +151,7 @@ namespace ByrneLabs.Commons.Persistence
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                return SetAsPersisted(connection.GetAll<TImplementation>().ToList());
+                return SetAsPersisted(connection.Query<TImplementation>(SelectCommand).ToList());
             }
         }
 

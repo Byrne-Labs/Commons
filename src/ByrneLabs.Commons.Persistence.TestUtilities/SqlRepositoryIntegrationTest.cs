@@ -133,51 +133,16 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         }
 
         [Fact]
-        [Trait("Test Type", "Unit Test")]
-        public virtual void TestFindAll()
-        {
-            using (var testHelper = GetNewRepositoryTestHelper())
-            {
-                var entityIds = testHelper.TestData<TEntity>().Select(entity => entity.EntityId.Value).Distinct().ToArray();
-                var foundEntities = testHelper.TestedObject.FindAll().ToArray();
-                AssertValid(foundEntities);
-                foreach (var foundEntity in foundEntities)
-                {
-                    Assert.Contains(foundEntity.EntityId.Value, entityIds);
-                }
-
-                var foundEntityIds = foundEntities.Select(entity => entity.EntityId.Value);
-                foreach (var entityId in entityIds)
-                {
-                    Assert.Contains(entityId, foundEntityIds);
-                }
-            }
-        }
-
-        [Fact]
-        [Trait("Test Type", "Unit Test")]
-        public virtual void TestFindById()
-        {
-            using (var testHelper = GetNewRepositoryTestHelper())
-            {
-                var domainEntity = testHelper.TestData<TEntity>().RandomItem();
-                var foundEntity = testHelper.TestedObject.Find(domainEntity.EntityId.Value);
-                AssertValid(foundEntity);
-                Assert.Equal(domainEntity.EntityId.Value, foundEntity.EntityId);
-            }
-        }
-
-        [Fact]
-        [Trait("Test Type", "Unit Test")]
-        public virtual void TestFindByIds()
+        [Trait("Test Type", "Integration Test")]
+        public virtual void IntegrationTestFindAll()
         {
             using (var testHelper = GetNewRepositoryTestHelper())
             {
                 var testEntities = testHelper.TestData<TEntity>();
                 testHelper.TestedObject.Save(testEntities);
 
-                var entityIds = testHelper.TestData<TEntity>().RandomItems(10, 10).Select(entity => entity.EntityId.Value).Distinct().ToArray();
-                var foundEntities = testHelper.TestedObject.Find(entityIds);
+                var entityIds = testHelper.TestData<TEntity>().Select(entity => entity.EntityId.Value).Distinct().ToArray();
+                var foundEntities = testHelper.TestedObject.FindAll().ToArray();
                 AssertValid(foundEntities);
                 foreach (var foundEntity in foundEntities)
                 {
