@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
 using System.Linq;
 using ByrneLabs.Commons.Domain;
 using ByrneLabs.Commons.Ioc;
@@ -14,14 +11,8 @@ using Xunit;
 namespace ByrneLabs.Commons.Persistence.TestUtilities
 {
     [PublicAPI]
-    public abstract class SqlRepositoryIntegrationTest<TRepositoryInterface, TEntity> : IDisposable where TRepositoryInterface : class, IRepository<TEntity> where TEntity : IEntity
+    public abstract class SqlRepositoryIntegrationTest<TRepositoryInterface, TEntity> : SqlIntegrationTest where TRepositoryInterface : class, IRepository<TEntity> where TEntity : IEntity
     {
-        private readonly object _lockSync = new object();
-
-        protected abstract string ConnectionName { get; }
-
-        protected abstract string EmptyTestDatabaseFilePath { get; }
-
         protected virtual string TableName
         {
             get
@@ -31,58 +22,31 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             }
         }
 
-        protected static void AssertValid(IEntity entity) => AssertValid(new[] { entity });
-
         protected static void AssertValid(IEnumerable<TEntity> entities) => AssertValid(entities.Cast<IEntity>().ToList());
 
-        protected static void AssertValid(IEnumerable<IEntity> entities, IList<IEntity> examinedEntities = null)
+        [Fact]
+        [Trait("Test Type", "Integration Test")]
+        public virtual void IntegrationTestFindAll()
         {
-            Assert.NotNull(entities);
-            Assert.NotEmpty(entities);
-
-            if (examinedEntities == null)
+            using (var testHelper = GetNewRepositoryTestHelper())
             {
-                examinedEntities = new List<IEntity>();
-            }
+                var testEntities = testHelper.TestData<TEntity>();
+                testHelper.TestedObject.Save(testEntities);
 
-            foreach (var entity in entities.Where(e => !examinedEntities.Contains(e)))
-            {
-                Assert.NotNull(entity?.EntityId);
-
-                examinedEntities.Add(entity);
-
-                var otherEntities = new List<IEntity>();
-                foreach (var property in entity.GetType().GetProperties().Where(p => p.CanRead))
+                var entityIds = testHelper.TestData<TEntity>().Select(entity => entity.EntityId.Value).Distinct().ToArray();
+                var foundEntities = testHelper.TestedObject.FindAll().ToArray();
+                AssertValid(foundEntities);
+                foreach (var foundEntity in foundEntities)
                 {
-                    if (typeof(IEntity).IsAssignableFrom(property.PropertyType))
-                    {
-                        var value = (IEntity) property.GetValue(entity);
-                        if (value != null)
-                        {
-                            otherEntities.Add(value);
-                        }
-                    }
-                    else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
-                    {
-                        var enumerable = (IEnumerable) property.GetValue(entity);
-                        if (enumerable != null)
-                        {
-                            otherEntities.AddRange(enumerable.OfType<IEntity>());
-                        }
-                    }
+                    Assert.Contains(foundEntity.EntityId.Value, entityIds);
                 }
 
-                if (otherEntities.Any())
+                var foundEntityIds = foundEntities.Select(entity => entity.EntityId.Value);
+                foreach (var entityId in entityIds)
                 {
-                    AssertValid(otherEntities, examinedEntities);
+                    Assert.Contains(entityId, foundEntityIds);
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         [Fact]
@@ -132,53 +96,11 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             }
         }
 
-        [Fact]
-        [Trait("Test Type", "Integration Test")]
-        public virtual void IntegrationTestFindAll()
-        {
-            using (var testHelper = GetNewRepositoryTestHelper())
-            {
-                var testEntities = testHelper.TestData<TEntity>();
-                testHelper.TestedObject.Save(testEntities);
-
-                var entityIds = testHelper.TestData<TEntity>().Select(entity => entity.EntityId.Value).Distinct().ToArray();
-                var foundEntities = testHelper.TestedObject.FindAll().ToArray();
-                AssertValid(foundEntities);
-                foreach (var foundEntity in foundEntities)
-                {
-                    Assert.Contains(foundEntity.EntityId.Value, entityIds);
-                }
-
-                var foundEntityIds = foundEntities.Select(entity => entity.EntityId.Value);
-                foreach (var entityId in entityIds)
-                {
-                    Assert.Contains(entityId, foundEntityIds);
-                }
-            }
-        }
-
         protected abstract ITestHelper<TRepositoryInterface> GetNewRepositoryTestHelper();
 
         protected virtual Guid CreateEntityId(params object[] primaryKeys) => (Guid) primaryKeys[0];
 
         protected virtual string CreateQueryForPrimaryKeys() => $"SELECT {TableName}Id FROM {TableName}";
-
-        protected virtual void Dispose(bool disposedManaged)
-        {
-            var testDatabasesDirectory = new DirectoryInfo(Path.GetTempPath() + "\\IntegrationTestDatabases");
-
-            foreach (var testDatabaseDirectory in testDatabasesDirectory.EnumerateDirectories())
-            {
-                try
-                {
-                    testDatabaseDirectory.Delete(true);
-                }
-                catch
-                {
-                    // We don't care why the delete failed, we will just skip it
-                }
-            }
-        }
 
         protected virtual IEnumerable<Guid> GetEntityIds(IContainer container)
         {
@@ -203,26 +125,6 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             Assert.NotEmpty(entityIds);
 
             return entityIds;
-        }
-
-        protected virtual IContainer GetIntegrationTestContainer()
-        {
-            var emptyDatabaseDataFile = new FileInfo(EmptyTestDatabaseFilePath);
-            Assert.True(emptyDatabaseDataFile.Exists, $"The path for the empty database data file is not valid: '{emptyDatabaseDataFile.FullName}'");
-            var instanceId = Guid.NewGuid().ToString().Replace("-", string.Empty);
-
-            var tempDatabaseDirectory = new DirectoryInfo($"{Path.GetTempPath()}\\IntegrationTestDatabases\\{instanceId}");
-            tempDatabaseDirectory.Create();
-            var dataFileName = $"{tempDatabaseDirectory.FullName}\\{emptyDatabaseDataFile.Name.SubstringBeforeLast(".")}-{instanceId}.mdf";
-            lock (_lockSync)
-            {
-                emptyDatabaseDataFile.CopyTo(dataFileName);
-            }
-
-            var container = new SimpleContainerProvider(true);
-            container.Resolve<IConnectionFactoryRegistry>().RegisterFactory(ConnectionName, () => new SqlConnection($"Data Source=(LocalDB)\\MSSQLLocalDB; AttachDbFilename={dataFileName}; Integrated Security=True"));
-
-            return container;
         }
     }
 }

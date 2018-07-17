@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace ByrneLabs.Commons
 {
@@ -26,8 +27,14 @@ namespace ByrneLabs.Commons
             UnicodeWithControlCharacters
         }
 
+        [ThreadStatic]
+        private static Random _frameworkRandom;
         private static readonly char[] _keyboardCharacters = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\'', '-', '!', '"', '#', '$', '%', '&', '(', ')', '*', ',', '.', ':', ';', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '+', '<', '=', '>', 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H', 'i', 'I', 'j', 'J', 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'o', 'O', 'p', 'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'u', 'U', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z' };
-        private static readonly Random _random = new Random();
+        private static Random FrameworkRandom
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get => _frameworkRandom ?? (_frameworkRandom = new Random());
+        }
 
         public static IEnumerable<T> Next<T>(int minCount, int maxCount)
         {
@@ -91,14 +98,14 @@ namespace ByrneLabs.Commons
             return (T) random;
         }
 
-        public static int Next() => _random.Next();
+        public static int Next() => FrameworkRandom.Next();
 
-        public static int Next(int maxValue) => _random.Next(maxValue);
+        public static int Next(int maxValue) => FrameworkRandom.Next(maxValue);
 
-        public static int Next(int minValue, int maxValue) => _random.Next(minValue, maxValue);
+        public static int Next(int minValue, int maxValue) => FrameworkRandom.Next(minValue, maxValue);
 
         [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "bool", Justification = "No other logical name in this case")]
-        public static bool NextBool() => _random.Next(2) == 1;
+        public static bool NextBool() => FrameworkRandom.Next(2) == 1;
 
         [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "byte", Justification = "No other logical name in this case")]
         [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "This is actually not possible because of the alternate meaning of the signatures")]
@@ -108,12 +115,12 @@ namespace ByrneLabs.Commons
         public static byte NextByte(byte maxValue) => NextByte(0, maxValue);
 
         [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "byte", Justification = "No other logical name in this case")]
-        public static byte NextByte(byte minValue, byte maxValue) => (byte) _random.Next(minValue, maxValue);
+        public static byte NextByte(byte minValue, byte maxValue) => (byte) FrameworkRandom.Next(minValue, maxValue);
 
         public static byte[] NextBytes(int size)
         {
             var bytes = new byte[size];
-            _random.NextBytes(bytes);
+            FrameworkRandom.NextBytes(bytes);
             return bytes;
         }
 
@@ -181,7 +188,7 @@ namespace ByrneLabs.Commons
 
         public static DateTime NextDateTime(DateTime minValue, DateTime maxValue) => new DateTime(NextLong(minValue.Ticks, maxValue.Ticks));
 
-        public static double NextDouble() => _random.NextDouble();
+        public static double NextDouble() => FrameworkRandom.NextDouble();
 
         public static TEnum NextEnum<TEnum>()
         {
@@ -235,7 +242,7 @@ namespace ByrneLabs.Commons
              * -- Jonathan Byrne 10/11/2016
              */
             var buf = new byte[8];
-            _random.NextBytes(buf);
+            FrameworkRandom.NextBytes(buf);
             var longRand = BitConverter.ToInt64(buf, 0);
 
             return Math.Abs(longRand % (maxValue - minValue)) + minValue;
@@ -249,7 +256,7 @@ namespace ByrneLabs.Commons
         public static short NextShort(short maxValue) => NextShort(0, maxValue);
 
         [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "short", Justification = "No other logical name in this case")]
-        public static short NextShort(short minValue, short maxValue) => (short) _random.Next(minValue, maxValue);
+        public static short NextShort(short minValue, short maxValue) => (short) FrameworkRandom.Next(minValue, maxValue);
 
         public static string NextString(int minLength, int maxLength, CharacterGroup characterGroup = CharacterGroup.Keyboard)
         {
@@ -267,9 +274,9 @@ namespace ByrneLabs.Commons
 
         public static string NextString(int maxLength, CharacterGroup characterGroup = CharacterGroup.Keyboard) => NextString(0, maxLength, characterGroup);
 
-        public static bool Odds(int denominator) => _random.Next(denominator) == 1;
+        public static bool Odds(int denominator) => FrameworkRandom.Next(denominator) == 1;
 
-        public static bool Odds(double percent) => _random.NextDouble() < percent;
+        public static bool Odds(double percent) => FrameworkRandom.NextDouble() < percent;
 
         public static T RandomItem<T>(this IEnumerable<T> items, Func<T, bool> predicate) => items.Where(predicate).RandomItem();
 
