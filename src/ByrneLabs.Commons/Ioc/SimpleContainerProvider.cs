@@ -272,6 +272,18 @@ namespace ByrneLabs.Commons.Ioc
 
         protected override void Dispose(bool disposedManaged)
         {
+            foreach (var instance in _singletonInstances.Values.OfType<IDisposable>().Where(instance => !ReferenceEquals(instance, this)))
+            {
+                instance.Dispose();
+            }
+
+            lock (_serviceRegistry)
+            {
+                foreach (var instance in _serviceRegistry.Select(serviceDescriptor => serviceDescriptor.ImplementationInstance).OfType<IDisposable>().Where(instance => !ReferenceEquals(instance, this)))
+                {
+                    instance.Dispose();
+                }
+            }
         }
     }
 }
