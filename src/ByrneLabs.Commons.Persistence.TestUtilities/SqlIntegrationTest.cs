@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using ByrneLabs.Commons.Domain;
@@ -21,19 +19,6 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         protected abstract string EmptyTestDatabaseFilePath { get; }
 
         protected static void AssertValid(IEntity entity) => AssertValid(new[] { entity });
-
-        protected IContainer GetIntegrationTestContainer()
-        {
-            var container = new SimpleContainerProvider(true);
-            var sqlTestDatabase = new SqlTestDatabaseServer(EmptyTestDatabaseFilePath);
-            sqlTestDatabase.Register(container, ConnectionName);
-            /*
-             * We are registering this as an instance so that it gets disposed at the same time as the container
-             */
-            container.RegisterInstance(sqlTestDatabase);
-
-            return container;
-        }
 
         protected static void AssertValid(IEnumerable<IEntity> entities, IList<IEntity> examinedEntities = null)
         {
@@ -56,7 +41,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                 {
                     if (typeof(IEntity).IsAssignableFrom(property.PropertyType))
                     {
-                        var value = (IEntity)property.GetValue(entity);
+                        var value = (IEntity) property.GetValue(entity);
                         if (value != null)
                         {
                             otherEntities.Add(value);
@@ -64,7 +49,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     }
                     else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
                     {
-                        var enumerable = (IEnumerable)property.GetValue(entity);
+                        var enumerable = (IEnumerable) property.GetValue(entity);
                         if (enumerable != null)
                         {
                             otherEntities.AddRange(enumerable.OfType<IEntity>());
@@ -77,6 +62,19 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     AssertValid(otherEntities, examinedEntities);
                 }
             }
+        }
+
+        protected IContainer GetIntegrationTestContainer()
+        {
+            var container = new SimpleContainerProvider(true);
+            var sqlTestDatabase = new SqlTestDatabaseServer(EmptyTestDatabaseFilePath);
+            sqlTestDatabase.Register(container, ConnectionName);
+            /*
+             * We are registering this as an instance so that it gets disposed at the same time as the container
+             */
+            container.RegisterInstance(sqlTestDatabase);
+
+            return container;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace ByrneLabs.Commons.Domain
 
         public Guid? EntityId { get; set; }
 
-        public bool HasChanged { get; protected set; }
+        public bool HasChanged { get; set; }
 
         public Guid InstanceId { get; }
 
@@ -185,12 +185,11 @@ namespace ByrneLabs.Commons.Domain
             foreach (var property in GetType().GetRuntimeProperties().Where(property => property.CanRead).OrderBy(property => property.Name))
             {
                 var propertyValue = property.GetValue(this);
-                var entityValue = propertyValue as Entity;
                 if (propertyValue == null)
                 {
                     builder.AppendLine().AppendFormat(CultureInfo.InvariantCulture, "{0}{1}: null", indent, property.Name);
                 }
-                else if (entityValue != null && !outputEntities.Contains(entityValue))
+                else if (propertyValue is Entity entityValue && !outputEntities.Contains(entityValue))
                 {
                     outputEntities.Add(entityValue);
                     builder.AppendLine().AppendFormat(CultureInfo.InvariantCulture, "{0}{1}: ({2})", indent, property.Name, property.PropertyType.FullName);

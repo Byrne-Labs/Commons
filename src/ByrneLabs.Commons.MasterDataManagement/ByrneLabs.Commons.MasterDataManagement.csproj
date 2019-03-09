@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="Ensure.That" Version="8.1.1" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\ByrneLabs.Commons.Domain\ByrneLabs.Commons.Domain.csproj" />
+      <ProjectReference Include="..\ByrneLabs.Commons\ByrneLabs.Commons.csproj" />
+    </ItemGroup>
+</Project>

@@ -12,7 +12,7 @@ namespace ByrneLabs.Commons.Ioc
     {
         private readonly bool _autoRegister;
         private readonly IDictionary<NamedServiceDescriptor, object> _singletonInstances = new Dictionary<NamedServiceDescriptor, object>();
-        private List<NamedServiceDescriptor> _serviceRegistry = new List<NamedServiceDescriptor>();
+        private readonly List<NamedServiceDescriptor> _serviceRegistry = new List<NamedServiceDescriptor>();
 
         public SimpleContainerProvider(bool autoRegister)
         {

@@ -5,7 +5,7 @@ namespace ByrneLabs.Commons.Persistence
 {
     public interface IRepository<T>
     {
-        void Delete(IEnumerable<T> items);
+        void Delete(IEnumerable<T> entities);
 
         T Find(Guid entityId);
 
@@ -13,6 +13,6 @@ namespace ByrneLabs.Commons.Persistence
 
         IEnumerable<T> FindAll();
 
-        void Save(IEnumerable<T> items);
+        void Save(IEnumerable<T> entities);
     }
 }

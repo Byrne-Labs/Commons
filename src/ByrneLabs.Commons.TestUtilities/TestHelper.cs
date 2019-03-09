@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ByrneLabs.Commons.Domain;
@@ -43,6 +44,7 @@ namespace ByrneLabs.Commons.TestUtilities
 
         public void Dispose()
         {
+            Debugger.Break();
             Dispose(true);
             GC.SuppressFinalize(this);
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
-using System.Net.Mime;
 using ByrneLabs.Commons.Ioc;
 using JetBrains.Annotations;
 
@@ -12,20 +11,16 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
     public sealed class SqlTestDatabaseServer : IDisposable
     {
         private readonly IList<WeakReference<SqlConnection>> _connections = new List<WeakReference<SqlConnection>>();
-
-
-        ~SqlTestDatabaseServer()
-        {
-            Cleanup();
-        }
+        private readonly string _instanceId;
 
         public SqlTestDatabaseServer(string emptyTestDatabaseFilePath)
         {
-            var instanceId = Guid.NewGuid().ToString().Replace("-", string.Empty);
-            DatabaseDirectory = new DirectoryInfo($"{Path.GetTempPath()}\\IntegrationTestDatabases\\{instanceId}");
+            _instanceId = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            DatabaseDirectory = new DirectoryInfo($"{Path.GetTempPath()}\\IntegrationTestDatabases\\{_instanceId}");
             DatabaseDirectory.Create();
             var emptyDatabaseDataFile = new FileInfo(emptyTestDatabaseFilePath);
-            var dataFileName = $"{DatabaseDirectory.FullName}\\{emptyDatabaseDataFile.Name.SubstringBeforeLast(".")}-{instanceId}.mdf";
+            var databaseName = $"{emptyDatabaseDataFile.Name.SubstringBeforeLast(".")}-{_instanceId}";
+            var dataFileName = $"{DatabaseDirectory.FullName}\\{databaseName}.mdf";
             emptyDatabaseDataFile.CopyTo(dataFileName);
             ConnectionString = $"Data Source=(LocalDB)\\MSSQLLocalDB; AttachDbFilename={dataFileName}; Integrated Security=True";
         }
@@ -38,6 +33,18 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         {
             GC.SuppressFinalize(this);
             Cleanup();
+        }
+
+        public void Register(IContainer container, string connectionName)
+        {
+            container.Resolve<IConnectionFactoryRegistry>().RegisterFactory(connectionName, () =>
+                {
+                    var connection = new SqlConnection(ConnectionString);
+                    _connections.Add(new WeakReference<SqlConnection>(connection));
+
+                    return connection;
+                }
+            );
         }
 
         private void Cleanup()
@@ -67,6 +74,30 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                 }
             }
 
+            using (var connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB; Initial Catalog=master; Integrated Security=True"))
+            {
+                connection.Open();
+
+                string fullDatabaseName;
+                using (var command = new SqlCommand($"SELECT name FROM sys.databases WHERE name LIKE '%{_instanceId}%'"))
+                {
+                    command.Connection = connection;
+                    fullDatabaseName = (string)command.ExecuteScalar();
+                }
+
+                using (var command = new SqlCommand($"ALTER DATABASE [{fullDatabaseName}] SET OFFLINE WITH ROLLBACK IMMEDIATE"))
+                {
+                    command.Connection = connection;
+                    command.ExecuteNonQuery();
+                }
+
+                using (var command = new SqlCommand($"EXEC sp_detach_db '{fullDatabaseName}'"))
+                {
+                    command.Connection = connection;
+                    command.ExecuteNonQuery();
+                }
+            }
+
             try
             {
                 DatabaseDirectory.Delete(true);
@@ -77,18 +108,9 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             }
         }
 
-
-
-        public void Register(IContainer container, string connectionName)
+        ~SqlTestDatabaseServer()
         {
-            container.Resolve<IConnectionFactoryRegistry>().RegisterFactory(connectionName, () =>
-                {
-                    var connection = new SqlConnection(ConnectionString);
-                    _connections.Add(new WeakReference<SqlConnection>(connection));
-
-                    return connection;
-                }
-            );
+            Cleanup();
         }
     }
 }

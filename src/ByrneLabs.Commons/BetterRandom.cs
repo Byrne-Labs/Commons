@@ -201,6 +201,14 @@ namespace ByrneLabs.Commons
             return Enum.GetValues(enumType).Cast<TEnum>().RandomItem();
         }
 
+        public static float NextFloat() => (float) FrameworkRandom.NextDouble();
+
+        public static int NextInt() => FrameworkRandom.Next();
+
+        public static int NextInt(int maxValue) => FrameworkRandom.Next(maxValue);
+
+        public static int NextInt(int minValue, int maxValue) => FrameworkRandom.Next(minValue, maxValue);
+
         public static T NextItem<T>(IEnumerable<T> items) => items.Any() ? items.ToArray()[Next(items.Count() - 1)] : default(T);
 
         public static IEnumerable<T> NextItems<T>(int count)
@@ -273,6 +281,52 @@ namespace ByrneLabs.Commons
         public static string NextString(CharacterGroup characterGroup = CharacterGroup.Keyboard) => NextString(0, 2000, characterGroup);
 
         public static string NextString(int maxLength, CharacterGroup characterGroup = CharacterGroup.Keyboard) => NextString(0, maxLength, characterGroup);
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "UInt", Justification = "No other logical name in this case")]
+        [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "This is actually not possible because of the alternate meaning of the signatures")]
+        public static uint NextUInt() => NextUInt(0, uint.MaxValue);
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "UInt", Justification = "No other logical name in this case")]
+        [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "This is actually not possible because of the alternate meaning of the signatures")]
+        public static uint NextUInt(uint maxValue) => NextUInt(0, maxValue);
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "UInt", Justification = "No other logical name in this case")]
+        public static uint NextUInt(uint minValue, uint maxValue)
+        {
+            var buf = new byte[4];
+            FrameworkRandom.NextBytes(buf);
+            var uintRand = BitConverter.ToUInt32(buf, 0);
+
+            return uintRand % (maxValue - minValue) + minValue;
+        }
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "ULong", Justification = "No other logical name in this case")]
+        [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "This is actually not possible because of the alternate meaning of the signatures")]
+        public static ulong NextULong() => NextULong(0, ulong.MaxValue);
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "ULong", Justification = "No other logical name in this case")]
+        [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "This is actually not possible because of the alternate meaning of the signatures")]
+        public static ulong NextULong(ulong maxValue) => NextULong(0, maxValue);
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "ULong", Justification = "No other logical name in this case")]
+        public static ulong NextULong(ulong minValue, ulong maxValue)
+        {
+            var buf = new byte[8];
+            FrameworkRandom.NextBytes(buf);
+            var ulongRand = BitConverter.ToUInt64(buf, 0);
+
+            return ulongRand % (maxValue - minValue) + minValue;
+        }
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "UShort", Justification = "No other logical name in this case")]
+        [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "This is actually not possible because of the alternate meaning of the signatures")]
+        public static ushort NextUShort() => NextUShort(0, ushort.MaxValue);
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "UShort", Justification = "No other logical name in this case")]
+        public static ushort NextUShort(ushort maxValue) => NextUShort(0, maxValue);
+
+        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "UShort", Justification = "No other logical name in this case")]
+        public static ushort NextUShort(ushort minValue, ushort maxValue) => (ushort) NextUInt(minValue, maxValue);
 
         public static bool Odds(int denominator) => FrameworkRandom.Next(denominator) == 1;
 

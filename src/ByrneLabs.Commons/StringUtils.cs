@@ -20,7 +20,7 @@ namespace ByrneLabs.Commons
                 if (currentIndex >= 0)
                 {
                     count++;
-                    currentIndex = currentIndex + substring.Length;
+                    currentIndex += substring.Length;
                 }
             }
 
@@ -52,7 +52,7 @@ namespace ByrneLabs.Commons
             Ensure.That(count).IsGt(0);
 
             var foundCount = 0;
-            var index = 0;
+            int index;
             var nextIndex = 0;
 
             do
