@@ -69,7 +69,7 @@ namespace ByrneLabs.Commons.Domain.Tests
             child.Parent.Name = "Parent Name";
             child.Parent.Children.Add(child);
 
-            var daughterClone = (Daughter)DeepCloner.CloneInto(child, typeof(Daughter));
+            var daughterClone = DeepCloner.CloneInto<Daughter, Child>(child);
 
             Assert.Equal(child.Name, daughterClone.Name);
             Assert.NotSame(child.Parent, daughterClone.Parent);

@@ -17,7 +17,7 @@ namespace ByrneLabs.Commons.Domain
 
         public static T Clone<T>(T obj) => (T) new DeepCloner().Clone(obj, obj?.GetType());
 
-        public static TInto CloneInto<TInto, TBase>(TBase obj) where TInto : TBase => (TInto) new DeepCloner().Clone(obj, typeof(TBase));
+        public static TInto CloneInto<TInto, TBase>(TBase obj) where TInto : TBase => (TInto) new DeepCloner().Clone(obj, typeof(TInto));
 
         public static object CloneInto(object obj, Type cloneIntoType) => new DeepCloner().Clone(obj, cloneIntoType);
 
