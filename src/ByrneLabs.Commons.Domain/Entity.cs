@@ -41,7 +41,7 @@ namespace ByrneLabs.Commons.Domain
                 {
                     if (itemA is Entity itemAEntity && itemB is Entity itemBEntity)
                     {
-                        if (ReflectionEquals(itemAEntity, itemBEntity, comparedEntities, recursionLevels++))
+                        if (ReflectionEquals(itemAEntity, itemBEntity, comparedEntities, recursionLevels + 1))
                         {
                             itemAFoundInB = true;
                             break;
@@ -66,7 +66,7 @@ namespace ByrneLabs.Commons.Domain
                 {
                     if (itemA is Entity itemAEntity && itemB is Entity itemBEntity)
                     {
-                        if (ReflectionEquals(itemAEntity, itemBEntity, comparedEntities, recursionLevels++))
+                        if (ReflectionEquals(itemAEntity, itemBEntity, comparedEntities, recursionLevels + 1))
                         {
                             itemAFoundInB = true;
                             break;
@@ -124,7 +124,7 @@ namespace ByrneLabs.Commons.Domain
                     if (!comparedEntities.Contains(compare1) && !comparedEntities.Contains(compare2))
                     {
                         comparedEntities.Add(compare1);
-                        if (!ReflectionEquals(propertyEntityA, propertyEntityB, comparedEntities, recursionLevels++))
+                        if (!ReflectionEquals(propertyEntityA, propertyEntityB, comparedEntities, recursionLevels + 1))
                         {
                             return false;
                         }
@@ -134,7 +134,7 @@ namespace ByrneLabs.Commons.Domain
                 {
                     var enumerableA = enumerable.Cast<object>();
                     var enumerableB = (propertyValueB as IEnumerable).Cast<object>();
-                    if (!ReflectionEquals(enumerableA, enumerableB, comparedEntities, recursionLevels++))
+                    if (!ReflectionEquals(enumerableA, enumerableB, comparedEntities, recursionLevels + 1))
                     {
                         return false;
                     }
@@ -149,7 +149,7 @@ namespace ByrneLabs.Commons.Domain
         }
 
         public object Clone(CloneDepth depth) => depth == CloneDepth.Deep ? DeepCloner.Clone(this) : MemberwiseClone();
-        
+
         public override bool Equals(object obj) => obj is Entity otherEntity && ReflectionEquals(this, otherEntity, new List<Tuple<Entity, Entity>>(), 0);
 
         public override int GetHashCode() => GetType().GetHashCode();
