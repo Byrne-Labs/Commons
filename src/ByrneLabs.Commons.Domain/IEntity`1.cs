@@ -1,6 +1,8 @@
-﻿namespace ByrneLabs.Commons.Domain
+﻿using System;
+
+namespace ByrneLabs.Commons.Domain
 {
-    public interface IEntity<out T> : IEntity, ICloneable<T> where T : IEntity<T>
+    public interface IEntity<T> : IEntity, ICloneable<T> where T : IEntity<T>
     {
     }
 }

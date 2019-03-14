@@ -18,7 +18,6 @@ namespace ByrneLabs.Commons.Domain
     {
         protected Entity()
         {
-            InstanceId = Guid.NewGuid();
             NeverPersisted = true;
         }
 
@@ -26,76 +25,64 @@ namespace ByrneLabs.Commons.Domain
 
         public bool HasChanged { get; set; }
 
-        public Guid InstanceId { get; }
-
         public bool NeverPersisted { get; set; }
 
-        [SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily", Justification = "Code as written greatly improves readability")]
-        private static object Clone(object obj, IDictionary<object, object> clonedObjects, CloneDepth depth)
+        private static bool ReflectionEquals(IEnumerable<object> enumerableA, IEnumerable<object> enumerableB, ICollection<Tuple<Entity, Entity>> comparedEntities, int recursionLevels = 0)
         {
-            object clone;
-            if (clonedObjects.ContainsKey(obj))
+            if (enumerableA.Count() != enumerableB.Count())
             {
-                clone = clonedObjects[obj];
+                return false;
             }
-            else if (obj is Entity entity && !clonedObjects.Values.Contains(entity))
+            foreach (var itemA in enumerableA)
             {
-                clone = entity.MemberwiseClone();
-                clonedObjects.Add(entity, clone);
-                foreach (var property in clone.GetType().GetRuntimeProperties().Where(propertyCheck => propertyCheck.CanRead && propertyCheck.CanWrite))
+                var itemAFoundInB = false;
+                foreach (var itemB in enumerableB)
                 {
-                    var propertyValue = property.GetValue(entity);
-                    if (propertyValue != null)
+                    if (itemA is Entity itemAEntity && itemB is Entity itemBEntity)
                     {
-                        var clonedPropertyValue = Clone(propertyValue, clonedObjects, depth);
-                        property.SetValue(clone, clonedPropertyValue);
+                        if (ReflectionEquals(itemAEntity, itemBEntity, comparedEntities, recursionLevels++))
+                        {
+                            itemAFoundInB = true;
+                            break;
+                        }
+                    }
+                    else if (Equals(itemA, itemB))
+                    {
+                        itemAFoundInB = true;
                     }
                 }
-            }
-            else if (obj is IList list)
-            {
-                var defaultConstructor = list.GetType().GetTypeInfo().DeclaredConstructors.SingleOrDefault(constructor => constructor.IsPublic && constructor.GetParameters().Length == 0);
-                if (defaultConstructor != null)
+                if (!itemAFoundInB)
                 {
-                    var clonedList = (IList) defaultConstructor.Invoke(Array.Empty<object>());
-                    clonedObjects.Add(list, clonedList);
-                    foreach (var clonedItem in list.Cast<object>().Select(item => Clone(item, clonedObjects, depth)))
+                    return false;
+                }
+            }
+            foreach (var itemA in enumerableA)
+            {
+                var itemAFoundInB = false;
+                foreach (var itemB in enumerableB)
+                {
+                    if (itemA is Entity itemAEntity && itemB is Entity itemBEntity)
                     {
-                        clonedList.Add(clonedItem);
+                        if (ReflectionEquals(itemAEntity, itemBEntity, comparedEntities, recursionLevels++))
+                        {
+                            itemAFoundInB = true;
+                            break;
+                        }
                     }
-
-                    clone = clonedList;
+                    else if (Equals(itemA, itemB))
+                    {
+                        itemAFoundInB = true;
+                    }
                 }
-                else
+                if (!itemAFoundInB)
                 {
-                    clone = list;
+                    return false;
                 }
             }
-            else if (obj.GetType().IsArray)
-            {
-                var array = (Array) obj;
-                var clonedArray = (Array) array.Clone();
-                clonedObjects.Add(array, clonedArray);
-                for (var index = 0; index < array.Length; index++)
-                {
-                    var clonedItem = Clone(array.GetValue(index), clonedObjects, depth);
-                    clonedArray.SetValue(clonedItem, index);
-                }
 
-                clone = clonedArray;
-            }
-            else if (obj is ICloneable cloneable)
-            {
-                clone = cloneable.Clone();
-                clonedObjects.Add(cloneable, clone);
-            }
-            else
-            {
-                clone = obj;
-            }
-
-            return clone;
+            return true;
         }
+
 
         [SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily", Justification = "The times where multiple casting occurs below are a big help to code readability")]
         private static bool ReflectionEquals(Entity entityA, Entity entityB, ICollection<Tuple<Entity, Entity>> comparedEntities, int recursionLevels = 0)
@@ -106,60 +93,63 @@ namespace ByrneLabs.Commons.Domain
                 Debugger.Break();
             }
 #endif
-            var equals = true;
-            if (!ReferenceEquals(entityA, entityB))
+            if (ReferenceEquals(entityA, entityB) || (entityA == null && entityB == null))
             {
-                if (entityA is null || entityB is null || entityA.GetType() != entityB.GetType())
+                return true;
+            }
+
+            if (entityA == null || entityB == null || entityA.GetType() != entityB.GetType())
+            {
+                return false;
+            }
+
+            foreach (var property in entityA.GetType().GetRuntimeProperties().Where(property => property.CanRead && !property.GetCustomAttributes<IgnoreInIdentityAttribute>().Any()).OrderBy(property => property.Name))
+            {
+                var propertyValueA = property.GetValue(entityA);
+                var propertyValueB = property.GetValue(entityB);
+                if (propertyValueA == null && propertyValueB != null || propertyValueA != null && propertyValueB == null)
                 {
-                    equals = false;
+                    return false;
                 }
-                else
+
+                var propertyEntityB = propertyValueB as Entity;
+
+                if (propertyValueA is Entity propertyEntityA)
                 {
-                    foreach (var property in entityA.GetType().GetRuntimeProperties().Where(property => property.CanRead && !property.GetCustomAttributes<IgnoreInIdentityAttribute>().Any()).OrderBy(property => property.Name))
+                    var compare1 = new Tuple<Entity, Entity>(propertyEntityA, propertyEntityB);
+                    var compare2 = new Tuple<Entity, Entity>(propertyEntityB, propertyEntityA);
+                    if (!comparedEntities.Contains(compare1) && !comparedEntities.Contains(compare2))
                     {
-                        var propertyValueA = property.GetValue(entityA);
-                        var propertyValueB = property.GetValue(entityB);
-                        if (propertyValueA == null && propertyValueB != null || propertyValueA != null && propertyValueB == null)
+                        comparedEntities.Add(compare1);
+                        if (!ReflectionEquals(propertyEntityA, propertyEntityB, comparedEntities, recursionLevels++))
                         {
-                            equals = false;
-                            break;
-                        }
-
-                        var propertyEntityB = propertyValueB as Entity;
-
-                        if (propertyValueA is Entity propertyEntityA)
-                        {
-                            var compare1 = new Tuple<Entity, Entity>(propertyEntityA, propertyEntityB);
-                            var compare2 = new Tuple<Entity, Entity>(propertyEntityB, propertyEntityA);
-                            if (!comparedEntities.Contains(compare1) && !comparedEntities.Contains(compare2))
-                            {
-                                comparedEntities.Add(compare1);
-                                if (!ReflectionEquals(propertyEntityA, propertyEntityB, comparedEntities, recursionLevels++))
-                                {
-                                    equals = false;
-                                    break;
-                                }
-                            }
-                        }
-                        else if (propertyValueA is IEnumerable enumerable && !(enumerable is string))
-                        {
-                            var enumerableA = enumerable.Cast<object>();
-                            var enumerableB = (propertyValueB as IEnumerable).Cast<object>();
-                            equals = enumerableA.All(enumerableB.Contains) && enumerableB.All(enumerableA.Contains);
-                        }
-                        else if (!Equals(propertyValueA, propertyValueB))
-                        {
-                            equals = false;
-                            break;
+                            return false;
                         }
                     }
                 }
+                else if (propertyValueA is IEnumerable enumerable && !(enumerable is string))
+                {
+                    var enumerableA = enumerable.Cast<object>();
+                    var enumerableB = (propertyValueB as IEnumerable).Cast<object>();
+                    if (!ReflectionEquals(enumerableA, enumerableB, comparedEntities, recursionLevels++))
+                    {
+                        return false;
+                    }
+                }
+                else if (!Equals(propertyValueA, propertyValueB))
+                {
+                    return false;
+                }
             }
 
-            return equals;
+            return true;
         }
 
-        public object Clone(CloneDepth depth) => Clone(this, new Dictionary<object, object>(), depth);
+        public object Clone(CloneDepth depth) => depth == CloneDepth.Deep ? DeepCloner.Clone(this) : MemberwiseClone();
+
+        public override bool Equals(object obj) => obj is Entity otherEntity && ReflectionEquals(this, otherEntity, new List<Tuple<Entity, Entity>>(), 0);
+
+        public override int GetHashCode() => GetType().GetHashCode();
 
         public override string ToString()
         {

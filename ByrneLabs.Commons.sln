@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28705.295
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.438
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Commons.Domain", "src\ByrneLabs.Commons.Domain\ByrneLabs.Commons.Domain.csproj", "{30B23472-92BA-4569-9575-038AB5238F2B}"
 EndProject
@@ -57,6 +57,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Commons.Logging", "src\ByrneLabs.Commons.Logging\ByrneLabs.Commons.Logging.csproj", "{9B70DABE-A72E-48C5-B148-CD28672770B9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Commons.Net", "src\ByrneLabs.Commons.Net\ByrneLabs.Commons.Net.csproj", "{EA6B60CB-9E63-4E8B-8734-0D80DE57BE1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByrneLabs.Commons.Domain.Tests", "test\ByrneLabs.Commons.Domain.Tests\ByrneLabs.Commons.Domain.Tests.csproj", "{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -296,6 +298,18 @@ Global
 		{EA6B60CB-9E63-4E8B-8734-0D80DE57BE1E}.Release|x64.Build.0 = Release|Any CPU
 		{EA6B60CB-9E63-4E8B-8734-0D80DE57BE1E}.Release|x86.ActiveCfg = Release|Any CPU
 		{EA6B60CB-9E63-4E8B-8734-0D80DE57BE1E}.Release|x86.Build.0 = Release|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Debug|x64.Build.0 = Debug|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Debug|x86.Build.0 = Debug|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Release|x64.ActiveCfg = Release|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Release|x64.Build.0 = Release|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Release|x86.ActiveCfg = Release|Any CPU
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -320,6 +334,7 @@ Global
 		{2E5FB264-38BB-4D36-880B-62D36E927F42} = {42FCCB91-E6CA-480C-932C-8F288FF567B3}
 		{9B70DABE-A72E-48C5-B148-CD28672770B9} = {42FCCB91-E6CA-480C-932C-8F288FF567B3}
 		{EA6B60CB-9E63-4E8B-8734-0D80DE57BE1E} = {42FCCB91-E6CA-480C-932C-8F288FF567B3}
+		{332EC041-50B9-4C17-A5F7-F2C4A4324CC0} = {6110B6E5-8749-4588-A8AA-FA0174C40DD5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BD622ED0-859B-4F0A-8D28-F4E27B7A8E0C}
