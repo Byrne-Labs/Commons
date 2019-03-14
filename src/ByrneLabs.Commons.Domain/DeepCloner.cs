@@ -15,9 +15,13 @@ namespace ByrneLabs.Commons.Domain
         {
         }
 
-        public static T Clone<T>(T obj) => (T) new DeepCloner().Clone((object) obj);
+        public static T Clone<T>(T obj) => (T) new DeepCloner().Clone(obj, obj?.GetType());
 
-        private object Clone(object obj)
+        public static TInto CloneInto<TInto, TBase>(TBase obj) where TInto : TBase => (TInto) new DeepCloner().Clone(obj, typeof(TBase));
+
+        public static object CloneInto(object obj, Type cloneIntoType) => new DeepCloner().Clone(obj, cloneIntoType);
+
+        private object Clone(object obj, Type cloneIntoType)
         {
             if (obj == null)
             {
@@ -28,6 +32,11 @@ namespace ByrneLabs.Commons.Domain
             if (type.IsValueType || obj is string)
             {
                 return obj;
+            }
+
+            if (!type.IsAssignableFrom(cloneIntoType))
+            {
+                throw new ArgumentException($"Type {type.FullName} is not assignable from {cloneIntoType.FullName}");
             }
 
             var objectId = _objectIdGenerator.GetId(obj, out var firstTime);
@@ -46,7 +55,7 @@ namespace ByrneLabs.Commons.Domain
                 for (var index = 0; index < array.Length; index++)
                 {
                     var element = array.GetValue(index);
-                    var clonedElement = Clone(element);
+                    var clonedElement = Clone(element, element?.GetType());
                     clonedArray.SetValue(clonedElement, index);
                 }
 
@@ -54,7 +63,7 @@ namespace ByrneLabs.Commons.Domain
             }
             else
             {
-                clone = FormatterServices.GetUninitializedObject(type);
+                clone = FormatterServices.GetUninitializedObject(cloneIntoType);
                 _clonedObjects.Add(objectId, clone);
 
                 var fields = new List<FieldInfo>();
@@ -69,7 +78,7 @@ namespace ByrneLabs.Commons.Domain
                 foreach (var field in fields)
                 {
                     var fieldValue = field.GetValue(obj);
-                    var clonedFieldValue = Clone(fieldValue);
+                    var clonedFieldValue = Clone(fieldValue, fieldValue?.GetType());
                     field.SetValue(clone, clonedFieldValue);
                 }
             }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ByrneLabs.Commons.Domain;
+using System.Linq;
 using Xunit;
 
 namespace ByrneLabs.Commons.Domain.Tests
@@ -14,6 +14,13 @@ namespace ByrneLabs.Commons.Domain.Tests
             public Parent Parent { get; set; }
         }
 
+        private class Daughter : Child, IEntity<Daughter>
+        {
+            public new Daughter Clone(CloneDepth depth = CloneDepth.Deep) => (Daughter) base.Clone(depth);
+
+            public new TSub CloneInto<TSub>() where TSub : Daughter => base.CloneInto<TSub>();
+        }
+
         private class Parent : Entity<Parent>
         {
             public IList<Child> Children { get; } = new List<Child>();
@@ -21,11 +28,20 @@ namespace ByrneLabs.Commons.Domain.Tests
             public string Name { get; set; }
         }
 
-        private void AssertValidEntityClone(Entity original, Entity cloned)
+        [Fact]
+        public void TestCloneInto()
         {
-            Assert.NotSame(original, cloned);
-            Assert.Equal(original, cloned);
-            Assert.Equal(original.EntityId, cloned.EntityId);
+            var child = new Child();
+            child.Name = "Child Name";
+            child.Parent = new Parent();
+            child.Parent.Name = "Parent Name";
+            child.Parent.Children.Add(child);
+
+            var daughterClone = child.CloneInto<Daughter>();
+
+            Assert.Equal(child.Name, daughterClone.Name);
+            Assert.NotSame(child.Parent, daughterClone.Parent);
+            Assert.Equal(daughterClone, daughterClone.Parent.Children.Single());
         }
 
         [Fact]
@@ -41,7 +57,7 @@ namespace ByrneLabs.Commons.Domain.Tests
             child1.EntityId = Guid.NewGuid();
             parent.Children.Add(child1);
 
-            var child2 = new Child();
+            var child2 = new Daughter();
             child2.Parent = parent;
             child2.Name = "child name 2";
             child2.EntityId = Guid.NewGuid();
@@ -59,6 +75,14 @@ namespace ByrneLabs.Commons.Domain.Tests
 
             AssertValidEntityClone(parent.Children[1], clonedParent.Children[1]);
             Assert.Equal(parent.Children[1].Name, clonedParent.Children[1].Name);
+            Assert.IsType<Daughter>(parent.Children[1]);
+        }
+
+        private void AssertValidEntityClone(Entity original, Entity cloned)
+        {
+            Assert.NotSame(original, cloned);
+            Assert.Equal(original, cloned);
+            Assert.Equal(original.EntityId, cloned.EntityId);
         }
     }
 }

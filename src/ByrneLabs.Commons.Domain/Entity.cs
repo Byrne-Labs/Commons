@@ -33,6 +33,7 @@ namespace ByrneLabs.Commons.Domain
             {
                 return false;
             }
+
             foreach (var itemA in enumerableA)
             {
                 var itemAFoundInB = false;
@@ -51,11 +52,13 @@ namespace ByrneLabs.Commons.Domain
                         itemAFoundInB = true;
                     }
                 }
+
                 if (!itemAFoundInB)
                 {
                     return false;
                 }
             }
+
             foreach (var itemA in enumerableA)
             {
                 var itemAFoundInB = false;
@@ -74,6 +77,7 @@ namespace ByrneLabs.Commons.Domain
                         itemAFoundInB = true;
                     }
                 }
+
                 if (!itemAFoundInB)
                 {
                     return false;
@@ -82,7 +86,6 @@ namespace ByrneLabs.Commons.Domain
 
             return true;
         }
-
 
         [SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily", Justification = "The times where multiple casting occurs below are a big help to code readability")]
         private static bool ReflectionEquals(Entity entityA, Entity entityB, ICollection<Tuple<Entity, Entity>> comparedEntities, int recursionLevels = 0)
@@ -93,7 +96,7 @@ namespace ByrneLabs.Commons.Domain
                 Debugger.Break();
             }
 #endif
-            if (ReferenceEquals(entityA, entityB) || (entityA == null && entityB == null))
+            if (ReferenceEquals(entityA, entityB) || entityA == null && entityB == null)
             {
                 return true;
             }
@@ -146,6 +149,8 @@ namespace ByrneLabs.Commons.Domain
         }
 
         public object Clone(CloneDepth depth) => depth == CloneDepth.Deep ? DeepCloner.Clone(this) : MemberwiseClone();
+
+        public object CloneInto(Type type) => DeepCloner.CloneInto(this, type);
 
         public override bool Equals(object obj) => obj is Entity otherEntity && ReflectionEquals(this, otherEntity, new List<Tuple<Entity, Entity>>(), 0);
 
