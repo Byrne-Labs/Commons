@@ -16,9 +16,7 @@ namespace ByrneLabs.Commons.Domain.Tests
 
         private class Daughter : Child, IEntity<Daughter>
         {
-            public new Daughter Clone(CloneDepth depth = CloneDepth.Deep) => (Daughter) base.Clone(depth);
-
-            public new TSub CloneInto<TSub>() where TSub : Daughter => base.CloneInto<TSub>();
+            public new Daughter Clone(CloneDepth depth = CloneDepth.Deep) => (Daughter)base.Clone(depth);
         }
 
         private class Parent : Entity<Parent>
@@ -26,22 +24,6 @@ namespace ByrneLabs.Commons.Domain.Tests
             public IList<Child> Children { get; } = new List<Child>();
 
             public string Name { get; set; }
-        }
-
-        [Fact]
-        public void TestCloneInto()
-        {
-            var child = new Child();
-            child.Name = "Child Name";
-            child.Parent = new Parent();
-            child.Parent.Name = "Parent Name";
-            child.Parent.Children.Add(child);
-
-            var daughterClone = child.CloneInto<Daughter>();
-
-            Assert.Equal(child.Name, daughterClone.Name);
-            Assert.NotSame(child.Parent, daughterClone.Parent);
-            Assert.Equal(daughterClone, daughterClone.Parent.Children.Single());
         }
 
         [Fact]
@@ -76,6 +58,22 @@ namespace ByrneLabs.Commons.Domain.Tests
             AssertValidEntityClone(parent.Children[1], clonedParent.Children[1]);
             Assert.Equal(parent.Children[1].Name, clonedParent.Children[1].Name);
             Assert.IsType<Daughter>(parent.Children[1]);
+        }
+
+        [Fact]
+        public void TestCloneInto()
+        {
+            var child = new Child();
+            child.Name = "Child Name";
+            child.Parent = new Parent();
+            child.Parent.Name = "Parent Name";
+            child.Parent.Children.Add(child);
+
+            var daughterClone = (Daughter)DeepCloner.CloneInto(child, typeof(Daughter));
+
+            Assert.Equal(child.Name, daughterClone.Name);
+            Assert.NotSame(child.Parent, daughterClone.Parent);
+            Assert.Equal(daughterClone, daughterClone.Parent.Children.Single());
         }
 
         private void AssertValidEntityClone(Entity original, Entity cloned)

@@ -6,7 +6,5 @@ namespace ByrneLabs.Commons
     public interface ICloneable<T> : ICloneable
     {
         new T Clone(CloneDepth depth = CloneDepth.Deep);
-
-        TSub CloneInto<TSub>() where TSub : T;
     }
 }

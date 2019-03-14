@@ -149,9 +149,7 @@ namespace ByrneLabs.Commons.Domain
         }
 
         public object Clone(CloneDepth depth) => depth == CloneDepth.Deep ? DeepCloner.Clone(this) : MemberwiseClone();
-
-        public object CloneInto(Type type) => DeepCloner.CloneInto(this, type);
-
+        
         public override bool Equals(object obj) => obj is Entity otherEntity && ReflectionEquals(this, otherEntity, new List<Tuple<Entity, Entity>>(), 0);
 
         public override int GetHashCode() => GetType().GetHashCode();

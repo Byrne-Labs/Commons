@@ -10,10 +10,10 @@ namespace ByrneLabs.Commons.MasterDataManagement
     {
         public IDictionary<DataSource, int> DefaultPriority { get; } = new ConcurrentDictionary<DataSource, int>();
 
+        public Func<Guid> GetRecordIdentifier { get; set; }
+
         public List<MemberMetadata> MemberMetadata { get; } = new List<MemberMetadata>();
 
         public Type RecordType { get; set; }
-
-        public Func<Guid> GetRecordIdentifier { get; set; }
     }
 }

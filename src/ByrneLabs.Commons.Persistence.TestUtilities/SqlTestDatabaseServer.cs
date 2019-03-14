@@ -82,7 +82,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                 using (var command = new SqlCommand($"SELECT name FROM sys.databases WHERE name LIKE '%{_instanceId}%'"))
                 {
                     command.Connection = connection;
-                    fullDatabaseName = (string)command.ExecuteScalar();
+                    fullDatabaseName = (string) command.ExecuteScalar();
                 }
 
                 using (var command = new SqlCommand($"ALTER DATABASE [{fullDatabaseName}] SET OFFLINE WITH ROLLBACK IMMEDIATE"))

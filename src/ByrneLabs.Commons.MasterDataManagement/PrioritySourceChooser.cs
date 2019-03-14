@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 
@@ -14,7 +13,6 @@ namespace ByrneLabs.Commons.MasterDataManagement
 
         public SourceRecord ChooseSource(IEnumerable<SourceRecord> sourceRecords, RecordMetadata recordMetadata, PropertyInfo propertyInfo)
         {
-
         }
     }
 }
