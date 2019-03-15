@@ -1,10 +1,31 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace ByrneLabs.Commons
 {
     public static class UriExtensions
     {
+        public static Uri AddQueryParameter(this Uri uri, string queryParameterName, string queryParameterValue)
+        {
+            var queryBuilder = new StringBuilder(uri.Query);
+            if (string.IsNullOrWhiteSpace(uri.Query))
+            {
+                queryBuilder.Append("?");
+            }
+            else if (uri.Query.Length > 1)
+            {
+                queryBuilder.Append("&");
+            }
+
+            queryBuilder.Append(queryParameterName).Append("=").Append(queryParameterValue);
+
+            var uriBuilder = new UriBuilder(uri);
+            uriBuilder.Query = queryBuilder.ToString();
+
+            return uriBuilder.Uri;
+        }
+
         public static Uri RemoveQueryParameter(this Uri uri, string queryParameterName)
         {
             if (string.IsNullOrWhiteSpace(uri.Query))
