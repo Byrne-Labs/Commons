@@ -79,7 +79,7 @@ namespace ByrneLabs.Commons.Domain.Tests
         private void AssertValidEntityClone(Entity original, Entity cloned)
         {
             Assert.NotSame(original, cloned);
-            Assert.Equal(original, cloned);
+            Assert.True(new EntityEquivalencyComparer().Equals(original, cloned));
             Assert.Equal(original.EntityId, cloned.EntityId);
         }
     }

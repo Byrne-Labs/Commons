@@ -10,14 +10,15 @@ namespace ByrneLabs.Commons.Domain
     {
         private readonly Dictionary<long, object> _clonedObjects = new Dictionary<long, object>();
         private readonly ObjectIDGenerator _objectIdGenerator = new ObjectIDGenerator();
+        private readonly IDictionary<Type, IEnumerable<FieldInfo>> _fields = new Dictionary<Type, IEnumerable<FieldInfo>>();
 
         private DeepCloner()
         {
         }
 
-        public static T Clone<T>(T obj) => (T) new DeepCloner().Clone(obj, obj?.GetType());
+        public static T Clone<T>(T obj) => (T)new DeepCloner().Clone(obj, obj?.GetType());
 
-        public static TInto CloneInto<TInto, TBase>(TBase obj) where TInto : TBase => (TInto) new DeepCloner().Clone(obj, typeof(TInto));
+        public static TInto CloneInto<TInto, TBase>(TBase obj) where TInto : TBase => (TInto)new DeepCloner().Clone(obj, typeof(TInto));
 
         public static object CloneInto(object obj, Type cloneIntoType) => new DeepCloner().Clone(obj, cloneIntoType);
 
@@ -84,6 +85,25 @@ namespace ByrneLabs.Commons.Domain
             }
 
             return clone;
+        }
+
+        private IEnumerable<FieldInfo> GetFields(Type type)
+        {
+            if (!_fields.ContainsKey(type))
+            {
+                var fields = new List<FieldInfo>();
+                var baseType = type;
+                while (baseType != null)
+                {
+                    fields.AddRange(baseType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(f => !f.IsNotSerialized));
+
+                    baseType = baseType.BaseType;
+                }
+
+                _fields.Add(type, fields);
+            }
+
+            return _fields[type];
         }
     }
 }
