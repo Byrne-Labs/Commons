@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace ByrneLabs.Commons.Domain
+namespace ByrneLabs.Commons
 {
     public class DeepCloner
     {
