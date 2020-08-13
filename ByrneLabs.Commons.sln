@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.438
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30406.217
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Commons.Domain", "src\ByrneLabs.Commons.Domain\ByrneLabs.Commons.Domain.csproj", "{30B23472-92BA-4569-9575-038AB5238F2B}"
 EndProject
@@ -58,7 +58,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Commons.Logging",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Commons.Net", "src\ByrneLabs.Commons.Net\ByrneLabs.Commons.Net.csproj", "{EA6B60CB-9E63-4E8B-8734-0D80DE57BE1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByrneLabs.Commons.Domain.Tests", "test\ByrneLabs.Commons.Domain.Tests\ByrneLabs.Commons.Domain.Tests.csproj", "{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Commons.Domain.Tests", "test\ByrneLabs.Commons.Domain.Tests\ByrneLabs.Commons.Domain.Tests.csproj", "{332EC041-50B9-4C17-A5F7-F2C4A4324CC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

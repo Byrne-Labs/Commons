@@ -33,7 +33,7 @@ namespace ByrneLabs.Commons
         private static Random FrameworkRandom
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
-            get => _frameworkRandom ?? (_frameworkRandom = new Random());
+            get => _frameworkRandom ??= new Random();
         }
 
         public static IEnumerable<T> Next<T>(int minCount, int maxCount)
@@ -209,7 +209,7 @@ namespace ByrneLabs.Commons
 
         public static int NextInt(int minValue, int maxValue) => FrameworkRandom.Next(minValue, maxValue);
 
-        public static T NextItem<T>(IEnumerable<T> items) => items.Any() ? items.ToArray()[Next(items.Count() - 1)] : default(T);
+        public static T NextItem<T>(IEnumerable<T> items) => items.Any() ? items.ToArray()[Next(items.Count() - 1)] : default;
 
         public static IEnumerable<T> NextItems<T>(int count)
         {

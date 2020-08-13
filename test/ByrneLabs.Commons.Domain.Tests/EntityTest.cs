@@ -1,24 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace ByrneLabs.Commons.Tests
+namespace ByrneLabs.Commons.Domain.Tests
 {
-    public class HandyObjectTests
+    public class EntityTests
     {
-        private class Child : HandyObject<Child>
+        private class Child : Entity<Child>
         {
             public string Name { get; set; }
 
             public Parent Parent { get; set; }
         }
 
-        private class Daughter : Child, ICloneable<Daughter>
+        private class Daughter : Child, IEntity<Daughter>
         {
-            public new Daughter Clone(CloneDepth depth = CloneDepth.Deep) => (Daughter) base.Clone(depth);
+            public new Daughter Clone(CloneDepth depth = CloneDepth.Deep) => (Daughter)base.Clone(depth);
         }
 
-        private class Parent : HandyObject<Parent>
+        private class Parent : Entity<Parent>
         {
             public IList<Child> Children { get; } = new List<Child>();
 
@@ -30,34 +31,37 @@ namespace ByrneLabs.Commons.Tests
         {
             var parent = new Parent
             {
-                Name = "parent name 1"
+                Name = "parent name 1",
+                EntityId = Guid.NewGuid()
             };
 
             var child1 = new Child
             {
                 Parent = parent,
-                Name = "child name 1"
+                Name = "child name 1",
+                EntityId = Guid.NewGuid()
             };
             parent.Children.Add(child1);
 
             var child2 = new Daughter
             {
                 Parent = parent,
-                Name = "child name 2"
+                Name = "child name 2",
+                EntityId = Guid.NewGuid()
             };
             parent.Children.Add(child2);
 
             var clonedParent = parent.Clone();
 
-            AssertValidObjectClone(parent, clonedParent);
+            AssertValidEntityClone(parent, clonedParent);
             Assert.Equal(parent.Name, clonedParent.Name);
             Assert.Equal(parent.Children.Count, clonedParent.Children.Count);
             Assert.Equal(2, clonedParent.Children.Count);
 
-            AssertValidObjectClone(parent.Children[0], clonedParent.Children[0]);
+            AssertValidEntityClone(parent.Children[0], clonedParent.Children[0]);
             Assert.Equal(parent.Children[0].Name, clonedParent.Children[0].Name);
 
-            AssertValidObjectClone(parent.Children[1], clonedParent.Children[1]);
+            AssertValidEntityClone(parent.Children[1], clonedParent.Children[1]);
             Assert.Equal(parent.Children[1].Name, clonedParent.Children[1].Name);
             Assert.IsType<Daughter>(parent.Children[1]);
         }
@@ -82,10 +86,11 @@ namespace ByrneLabs.Commons.Tests
             Assert.Equal(daughterClone, daughterClone.Parent.Children.Single());
         }
 
-        private void AssertValidObjectClone(HandyObject original, HandyObject cloned)
+        private void AssertValidEntityClone(Entity original, Entity cloned)
         {
             Assert.NotSame(original, cloned);
-            Assert.True(new HandyObjectReflectionEquivalencyComparer().Equals(original, cloned));
+            Assert.True(new EntityEquivalencyComparer().Equals(original, cloned));
+            Assert.Equal(original.EntityId, cloned.EntityId);
         }
     }
 }

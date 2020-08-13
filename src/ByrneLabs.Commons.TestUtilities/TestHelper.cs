@@ -38,13 +38,12 @@ namespace ByrneLabs.Commons.TestUtilities
                     throw new NotSupportedException("This operation is not valid when no tested type was specified");
                 }
 
-                return _testedObject ?? (_testedObject = Container.GetRequiredService<TInterface>());
+                return _testedObject ??= Container.GetRequiredService<TInterface>();
             }
         }
 
         public void Dispose()
         {
-            Debugger.Break();
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -62,7 +61,9 @@ namespace ByrneLabs.Commons.TestUtilities
         {
             var mockEntities = TestData<TEntity>().ToList();
             var mockRepository = new Mock<TRepository>(mockBehavior);
+#pragma warning disable CA1806 // Do not ignore method results
             mockRepository.Setup(r => r.Delete(It.IsAny<IEnumerable<TEntity>>())).Callback((IEnumerable<TEntity> entities) => entities.Select(mockEntities.Remove));
+#pragma warning restore CA1806 // Do not ignore method results
             mockRepository.Setup(r => r.FindAll()).Returns(mockEntities.Select(mockEntity => mockEntity.Clone(CloneDepth.Shallow)).Cast<TEntity>().ToList().AsReadOnly());
             mockRepository.Setup(r => r.Save(It.IsAny<IEnumerable<TEntity>>())).Callback((IEnumerable<TEntity> entities) =>
             {
@@ -71,7 +72,9 @@ namespace ByrneLabs.Commons.TestUtilities
                     entity.EntityId = Guid.NewGuid();
                 }
 
+#pragma warning disable CA1806 // Do not ignore method results
                 mockEntities.Where(mockEntity => entities.Any(entity => entity.EntityId == mockEntity.EntityId)).Select(mockEntities.Remove);
+#pragma warning restore CA1806 // Do not ignore method results
                 mockEntities.AddRange(entities);
             });
             Container.RegisterInstance(mockRepository.Object);

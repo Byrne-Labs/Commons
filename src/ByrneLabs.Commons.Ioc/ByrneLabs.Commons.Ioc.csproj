@@ -1,6 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.0" />
+    <PackageReference Update="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0" />
+    <PackageReference Update="Microsoft.CodeQuality.Analyzers" Version="3.3.0" />
+    <PackageReference Update="Microsoft.NetCore.Analyzers" Version="3.3.0" />
+    <PackageReference Update="Microsoft.NetFramework.Analyzers" Version="3.3.0" />
+    <PackageReference Update="Roslyn.Diagnostics.Analyzers" Version="3.3.0" />
+    <PackageReference Update="Text.Analyzers" Version="2.6.4" />
   </ItemGroup>
 </Project>

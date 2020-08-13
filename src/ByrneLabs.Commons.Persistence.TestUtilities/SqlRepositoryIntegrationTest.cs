@@ -28,24 +28,22 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         [Trait("Test Type", "Integration Test")]
         public virtual void IntegrationTestFindAll()
         {
-            using (var testHelper = GetNewRepositoryTestHelper())
+            using var testHelper = GetNewRepositoryTestHelper();
+            var testEntities = testHelper.TestData<TEntity>();
+            testHelper.TestedObject.Save(testEntities);
+
+            var entityIds = testHelper.TestData<TEntity>().Select(entity => entity.EntityId.Value).Distinct().ToArray();
+            var foundEntities = testHelper.TestedObject.FindAll().ToArray();
+            AssertValid(foundEntities);
+            foreach (var foundEntity in foundEntities)
             {
-                var testEntities = testHelper.TestData<TEntity>();
-                testHelper.TestedObject.Save(testEntities);
+                Assert.Contains(foundEntity.EntityId.Value, entityIds);
+            }
 
-                var entityIds = testHelper.TestData<TEntity>().Select(entity => entity.EntityId.Value).Distinct().ToArray();
-                var foundEntities = testHelper.TestedObject.FindAll().ToArray();
-                AssertValid(foundEntities);
-                foreach (var foundEntity in foundEntities)
-                {
-                    Assert.Contains(foundEntity.EntityId.Value, entityIds);
-                }
-
-                var foundEntityIds = foundEntities.Select(entity => entity.EntityId.Value);
-                foreach (var entityId in entityIds)
-                {
-                    Assert.Contains(entityId, foundEntityIds);
-                }
+            var foundEntityIds = foundEntities.Select(entity => entity.EntityId.Value);
+            foreach (var entityId in entityIds)
+            {
+                Assert.Contains(entityId, foundEntityIds);
             }
         }
 
@@ -53,18 +51,16 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         [Trait("Test Type", "Integration Test")]
         public virtual void IntegrationTestFindById()
         {
-            using (var testHelper = GetNewRepositoryTestHelper())
-            {
-                var testEntities = testHelper.TestData<TEntity>();
-                testHelper.TestedObject.Save(testEntities);
+            using var testHelper = GetNewRepositoryTestHelper();
+            var testEntities = testHelper.TestData<TEntity>();
+            testHelper.TestedObject.Save(testEntities);
 
-                var entityIds = GetEntityIds(testHelper.Container);
-                foreach (var entityId in entityIds)
-                {
-                    var entity = testHelper.TestedObject.Find(entityId);
-                    AssertValid(entity);
-                    Assert.Equal(entityId, entity.EntityId.Value);
-                }
+            var entityIds = GetEntityIds(testHelper.Container);
+            foreach (var entityId in entityIds)
+            {
+                var entity = testHelper.TestedObject.Find(entityId);
+                AssertValid(entity);
+                Assert.Equal(entityId, entity.EntityId.Value);
             }
         }
 
@@ -72,28 +68,24 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         [Trait("Test Type", "Integration Test")]
         public virtual void IntegrationTestFindByIds()
         {
-            using (var testHelper = GetNewRepositoryTestHelper())
-            {
-                var testEntities = testHelper.TestData<TEntity>();
-                testHelper.TestedObject.Save(testEntities);
+            using var testHelper = GetNewRepositoryTestHelper();
+            var testEntities = testHelper.TestData<TEntity>();
+            testHelper.TestedObject.Save(testEntities);
 
-                var entityIds = GetEntityIds(testHelper.Container);
-                var entities = testHelper.TestedObject.Find(entityIds);
-                AssertValid(entities);
-                BetterAssert.ContainsSame(entityIds, entities.Select(entity => entity.EntityId.Value).ToArray());
-            }
+            var entityIds = GetEntityIds(testHelper.Container);
+            var entities = testHelper.TestedObject.Find(entityIds);
+            AssertValid(entities);
+            BetterAssert.ContainsSame(entityIds, entities.Select(entity => entity.EntityId.Value).ToArray());
         }
 
         [Fact]
         [Trait("Test Type", "Integration Test")]
         public void IntegrationTestSave()
         {
-            using (var testHelper = GetNewRepositoryTestHelper())
-            {
-                var testEntities = testHelper.TestData<TEntity>();
-                testHelper.TestedObject.Save(testEntities);
-                AssertValid(testHelper.TestData<TEntity>());
-            }
+            using var testHelper = GetNewRepositoryTestHelper();
+            var testEntities = testHelper.TestData<TEntity>();
+            testHelper.TestedObject.Save(testEntities);
+            AssertValid(testHelper.TestData<TEntity>());
         }
 
         protected abstract ITestHelper<TRepositoryInterface> GetNewRepositoryTestHelper();

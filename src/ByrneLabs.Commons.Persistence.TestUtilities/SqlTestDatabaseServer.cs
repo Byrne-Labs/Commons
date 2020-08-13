@@ -15,7 +15,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
 
         public SqlTestDatabaseServer(string emptyTestDatabaseFilePath)
         {
-            _instanceId = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            _instanceId = Guid.NewGuid().ToString().Replace("-", string.Empty, StringComparison.InvariantCulture);
             DatabaseDirectory = new DirectoryInfo($"{Path.GetTempPath()}\\IntegrationTestDatabases\\{_instanceId}");
             DatabaseDirectory.Create();
             var emptyDatabaseDataFile = new FileInfo(emptyTestDatabaseFilePath);
@@ -58,7 +58,9 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     {
                         connection.Close();
                     }
+#pragma warning disable CA1031 // Do not catch general exception types
                     catch
+#pragma warning restore CA1031 // Do not catch general exception types
                     {
                         // This should fail if the connection was correctly closed but we want to try just to make sure
                     }
@@ -67,7 +69,9 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     {
                         connection.Dispose();
                     }
+#pragma warning disable CA1031 // Do not catch general exception types
                     catch
+#pragma warning restore CA1031 // Do not catch general exception types
                     {
                         // This should fail if the connection was correctly disposed but we want to try just to make sure
                     }
@@ -79,6 +83,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                 connection.Open();
 
                 string fullDatabaseName;
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
                 using (var command = new SqlCommand($"SELECT name FROM sys.databases WHERE name LIKE '%{_instanceId}%'"))
                 {
                     command.Connection = connection;
@@ -96,13 +101,16 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                     command.Connection = connection;
                     command.ExecuteNonQuery();
                 }
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
             }
 
             try
             {
                 DatabaseDirectory.Delete(true);
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch
+#pragma warning restore CA1031 // Do not catch general exception types
             {
                 // We don't want the app to crash if the file can for some reason not be deleted
             }

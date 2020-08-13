@@ -12,8 +12,6 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
     [PublicAPI]
     public abstract class SqlIntegrationTest
     {
-        private readonly IList<DirectoryInfo> _temporaryDatabaseDirectories = new List<DirectoryInfo>();
-
         protected abstract string ConnectionName { get; }
 
         protected abstract string EmptyTestDatabaseFilePath { get; }
@@ -67,7 +65,9 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         protected IContainer GetIntegrationTestContainer()
         {
             var container = new SimpleContainerProvider(true);
+#pragma warning disable CA2000 // Dispose objects before losing scope
             var sqlTestDatabase = new SqlTestDatabaseServer(EmptyTestDatabaseFilePath);
+#pragma warning restore CA2000 // Dispose objects before losing scope
             sqlTestDatabase.Register(container, ConnectionName);
             /*
              * We are registering this as an instance so that it gets disposed at the same time as the container

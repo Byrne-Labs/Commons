@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="basic" ToolsVersion="15.0">
+<RuleSet Name="basic" ToolsVersion="16.0">
   <Include Path="basiccorrectnessrules.ruleset" Action="Default" />
   <Include Path="basicdesignguidelinerules.ruleset" Action="Default" />
   <Include Path="extendedcorrectnessrules.ruleset" Action="Default" />
@@ -556,22 +556,21 @@
     <Rule Id="UseAutoProperty" Action="Warning" />
     <Rule Id="UseAutoPropertyFadedToken" Action="Warning" />
   </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.PublicApiAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+    <Rule Id="RS0016" Action="None" />
+    <Rule Id="RS0026" Action="None" />
+  </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
-    <Rule Id="CA1008" Action="None" />
     <Rule Id="CA1012" Action="Warning" />
-    <Rule Id="CA1014" Action="None" />
     <Rule Id="CA1017" Action="Warning" />
     <Rule Id="CA1024" Action="Warning" />
     <Rule Id="CA1027" Action="Warning" />
     <Rule Id="CA1033" Action="Warning" />
     <Rule Id="CA1050" Action="Warning" />
     <Rule Id="CA1060" Action="Warning" />
-    <Rule Id="CA1063" Action="Warning" />
     <Rule Id="CA1708" Action="Warning" />
     <Rule Id="CA1711" Action="Warning" />
     <Rule Id="CA1725" Action="Warning" />
-    <Rule Id="CA1819" Action="Warning" />
-    <Rule Id="CA1822" Action="Warning" />
     <Rule Id="CA2217" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.CSharp.Analyzers" RuleNamespace="Microsoft.CodeQuality.CSharp.Analyzers">
@@ -592,7 +591,6 @@
   <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
     <Rule Id="CA1308" Action="None" />
     <Rule Id="CA1813" Action="Warning" />
-    <Rule Id="CA1820" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="Microsoft.NetCore.CSharp.Analyzers" RuleNamespace="Microsoft.NetCore.CSharp.Analyzers">
     <Rule Id="CA1309" Action="Warning" />

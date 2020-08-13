@@ -11,17 +11,19 @@ namespace ByrneLabs.Commons
             var queryBuilder = new StringBuilder(uri.Query);
             if (string.IsNullOrWhiteSpace(uri.Query))
             {
-                queryBuilder.Append("?");
+                queryBuilder.Append('?');
             }
             else if (uri.Query.Length > 1)
             {
-                queryBuilder.Append("&");
+                queryBuilder.Append('&');
             }
 
-            queryBuilder.Append(queryParameterName).Append("=").Append(queryParameterValue);
+            queryBuilder.Append(queryParameterName).Append('=').Append(queryParameterValue);
 
-            var uriBuilder = new UriBuilder(uri);
-            uriBuilder.Query = queryBuilder.ToString();
+            var uriBuilder = new UriBuilder(uri)
+            {
+                Query = queryBuilder.ToString()
+            };
 
             return uriBuilder.Uri;
         }

@@ -26,6 +26,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         private readonly IContainer _container;
         private readonly string[] _defaultIgnoredEntityProperties = { nameof(Entity.EntityId), nameof(Entity.NeverPersisted), nameof(Entity.HasChanged) };
         private PropertyInfo _primaryKeyProperty;
+        private readonly object _lockSync = new object();
 
         protected DapperRepository(string connectionFactoryName, IMapManager mapManager, IContainer container)
         {
@@ -62,7 +63,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
             get
             {
-                lock (this)
+                lock (_lockSync)
                 {
                     if (_defaultBulkInsertCommand == null)
                     {
@@ -83,7 +84,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual int? MaxReturnedRecords => null;
 
-        protected virtual string SelectCommand => _defaultSelectCommand ?? (_defaultSelectCommand = $"SELECT * FROM {TableName}");
+        protected virtual string SelectCommand => _defaultSelectCommand ??= $"SELECT * FROM {TableName}";
 
         protected virtual string TableName => typeof(TDatabaseEntity).Name;
 
@@ -91,7 +92,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
             get
             {
-                lock (this)
+                lock (_lockSync)
                 {
                     if (_defaultBulkUpdateCommand == null)
                     {
@@ -115,54 +116,43 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             return entities;
         }
 
-        public override void Delete(IEnumerable<TDomainEntity> items)
+        public override void Delete(IEnumerable<TDomainEntity> entities)
         {
-            var entities = items.ToList();
-            using (var connection = CreateConnection())
-            {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
-                {
-                    var failedDeletes = entities.Where(entity => !connection.Delete(entity, transaction));
-                    transaction.Commit();
-                    throw new PersistenceException("Some entities were not deleted", failedDeletes);
-                }
-            }
+            using var connection = CreateConnection();
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            var failedDeletes = entities.Where(entity => !connection.Delete(entity, transaction));
+            transaction.Commit();
+            throw new PersistenceException("Some entities were not deleted", failedDeletes);
         }
 
         public override IEnumerable<TDomainEntity> Find(IEnumerable<Guid> entityIds)
         {
-            using (var connection = CreateConnection())
-            {
-                connection.Open();
-                var command = $"{SelectCommand} WHERE {KeyColumnName} IN @EntityIds";
+            using var connection = CreateConnection();
+            connection.Open();
+            var command = $"{SelectCommand} WHERE {KeyColumnName} IN @EntityIds";
 
-                var databaseEntities = connection.Query<TDatabaseEntity>(command, new { EntityIds = entityIds.ToArray() }).ToList();
-                return Convert(databaseEntities);
-            }
+            var databaseEntities = connection.Query<TDatabaseEntity>(command, new { EntityIds = entityIds.ToArray() }).ToList();
+            return Convert(databaseEntities);
         }
 
         public virtual IEnumerable<TDomainEntity> Find(object criteria)
         {
-            using (var connection = CreateConnection())
-            {
-                connection.Open();
-                var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToList();
-                var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
+            using var connection = CreateConnection();
+            connection.Open();
+            var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToList();
+            var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
 
-                var databaseEntities = connection.Query<TDatabaseEntity>(command).ToList();
-                return Convert(databaseEntities);
-            }
+            var databaseEntities = connection.Query<TDatabaseEntity>(command).ToList();
+            return Convert(databaseEntities);
         }
 
         public override IEnumerable<TDomainEntity> FindAll()
         {
-            using (var connection = CreateConnection())
-            {
-                connection.Open();
-                var databaseEntities = connection.Query<TDatabaseEntity>(SelectCommand).ToList();
-                return Convert(databaseEntities);
-            }
+            using var connection = CreateConnection();
+            connection.Open();
+            var databaseEntities = connection.Query<TDatabaseEntity>(SelectCommand).ToList();
+            return Convert(databaseEntities);
         }
 
         public override void Save(IEnumerable<TDomainEntity> entities)
@@ -179,12 +169,10 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                using (var transaction = connection.BeginTransaction())
-                {
-                    connection.Execute(InsertCommand, insertDatabaseEntities, transaction);
-                    connection.Execute(UpdateCommand, updateDatabaseEntities, transaction);
-                    transaction.Commit();
-                }
+                using var transaction = connection.BeginTransaction();
+                connection.Execute(InsertCommand, insertDatabaseEntities, transaction);
+                connection.Execute(UpdateCommand, updateDatabaseEntities, transaction);
+                transaction.Commit();
             }
 
             foreach (var tuple in databaseEntityMap)

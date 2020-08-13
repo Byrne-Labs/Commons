@@ -62,7 +62,7 @@ namespace ByrneLabs.Commons.Ioc
             (ImplementationFactory?.GetHashCode() ?? 0) |
             (ImplementationInstance?.GetHashCode() ?? 0) |
             (ImplementationType?.GetHashCode() ?? 0) |
-            (Name?.GetHashCode() ?? 0) |
+            (Name?.GetHashCode(StringComparison.InvariantCulture) ?? 0) |
             (ServiceType?.GetHashCode() ?? 0) |
             GetType().GetHashCode();
     }

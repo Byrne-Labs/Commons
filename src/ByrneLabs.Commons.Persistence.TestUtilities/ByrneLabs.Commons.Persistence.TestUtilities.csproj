@@ -5,6 +5,7 @@
         <IsPackable>true</IsPackable>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
         <PackageReference Include="xunit" Version="2.4.1" />
     </ItemGroup>
     <ItemGroup>

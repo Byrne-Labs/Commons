@@ -2,6 +2,6 @@
 
 <Project>
     <Target Name="CopyPackage" AfterTargets="Pack">
-        <Copy SourceFiles="$(MSBuildProjectDirectory)/$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)/bin" />
+        <Copy SourceFiles="$(MSBuildProjectDirectory)/$(OutputPath)../$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)/bin" />
     </Target>
 </Project>

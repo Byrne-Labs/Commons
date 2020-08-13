@@ -86,7 +86,7 @@ namespace ByrneLabs.Commons
             }
             else
             {
-                storedValue = default(T);
+                storedValue = default;
             }
 
             return storedValue;
@@ -120,7 +120,7 @@ namespace ByrneLabs.Commons
             }
             else
             {
-                storedValue = new Tuple<T1, T2>(default(T1), default(T2));
+                storedValue = new Tuple<T1, T2>(default, default);
             }
 
             return storedValue;
@@ -139,7 +139,7 @@ namespace ByrneLabs.Commons
             }
             else
             {
-                storedValue = new Tuple<T1, T2, T3>(default(T1), default(T2), default(T3));
+                storedValue = new Tuple<T1, T2, T3>(default, default, default);
             }
 
             return storedValue;
@@ -159,7 +159,7 @@ namespace ByrneLabs.Commons
             }
             else
             {
-                storedValue = new Tuple<T1, T2, T3, T4>(default(T1), default(T2), default(T3), default(T4));
+                storedValue = new Tuple<T1, T2, T3, T4>(default, default, default, default);
             }
 
             return storedValue;
@@ -180,7 +180,7 @@ namespace ByrneLabs.Commons
             }
             else
             {
-                storedValue = new Tuple<T1, T2, T3, T4, T5>(default(T1), default(T2), default(T3), default(T4), default(T5));
+                storedValue = new Tuple<T1, T2, T3, T4, T5>(default, default, default, default, default);
             }
 
             return storedValue;

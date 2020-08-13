@@ -6,9 +6,9 @@ namespace ByrneLabs.Commons
     {
         public new T Clone(CloneDepth depth = CloneDepth.Deep) => (T) base.Clone(depth);
 
-        public bool Equals(HandyObject<T> other) => base.Equals(other);
+        public virtual bool Equals(HandyObject<T> other) => base.Equals(other);
 
-        public bool Equals(T other) => base.Equals(other);
+        public virtual bool Equals(T other) => base.Equals(other);
 
         public override bool Equals(object obj) => Equals(obj as HandyObject<T>);
 
