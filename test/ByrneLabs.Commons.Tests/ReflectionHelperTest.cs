@@ -8,11 +8,11 @@ namespace ByrneLabs.Commons.Tests
         {
         }
 
-        private class ClassB : ClassA, IInterfaceB
+        private sealed class ClassB : ClassA, IInterfaceB
         {
         }
 
-        private class ClassC : IInterfaceC
+        private sealed class ClassC : IInterfaceC
         {
         }
 

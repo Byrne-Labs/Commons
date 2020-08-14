@@ -1,8 +1,10 @@
-﻿using Xunit;
+﻿using System.Diagnostics.CodeAnalysis;
+using Xunit;
 
 namespace ByrneLabs.Commons.Tests
 {
     [Trait("Category", "Unit Test")]
+    [SuppressMessage("ReSharper", "StringLiteralTypo")]
     public class StringUtilsTest
     {
         [Fact]

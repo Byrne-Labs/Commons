@@ -3,22 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Domain
 {
+    [PublicAPI]
     public class DeepCloner
     {
         private readonly Dictionary<long, object> _clonedObjects = new Dictionary<long, object>();
-        private readonly ObjectIDGenerator _objectIdGenerator = new ObjectIDGenerator();
         private readonly IDictionary<Type, IEnumerable<FieldInfo>> _fields = new Dictionary<Type, IEnumerable<FieldInfo>>();
+        private readonly ObjectIDGenerator _objectIdGenerator = new ObjectIDGenerator();
 
         private DeepCloner()
         {
         }
 
-        public static T Clone<T>(T obj) => (T)new DeepCloner().Clone(obj, obj?.GetType());
+        public static T Clone<T>(T obj) => (T) new DeepCloner().Clone(obj, obj?.GetType());
 
-        public static TInto CloneInto<TInto, TBase>(TBase obj) where TInto : TBase => (TInto)new DeepCloner().Clone(obj, typeof(TInto));
+        public static TInto CloneInto<TInto, TBase>(TBase obj) where TInto : TBase => (TInto) new DeepCloner().Clone(obj, typeof(TInto));
 
         public static object CloneInto(object obj, Type cloneIntoType) => new DeepCloner().Clone(obj, cloneIntoType);
 

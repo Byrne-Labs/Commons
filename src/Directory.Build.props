@@ -2,10 +2,8 @@
 
 <Project>
     <PropertyGroup>
-        <BuildNumber>119</BuildNumber>
-        <ReleaseType>-beta</ReleaseType>
-        <AssemblyVersion>1.1.0.$(BuildNumber)</AssemblyVersion>
-        <FileVersion>$(AssemblyVersion)</FileVersion>
+        <BuildNumber>119</BuildNumber> <ReleaseType>-beta</ReleaseType>
+        <AssemblyVersion>1.1.0.$(BuildNumber)</AssemblyVersion> <FileVersion>$(AssemblyVersion)</FileVersion>
         <Version>$(FileVersion)$(ReleaseType)</Version>
     </PropertyGroup>
     <ItemGroup>
@@ -33,15 +31,11 @@
         </PackageReference>
     </ItemGroup>
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-        <Features>IOperation</Features>
+        <TargetFramework>netcoreapp3.1</TargetFramework> <Features>IOperation</Features>
         <CodeAnalysisRuleSet>../../analyzer-bugs-excluded.ruleset</CodeAnalysisRuleSet>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <Company>Byrne Labs</Company>
-        <Product>Byrne Labs Commons</Product>
-        <Owners>byrnelabs</Owners>
-        <Authors>byrnelabs</Authors>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance> <Company>Byrne Labs</Company>
+        <Product>Byrne Labs Commons</Product> <Owners>byrnelabs</Owners> <Authors>byrnelabs</Authors>
         <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/ByrneLabs/Commons</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ByrneLabs/Commons</RepositoryUrl>

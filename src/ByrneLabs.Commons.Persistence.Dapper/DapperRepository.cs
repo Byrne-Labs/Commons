@@ -25,8 +25,8 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         private readonly string _connectionFactoryName;
         private readonly IContainer _container;
         private readonly string[] _defaultIgnoredEntityProperties = { nameof(Entity.EntityId), nameof(Entity.NeverPersisted), nameof(Entity.HasChanged) };
-        private PropertyInfo _primaryKeyProperty;
         private readonly object _lockSync = new object();
+        private PropertyInfo _primaryKeyProperty;
 
         protected DapperRepository(string connectionFactoryName, IMapManager mapManager, IContainer container)
         {

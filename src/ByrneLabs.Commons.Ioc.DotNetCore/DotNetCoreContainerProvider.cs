@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ByrneLabs.Commons.Ioc.DotNetCore
 {
     [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "This class is technically a collection but only secondarily to being a container.")]
+    [PublicAPI]
     public class DotNetCoreContainerProvider : ContainerProvider
     {
         private readonly List<string> _dirtyServiceProviders = new List<string>();

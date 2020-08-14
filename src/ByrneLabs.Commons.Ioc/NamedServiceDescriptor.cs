@@ -52,11 +52,11 @@ namespace ByrneLabs.Commons.Ioc
         }
 
         public override bool Equals(object obj) => ReferenceEquals(obj, this) || obj is NamedServiceDescriptor castObj &&
-                                                   castObj.ImplementationFactory == ImplementationFactory &&
-                                                   castObj.ImplementationInstance == ImplementationInstance &&
-                                                   castObj.ImplementationType == ImplementationType &&
-                                                   castObj.Name == Name &&
-                                                   castObj.ServiceType == ServiceType;
+            castObj.ImplementationFactory == ImplementationFactory &&
+            castObj.ImplementationInstance == ImplementationInstance &&
+            castObj.ImplementationType == ImplementationType &&
+            castObj.Name == Name &&
+            castObj.ServiceType == ServiceType;
 
         public override int GetHashCode() =>
             (ImplementationFactory?.GetHashCode() ?? 0) |

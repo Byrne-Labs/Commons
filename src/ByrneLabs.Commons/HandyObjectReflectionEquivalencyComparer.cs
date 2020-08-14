@@ -12,35 +12,31 @@ namespace ByrneLabs.Commons
         private readonly IDictionary<Type, IEnumerable<FieldInfo>> _fields = new Dictionary<Type, IEnumerable<FieldInfo>>();
         private readonly ObjectIDGenerator _objectIdGenerator = new ObjectIDGenerator();
 
-        public bool Equals(HandyObject x, HandyObject y)
-        {
-            var entityAObjectId = _objectIdGenerator.GetId(x, out _);
-            var entityBObjectId = _objectIdGenerator.GetId(y, out _);
-            if (ReferenceEquals(x, y) || x == null && y == null || _comparedObjects.Contains((entityAObjectId, entityBObjectId)))
-            {
-                return true;
-            }
+        public bool Equals(HandyObject x, HandyObject y) => Equals1(x, y);
 
+        private bool Equals1(HandyObject x, HandyObject y)
+        {
             if (x == null || y == null || x.GetType() != y.GetType())
             {
                 return false;
             }
 
-            _comparedObjects.Add((entityAObjectId, entityBObjectId));
-            _comparedObjects.Add((entityBObjectId, entityAObjectId));
+            var xObjectId = _objectIdGenerator.GetId(x, out _);
+            var yObjectId = _objectIdGenerator.GetId(y, out _);
+            if (ReferenceEquals(x, y) || x == null && y == null || _comparedObjects.Contains((xObjectId, yObjectId)))
+            {
+                return true;
+            }
+
+            _comparedObjects.Add((xObjectId, yObjectId));
+            _comparedObjects.Add((yObjectId, xObjectId));
 
             foreach (var field in GetFields(x.GetType()))
             {
                 var fieldValueX = field.GetValue(x);
                 var fieldValueY = field.GetValue(y);
-                if (x is HandyObject handyObjectX && y is HandyObject handyObjectY)
-                {
-                    if (!Equals(handyObjectX, handyObjectY))
-                    {
-                        return false;
-                    }
-                }
-                else if (fieldValueX is IEnumerable<object> enumerableX && fieldValueY is IEnumerable<object> enumerableY)
+
+                if (fieldValueX is IEnumerable<object> enumerableX && fieldValueY is IEnumerable<object> enumerableY)
                 {
                     if (enumerableX.Count() != enumerableY.Count())
                     {
@@ -54,7 +50,7 @@ namespace ByrneLabs.Commons
                         enumeratorY.MoveNext();
                         if (enumeratorX.Current is HandyObject childHandyObjectX && enumeratorY.Current is HandyObject childHandyObjectY)
                         {
-                            if (!Equals(childHandyObjectX, childHandyObjectY))
+                            if (!Equals1(childHandyObjectX, childHandyObjectY))
                             {
                                 return false;
                             }
@@ -63,6 +59,13 @@ namespace ByrneLabs.Commons
                         {
                             return false;
                         }
+                    }
+                }
+                else if (fieldValueX is HandyObject fieldValueXHandyObject && fieldValueY is HandyObject fieldValueYHandyObject)
+                {
+                    if (!Equals1(fieldValueXHandyObject, fieldValueYHandyObject))
+                    {
+                        return false;
                     }
                 }
                 else if (!Equals(fieldValueX, fieldValueY))

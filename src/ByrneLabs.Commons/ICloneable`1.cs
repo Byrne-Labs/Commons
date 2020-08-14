@@ -3,7 +3,7 @@
 namespace ByrneLabs.Commons
 {
     [PublicAPI]
-    public interface ICloneable<T> : ICloneable
+    public interface ICloneable<out T> : ICloneable
     {
         new T Clone(CloneDepth depth = CloneDepth.Deep);
     }

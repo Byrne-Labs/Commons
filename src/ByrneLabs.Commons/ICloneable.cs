@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ByrneLabs.Commons
+﻿namespace ByrneLabs.Commons
 {
     public interface ICloneable
     {

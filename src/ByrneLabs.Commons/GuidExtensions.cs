@@ -278,37 +278,37 @@ namespace ByrneLabs.Commons
             {
                 bytes = null;
             }
-            else if (value is bool)
+            else if (value is bool boolValue)
             {
-                bytes = BitConverter.GetBytes((bool) value);
+                bytes = BitConverter.GetBytes(boolValue);
             }
-            else if (value is char)
+            else if (value is char charValue)
             {
-                bytes = BitConverter.GetBytes((char) value);
+                bytes = BitConverter.GetBytes(charValue);
             }
-            else if (value is double)
+            else if (value is double doubleValue)
             {
-                bytes = BitConverter.GetBytes((double) value);
+                bytes = BitConverter.GetBytes(doubleValue);
             }
-            else if (value is float)
+            else if (value is float floatValue)
             {
-                bytes = BitConverter.GetBytes((float) value);
+                bytes = BitConverter.GetBytes(floatValue);
             }
-            else if (value is int)
+            else if (value is int intValue)
             {
-                bytes = BitConverter.GetBytes((int) value);
+                bytes = BitConverter.GetBytes(intValue);
             }
-            else if (value is long)
+            else if (value is long longValue)
             {
-                bytes = BitConverter.GetBytes((long) value);
+                bytes = BitConverter.GetBytes(longValue);
             }
-            else if (value is short)
+            else if (value is short shortValue)
             {
-                bytes = BitConverter.GetBytes((short) value);
+                bytes = BitConverter.GetBytes(shortValue);
             }
-            else if (value is string)
+            else if (value is string stringValue)
             {
-                var rawBytes = Encoding.ASCII.GetBytes((string) value);
+                var rawBytes = Encoding.ASCII.GetBytes(stringValue);
                 if (rawBytes.Length > 15)
                 {
                     throw new ArgumentException("The data must be less than 16 bytes");
@@ -318,21 +318,21 @@ namespace ByrneLabs.Commons
                 bytes[0] = (byte) rawBytes.Length;
                 Array.Copy(rawBytes, 0, bytes, 1, rawBytes.Length);
             }
-            else if (value is uint)
+            else if (value is uint uintValue)
             {
-                bytes = BitConverter.GetBytes((uint) value);
+                bytes = BitConverter.GetBytes(uintValue);
             }
-            else if (value is ulong)
+            else if (value is ulong ulongValue)
             {
-                bytes = BitConverter.GetBytes((ulong) value);
+                bytes = BitConverter.GetBytes(ulongValue);
             }
-            else if (value is ushort)
+            else if (value is ushort ushortValue)
             {
-                bytes = BitConverter.GetBytes((ushort) value);
+                bytes = BitConverter.GetBytes(ushortValue);
             }
-            else if (value is DateTime)
+            else if (value is DateTime dateTimeValue)
             {
-                bytes = BitConverter.GetBytes(((DateTime) value).Ticks);
+                bytes = BitConverter.GetBytes(dateTimeValue.Ticks);
             }
             else
             {

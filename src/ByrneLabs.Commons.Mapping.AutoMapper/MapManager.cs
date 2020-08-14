@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using ByrneLabs.Commons.Ioc;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Mapping.AutoMapper
 {
+    [PublicAPI]
     public class MapManager : IMapManager
     {
         private readonly IContainer _container;

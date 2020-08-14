@@ -41,7 +41,7 @@ namespace ByrneLabs.Commons.TestUtilities.XUnit
             }
         }
 
-        [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "Suggested change would mean potentially requring caller to create an array to clarify if parameter was a message or format arguement")]
+        [SuppressMessage("ReSharper", "IntroduceOptionalParameters.Global", Justification = "Suggested change would mean potentially requiring caller to create an array to clarify if parameter was a message or format argument")]
         public static void IsNotEmpty(object value)
         {
             IsNotEmpty(value, null);

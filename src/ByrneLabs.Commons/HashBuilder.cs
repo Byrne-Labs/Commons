@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons
 {
+    [PublicAPI]
     public static class HashBuilder
     {
         public static int Hash(params object[] values)

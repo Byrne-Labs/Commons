@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 using MsgPack.Serialization;
 
 namespace ByrneLabs.Commons.Serialization
 {
+    [PublicAPI]
     public class MessagePackAdapter : SerializerAdapter
     {
         public override SerializationContentFormat ContentFormat { get; } = SerializationContentFormat.Binary;

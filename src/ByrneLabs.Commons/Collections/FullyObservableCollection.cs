@@ -3,9 +3,11 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Collections
 {
+    [PublicAPI]
     public class FullyObservableCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
     {
         public FullyObservableCollection(IEnumerable<T> items) : base(items)

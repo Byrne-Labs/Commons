@@ -43,7 +43,7 @@ namespace ByrneLabs.Commons
 
         public static bool IsAllUpper(this string value) => !string.IsNullOrEmpty(value) && Regex.IsMatch(value, @"[A-Z]+");
 
-        public static string Join(this IEnumerable<string> value, string seperator) => string.Join(seperator, value);
+        public static string Join(this IEnumerable<string> value, string separator) => string.Join(separator, value);
 
         public static int NthIndexOf(this string value, string substring, int count, StringComparison stringComparison = StringComparison.Ordinal)
         {

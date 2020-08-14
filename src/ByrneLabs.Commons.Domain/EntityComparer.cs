@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Domain
 {
+    [PublicAPI]
     public class EntityComparer : IEqualityComparer<IEntity>
     {
         private readonly IList<(long, long)> _comparedObjects = new List<(long, long)>();

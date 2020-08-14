@@ -10,13 +10,11 @@ namespace ByrneLabs.Commons.Ioc
     public class SimpleContainerProvider : ContainerProvider
 #pragma warning restore CA1710 // Identifiers should have correct suffix
     {
-        private readonly bool _autoRegister;
         private readonly List<NamedServiceDescriptor> _serviceRegistry = new List<NamedServiceDescriptor>();
         private readonly IDictionary<NamedServiceDescriptor, object> _singletonInstances = new Dictionary<NamedServiceDescriptor, object>();
 
         public SimpleContainerProvider(bool autoRegister)
         {
-            _autoRegister = autoRegister;
             RegisterInstance(typeof(IContainer), this, null);
             if (autoRegister)
             {

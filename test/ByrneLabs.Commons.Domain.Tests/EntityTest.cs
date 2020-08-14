@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit;
 
@@ -14,12 +15,12 @@ namespace ByrneLabs.Commons.Domain.Tests
             public Parent Parent { get; set; }
         }
 
-        private class Daughter : Child, IEntity<Daughter>
+        private sealed class Daughter : Child, IEntity<Daughter>
         {
-            public new Daughter Clone(CloneDepth depth = CloneDepth.Deep) => (Daughter)base.Clone(depth);
+            public new Daughter Clone(CloneDepth depth = CloneDepth.Deep) => (Daughter) base.Clone(depth);
         }
 
-        private class Parent : Entity<Parent>
+        private sealed class Parent : Entity<Parent>
         {
             public IList<Child> Children { get; } = new List<Child>();
 
@@ -86,7 +87,8 @@ namespace ByrneLabs.Commons.Domain.Tests
             Assert.Equal(daughterClone, daughterClone.Parent.Children.Single());
         }
 
-        private void AssertValidEntityClone(Entity original, Entity cloned)
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
+        private static void AssertValidEntityClone(Entity original, Entity cloned)
         {
             Assert.NotSame(original, cloned);
             Assert.True(new EntityEquivalencyComparer().Equals(original, cloned));

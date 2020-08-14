@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.TestUtilities
 {
+    [PublicAPI]
     public class TestDataAggregator : TestDataProvider
     {
         private readonly IList<ITestDataProvider> _dataProviders;
