@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\ByrneLabs.Commons.Ioc\ByrneLabs.Commons.Ioc.csproj" />
     <ProjectReference Include="..\ByrneLabs.Commons\ByrneLabs.Commons.csproj" />
   </ItemGroup>
 

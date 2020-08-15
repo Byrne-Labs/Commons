@@ -27,6 +27,14 @@ namespace ByrneLabs.Commons.Domain.Tests
             public string Name { get; set; }
         }
 
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
+        private static void AssertValidEntityClone(Entity original, Entity cloned)
+        {
+            Assert.NotSame(original, cloned);
+            Assert.True(new EntityEquivalencyComparer().Equals(original, cloned));
+            Assert.Equal(original.EntityId, cloned.EntityId);
+        }
+
         [Fact]
         public void TestClone()
         {
@@ -85,14 +93,6 @@ namespace ByrneLabs.Commons.Domain.Tests
             Assert.Equal(child.Name, daughterClone.Name);
             Assert.NotSame(child.Parent, daughterClone.Parent);
             Assert.Equal(daughterClone, daughterClone.Parent.Children.Single());
-        }
-
-        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
-        private static void AssertValidEntityClone(Entity original, Entity cloned)
-        {
-            Assert.NotSame(original, cloned);
-            Assert.True(new EntityEquivalencyComparer().Equals(original, cloned));
-            Assert.Equal(original.EntityId, cloned.EntityId);
         }
     }
 }

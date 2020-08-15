@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.assert" Version="2.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ByrneLabs.Commons.Ioc\ByrneLabs.Commons.Ioc.csproj" />
+    <ProjectReference Include="..\ByrneLabs.Commons.Mapping\ByrneLabs.Commons.Mapping.csproj" />
+  </ItemGroup>
+
+</Project>

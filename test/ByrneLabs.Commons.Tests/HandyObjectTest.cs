@@ -26,6 +26,13 @@ namespace ByrneLabs.Commons.Tests
             public string Name { get; set; }
         }
 
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
+        private static void AssertValidObjectClone(HandyObject original, HandyObject cloned)
+        {
+            Assert.NotSame(original, cloned);
+            Assert.True(new HandyObjectReflectionEquivalencyComparer().Equals(original, cloned));
+        }
+
         [Fact]
         public void TestClone()
         {
@@ -81,13 +88,6 @@ namespace ByrneLabs.Commons.Tests
             Assert.Equal(child.Name, daughterClone.Name);
             Assert.NotSame(child.Parent, daughterClone.Parent);
             Assert.Equal(daughterClone, daughterClone.Parent.Children.Single());
-        }
-
-        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
-        private static void AssertValidObjectClone(HandyObject original, HandyObject cloned)
-        {
-            Assert.NotSame(original, cloned);
-            Assert.True(new HandyObjectReflectionEquivalencyComparer().Equals(original, cloned));
         }
     }
 }

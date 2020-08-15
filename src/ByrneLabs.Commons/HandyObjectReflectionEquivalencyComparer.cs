@@ -14,6 +14,8 @@ namespace ByrneLabs.Commons
 
         public bool Equals(HandyObject x, HandyObject y) => Equals1(x, y);
 
+        public int GetHashCode(HandyObject obj) => obj?.GetHashCode() ?? 0;
+
         private bool Equals1(HandyObject x, HandyObject y)
         {
             if (x == null || y == null || x.GetType() != y.GetType())
@@ -76,8 +78,6 @@ namespace ByrneLabs.Commons
 
             return true;
         }
-
-        public int GetHashCode(HandyObject obj) => obj?.GetHashCode() ?? 0;
 
         private IEnumerable<FieldInfo> GetFields(Type type)
         {

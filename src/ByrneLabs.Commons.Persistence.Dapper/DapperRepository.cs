@@ -136,17 +136,6 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             return Convert(databaseEntities);
         }
 
-        public virtual IEnumerable<TDomainEntity> Find(object criteria)
-        {
-            using var connection = CreateConnection();
-            connection.Open();
-            var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToList();
-            var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
-
-            var databaseEntities = connection.Query<TDatabaseEntity>(command).ToList();
-            return Convert(databaseEntities);
-        }
-
         public override IEnumerable<TDomainEntity> FindAll()
         {
             using var connection = CreateConnection();
@@ -236,6 +225,17 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         [SuppressMessage("ReSharper", "UnusedParameter.Global", Justification = "This method by default does nothing but it is important to allow inheriting classes to override it")]
         protected virtual void FillInDomainEntities(IEnumerable<TDomainEntity> domainEntities)
         {
+        }
+
+        protected virtual IEnumerable<TDomainEntity> Find(object criteria)
+        {
+            using var connection = CreateConnection();
+            connection.Open();
+            var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToList();
+            var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
+
+            var databaseEntities = connection.Query<TDatabaseEntity>(command).ToList();
+            return Convert(databaseEntities);
         }
 
         protected virtual IQueryable<TDatabaseEntity> GetMatchingDatabaseEntities(IEnumerable<Guid> domainEntityIds, IQueryable<TDatabaseEntity> databaseEntities)

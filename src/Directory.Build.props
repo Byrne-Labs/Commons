@@ -2,7 +2,7 @@
 
 <Project>
     <PropertyGroup>
-        <BuildNumber>119</BuildNumber> <ReleaseType>-beta</ReleaseType>
+        <BuildNumber>125</BuildNumber> <ReleaseType></ReleaseType>
         <AssemblyVersion>1.1.0.$(BuildNumber)</AssemblyVersion> <FileVersion>$(AssemblyVersion)</FileVersion>
         <Version>$(FileVersion)$(ReleaseType)</Version>
     </PropertyGroup>

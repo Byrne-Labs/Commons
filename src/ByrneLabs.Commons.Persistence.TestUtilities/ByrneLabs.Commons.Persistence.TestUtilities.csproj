@@ -9,6 +9,7 @@
         <PackageReference Include="xunit" Version="2.4.1" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\ByrneLabs.Commons.Mapping.TestUtilities\ByrneLabs.Commons.Mapping.TestUtilities.csproj" />
         <ProjectReference Include="..\ByrneLabs.Commons.Persistence\ByrneLabs.Commons.Persistence.csproj" />
         <ProjectReference Include="..\ByrneLabs.Commons.TestUtilities.XUnit\ByrneLabs.Commons.TestUtilities.XUnit.csproj" />
         <ProjectReference Include="..\ByrneLabs.Commons.TestUtilities\ByrneLabs.Commons.TestUtilities.csproj" />

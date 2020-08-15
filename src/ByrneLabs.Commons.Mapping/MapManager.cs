@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ByrneLabs.Commons.Ioc;
 using JetBrains.Annotations;
 
-namespace ByrneLabs.Commons.Mapping.AutoMapper
+namespace ByrneLabs.Commons.Mapping
 {
     [PublicAPI]
     public class MapManager : IMapManager
