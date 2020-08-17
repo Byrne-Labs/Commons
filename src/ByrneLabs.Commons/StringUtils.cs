@@ -68,6 +68,52 @@ namespace ByrneLabs.Commons
             return index;
         }
 
+        public static string TrimStart(this string value, string trim)
+        {
+            Ensure.That(value).IsNotNull();
+            Ensure.That(trim).IsNotNull();
+
+            string result;
+            if (trim.Length > value.Length)
+            {
+                result = value;
+            }
+            else if (value.Substring(0, trim.Length) == trim)
+            {
+                result = value.Substring(trim.Length);
+            }
+            else
+            {
+                result = value;
+            }
+
+            return result;
+        }
+
+        public static string TrimEnd(this string value, string trim)
+        {
+            Ensure.That(value).IsNotNull();
+            Ensure.That(trim).IsNotNull();
+
+            string result;
+            if (trim.Length > value.Length)
+            {
+                result = value;
+            }
+            else if (value.Substring(value.Length - trim.Length) == trim)
+            {
+                result = value.Substring(0, value.Length - trim.Length);
+            }
+            else
+            {
+                result = value;
+            }
+
+            return result;
+        }
+
+        public static string Trim(this string value, string trim) => value.TrimStart(trim).TrimEnd(trim);
+
         public static string Repeat(this string value, int count) => new StringBuilder(value.Length * count).Insert(0, value, count).ToString();
 
         public static string SubstringAfterLast(this string value, string substring, StringComparison stringComparison = StringComparison.Ordinal)
@@ -98,7 +144,7 @@ namespace ByrneLabs.Commons
             string result;
             if (lastIndex < 1)
             {
-                result = string.Empty;
+                result = value;
             }
             else
             {

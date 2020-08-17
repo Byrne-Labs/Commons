@@ -28,10 +28,9 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         private readonly object _lockSync = new object();
         private PropertyInfo _primaryKeyProperty;
 
-        protected DapperRepository(string connectionFactoryName, IMapManager mapManager, IContainer container)
+        protected DapperRepository(string connectionFactoryName, IContainer container)
         {
             _container = container;
-            MapManager = mapManager;
             _connectionFactoryName = connectionFactoryName;
 
             var map = new CustomPropertyTypeMap(typeof(TDomainEntity), (type, columnName) =>
@@ -57,6 +56,8 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual IDictionary<string, string> ColumnToPropertyMap { get; } = new Dictionary<string, string>();
 
+        protected virtual bool DatabaseGeneratedPrimaryKey => true;
+
         protected virtual IEnumerable<string> IgnoredEntityProperties { get; } = Enumerable.Empty<string>();
 
         protected virtual string InsertCommand
@@ -70,7 +71,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                         var properties = GetPersistedPropertyNames();
                         var columns = string.Join(", ", properties);
                         var parameters = string.Join(", ", properties.Select(property => "@" + property));
-                        _defaultBulkInsertCommand = $"INSERT {TableName} ({KeyColumnName}, {columns}) VALUES (@EntityId, {parameters})";
+                        _defaultBulkInsertCommand = $"INSERT {TableName} ({columns}) VALUES ({parameters})";
                     }
 
                     return _defaultBulkInsertCommand;
@@ -80,11 +81,27 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual string KeyColumnName => typeof(TDatabaseEntity).Name + "Id";
 
-        protected IMapManager MapManager { get; }
-
         protected virtual int? MaxReturnedRecords => null;
 
-        protected virtual string SelectCommand => _defaultSelectCommand ??= $"SELECT * FROM {TableName}";
+        protected virtual string SelectCommand
+        {
+            get
+            {
+                string selectCommand;
+                if (!string.IsNullOrWhiteSpace(_defaultSelectCommand))
+                {
+                    selectCommand = _defaultSelectCommand;
+                }
+                else
+                {
+                    var properties = GetPersistedPropertyNames();
+                    var columns = string.Join(", ", properties);
+                    selectCommand = $"SELECT {KeyColumnName} AS EntityId, {columns} FROM {TableName}";
+                }
+
+                return selectCommand;
+            }
+        }
 
         protected virtual string TableName => typeof(TDatabaseEntity).Name;
 
@@ -96,7 +113,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                 {
                     if (_defaultBulkUpdateCommand == null)
                     {
-                        var properties = GetPersistedPropertyNames().Select(property => property + " = " + "@" + property);
+                        var properties = GetPersistedPropertyNames().Where(property => property != KeyColumnName).Select(property => property + " = " + "@" + property);
                         _defaultBulkUpdateCommand = $"UPDATE {TableName} SET {string.Join(", ", properties)} WHERE {KeyColumnName} = @EntityId";
                     }
 
@@ -183,7 +200,8 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                 databaseEntities = databaseEntities.Take(MaxReturnedRecords.Value);
             }
 
-            var domainEntities = MapManager.Map<TDatabaseEntity, TDomainEntity>(databaseEntities);
+            var mapManager = _container.Resolve<IMapManager>();
+            var domainEntities = mapManager.Map<TDatabaseEntity, TDomainEntity>(databaseEntities);
             if (domainEntities.Any())
             {
                 FillInDomainEntities(domainEntities);
@@ -194,7 +212,8 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual IEnumerable<TDatabaseEntity> Convert(IEnumerable<TDomainEntity> domainEntities)
         {
-            var databaseEntities = MapManager.Map<TDomainEntity, TDatabaseEntity>(domainEntities);
+            var mapManager = _container.Resolve<IMapManager>();
+            var databaseEntities = mapManager.Map<TDomainEntity, TDatabaseEntity>(domainEntities);
             if (databaseEntities.Any())
             {
                 FillInDatabaseEntities(databaseEntities);
@@ -205,13 +224,15 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual void CopyData(TDomainEntity domainEntity, TDatabaseEntity databaseEntity)
         {
-            MapManager.Map(domainEntity, databaseEntity);
+            var mapManager = _container.Resolve<IMapManager>();
+            mapManager.Map(domainEntity, databaseEntity);
             FillInDatabaseEntities(new[] { databaseEntity });
         }
 
         protected virtual void CopyData(TDatabaseEntity databaseEntity, TDomainEntity domainEntity)
         {
-            MapManager.Map(databaseEntity, domainEntity);
+            var mapManager = _container.Resolve<IMapManager>();
+            mapManager.Map(databaseEntity, domainEntity);
             FillInDomainEntities(new[] { domainEntity });
         }
 
@@ -234,7 +255,17 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToList();
             var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
 
-            var databaseEntities = connection.Query<TDatabaseEntity>(command).ToList();
+            var databaseEntities = connection.Query<TDatabaseEntity>(command, criteria).ToList();
+            return Convert(databaseEntities);
+        }
+
+        protected virtual IEnumerable<TDomainEntity> FindWhere(string whereClause, object parameterValues)
+        {
+            using var connection = CreateConnection();
+            connection.Open();
+            var command = $"{SelectCommand} WHERE {whereClause}";
+
+            var databaseEntities = connection.Query<TDatabaseEntity>(command, parameterValues).ToList();
             return Convert(databaseEntities);
         }
 
@@ -243,7 +274,12 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             return databaseEntities.Where(databaseEntity => domainEntityIds.Contains(GetDomainEntityId(databaseEntity)));
         }
 
-        protected IEnumerable<string> GetPersistedPropertyNames() => typeof(TDomainEntity).GetProperties().Where(property => property.CanRead && property.CanWrite && !_defaultIgnoredEntityProperties.Contains(property.Name) && !IgnoredEntityProperties.Contains(property.Name)).Select(property => property.Name);
+        protected IEnumerable<string> GetPersistedPropertyNames() => typeof(TDatabaseEntity).GetProperties().Where(property =>
+            property.CanRead &&
+            property.CanWrite &&
+            (!DatabaseGeneratedPrimaryKey || property.Name != KeyColumnName) &&
+            !_defaultIgnoredEntityProperties.Contains(property.Name) &&
+            !IgnoredEntityProperties.Contains(property.Name)).Select(property => property.Name);
 
         private Guid GetDomainEntityId(TDatabaseEntity databaseEntity)
         {

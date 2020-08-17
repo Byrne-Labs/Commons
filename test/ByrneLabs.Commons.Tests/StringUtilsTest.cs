@@ -62,11 +62,31 @@ namespace ByrneLabs.Commons.Tests
         [Fact]
         public void TestSubstringBeforeLast()
         {
-            Assert.Equal(string.Empty, "asdfasdf".SubstringBeforeLast("fdsa"));
-            Assert.Equal(string.Empty, "asdf".SubstringBeforeLast("as"));
+            Assert.Equal("asdfasdf", "asdfasdf".SubstringBeforeLast("fdsa"));
+            Assert.Equal("asdf", "asdf".SubstringBeforeLast("as"));
             Assert.Equal("as", "asdf".SubstringBeforeLast("df"));
             Assert.Equal("asdf", "asdfasdf".SubstringBeforeLast("as"));
             Assert.Equal("asdfas", "asdfasdf".SubstringBeforeLast("df"));
+        }
+
+        [Fact]
+        public void TestTrimStart()
+        {
+            Assert.Equal("asdf.www.", "www.asdf.www.".TrimStart("www."));
+            Assert.Equal("asdf.www.", "asdf.www.".TrimStart("www."));
+            Assert.Equal("asdf.www.", "asdf.www.".TrimStart("asdf.www.asdf"));
+            Assert.Equal(string.Empty, "www.asdf.www.".TrimStart("www.asdf.www."));
+            Assert.Equal(string.Empty, string.Empty.TrimStart("www."));
+        }
+
+        [Fact]
+        public void TestTrimEnd()
+        {
+            Assert.Equal("www.asdf.", "www.asdf.www.".TrimEnd("www."));
+            Assert.Equal("www.asdf", "www.asdf".TrimEnd("www."));
+            Assert.Equal("asdf.www.", "asdf.www.".TrimEnd("asdf.www.asdf"));
+            Assert.Equal(string.Empty, "www.asdf.www.".TrimEnd("www.asdf.www."));
+            Assert.Equal(string.Empty, string.Empty.TrimEnd("www."));
         }
     }
 }

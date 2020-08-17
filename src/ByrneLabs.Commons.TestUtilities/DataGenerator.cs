@@ -51,6 +51,10 @@ namespace ByrneLabs.Commons.TestUtilities
             {
                 returnValue = Guid.NewGuid().ToString();
             }
+            else if (typeof(Guid) == targetType || typeof(Guid?) == targetType)
+            {
+                returnValue = Guid.NewGuid();
+            }
             else if (targetType == typeof(bool) || targetType == typeof(bool?))
             {
                 returnValue = BetterRandom.Next(2) == 1;

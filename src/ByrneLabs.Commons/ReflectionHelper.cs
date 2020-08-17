@@ -10,7 +10,7 @@ namespace ByrneLabs.Commons
     [PublicAPI]
     public static class ReflectionHelper
     {
-        private static readonly Type[] _simpleTypes = { typeof(string), typeof(bool), typeof(bool?), typeof(byte), typeof(byte?), typeof(short), typeof(short?), typeof(int), typeof(int?), typeof(long), typeof(long?), typeof(ushort), typeof(ushort?), typeof(uint), typeof(uint?), typeof(ulong), typeof(ulong?), typeof(float), typeof(float?), typeof(double), typeof(double?), typeof(DateTime), typeof(DateTime?) };
+        private static readonly Type[] _simpleTypes = { typeof(string), typeof(bool), typeof(bool?), typeof(byte), typeof(byte?), typeof(short), typeof(short?), typeof(int), typeof(int?), typeof(long), typeof(long?), typeof(ushort), typeof(ushort?), typeof(uint), typeof(uint?), typeof(ulong), typeof(ulong?), typeof(float), typeof(float?), typeof(double), typeof(double?), typeof(DateTime), typeof(DateTime?), typeof(Guid), typeof(Guid?) };
 
         public static bool CanBeCastAs(this Type type, Type castType) => type.IsSubclassOf(castType) || type.GetInterfaces().Contains(castType) || type == castType;
 

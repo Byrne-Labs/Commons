@@ -26,6 +26,7 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore
             var defaultServiceCollection = new ServiceCollection();
             _services = new ConcurrentDictionary<string, IServiceCollection>(new Dictionary<string, IServiceCollection> { { string.Empty, defaultServiceCollection } });
             _serviceProviders = new ConcurrentDictionary<string, IServiceProvider>(new Dictionary<string, IServiceProvider> { { string.Empty, defaultServiceCollection.BuildServiceProvider() } });
+            _services[string.Empty].AddSingleton<IContainer>(this);
             if (autoRegister)
             {
                 AutoRegister();

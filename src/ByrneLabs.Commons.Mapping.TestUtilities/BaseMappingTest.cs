@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using ByrneLabs.Commons.Ioc;
+using JetBrains.Annotations;
 using Xunit;
 
 namespace ByrneLabs.Commons.Mapping.TestUtilities
 {
+    [PublicAPI]
     public abstract class BaseMappingTest<TMapper, TFrom, TTo> where TMapper : IMapper<TFrom, TTo>
     {
         protected abstract IContainer Container { get; }
@@ -11,6 +13,8 @@ namespace ByrneLabs.Commons.Mapping.TestUtilities
         protected abstract IEnumerable<MappedPropertyValidator<TFrom, TTo>> MapValidators { get; }
 
         protected abstract IEnumerable<TFrom> CreateTestObjects();
+
+        protected abstract void ValidateMapping(TFrom from, TTo to);
 
         protected void TestMapping()
         {
@@ -30,6 +34,8 @@ namespace ByrneLabs.Commons.Mapping.TestUtilities
                         mapValidator.Validate(from, to);
                     }
                 }
+
+                ValidateMapping(from, to);
             }
         }
     }
