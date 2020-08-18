@@ -14,5 +14,7 @@ namespace ByrneLabs.Commons.Persistence
         IEnumerable<T> FindAll();
 
         void Save(IEnumerable<T> entities);
+
+        void Save(T entity);
     }
 }

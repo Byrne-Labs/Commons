@@ -2,7 +2,7 @@
 
 <Project>
     <PropertyGroup>
-        <BuildNumber>143</BuildNumber>
+        <BuildNumber>145</BuildNumber>
         <ReleaseType></ReleaseType>
         <AssemblyVersion>1.1.0.$(BuildNumber)</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>

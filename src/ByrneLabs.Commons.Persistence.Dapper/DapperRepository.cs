@@ -248,7 +248,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
         }
 
-        protected virtual IEnumerable<TDomainEntity> Find(object criteria)
+        protected virtual IEnumerable<TDomainEntity> FindByExample(object criteria)
         {
             using var connection = CreateConnection();
             connection.Open();
