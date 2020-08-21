@@ -6,7 +6,7 @@
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ByrneLabs.Commons.Ioc\ByrneLabs.Commons.Ioc.csproj" />
     <ProjectReference Include="..\ByrneLabs.Commons\ByrneLabs.Commons.csproj" />
+    <ProjectReference Include="..\ByrneLabs.Commons.Ioc\ByrneLabs.Commons.Ioc.csproj" />
   </ItemGroup>
 </Project>

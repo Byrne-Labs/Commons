@@ -71,7 +71,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                         var properties = GetPersistedPropertyNames();
                         var columns = string.Join(", ", properties);
                         var parameters = string.Join(", ", properties.Select(property => "@" + property));
-                        _defaultBulkInsertCommand = $"INSERT {TableName} ({columns}) VALUES ({parameters})";
+                        _defaultBulkInsertCommand = $"INSERT {TableName} ({KeyColumnName}, {columns}) VALUES (@EntityId, {parameters})";
                     }
 
                     return _defaultBulkInsertCommand;

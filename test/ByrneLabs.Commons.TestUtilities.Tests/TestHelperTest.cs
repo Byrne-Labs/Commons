@@ -66,6 +66,11 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
             public void Save(IEnumerable<IEntityA1> items)
             {
             }
+
+            public void Save(IEntityA1 entity)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public class EntityA2 : Entity<EntityA2>, IEntityA2
@@ -90,6 +95,11 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
             public void Save(IEnumerable<IEntityA2> items)
             {
             }
+
+            public void Save(IEntityA2 entity)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public class EntityA3 : EntityA2, IEntityA3
@@ -111,6 +121,11 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
 
             public void Save(IEnumerable<IEntityA3> items)
             {
+            }
+
+            public void Save(IEntityA3 entity)
+            {
+                throw new NotImplementedException();
             }
         }
 
