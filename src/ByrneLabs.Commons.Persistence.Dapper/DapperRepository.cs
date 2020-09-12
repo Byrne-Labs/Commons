@@ -35,25 +35,25 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             _container = container;
             _connectionFactoryName = connectionFactoryName;
 
-            var map = new CustomPropertyTypeMap(typeof(TDomainEntity), (type, columnName) =>
+            var map = new CustomPropertyTypeMap(typeof(TDatabaseEntity), (type, columnName) =>
             {
                 PropertyInfo property;
                 if (ColumnToPropertyMap.ContainsKey(columnName))
                 {
-                    property = typeof(TDomainEntity).GetProperty(ColumnToPropertyMap[columnName]);
+                    property = typeof(TDatabaseEntity).GetProperty(ColumnToPropertyMap[columnName]);
                 }
                 else if (string.Equals(columnName, KeyColumnName, StringComparison.OrdinalIgnoreCase))
                 {
-                    property = typeof(TDomainEntity).GetProperty(nameof(Entity.EntityId));
+                    property = typeof(TDatabaseEntity).GetProperty(nameof(Entity.EntityId));
                 }
                 else
                 {
-                    property = typeof(TDomainEntity).GetProperty(columnName);
+                    property = typeof(TDatabaseEntity).GetProperty(columnName);
                 }
 
                 return property;
             });
-            SqlMapper.SetTypeMap(typeof(TDomainEntity), map);
+            SqlMapper.SetTypeMap(typeof(TDatabaseEntity), map);
         }
 
         protected virtual IDictionary<string, string> ColumnToPropertyMap { get; } = new Dictionary<string, string>();
@@ -124,15 +124,13 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             }
         }
 
-        private static IEnumerable<TDomainEntity> MarkAsPersisted(IEnumerable<TDomainEntity> entities)
+        private static void MarkAsPersisted(IEnumerable<TDomainEntity> entities)
         {
             foreach (var entity in entities)
             {
                 entity.NeverPersisted = false;
                 entity.HasChanged = false;
             }
-
-            return entities;
         }
 
         public override void Delete(IEnumerable<TDomainEntity> entities)
@@ -147,13 +145,14 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public override IEnumerable<TDomainEntity> Find(IEnumerable<Guid> entityIds)
         {
+            var entityIdArray = entityIds.ToArray();
             var command = $"{SelectCommand} WHERE {KeyColumnName} IN @EntityIds";
 
             var queryBatches = new List<IEnumerable<Guid>>();
             var start = 0;
-            while (start < entityIds.Count())
+            while (start < entityIdArray.Length)
             {
-                var queryBatch = entityIds.Skip(start).Take(2000).ToArray();
+                var queryBatch = entityIdArray.Skip(start).Take(2000).ToArray();
                 queryBatches.Add(queryBatch);
                 start += 2000;
             }
@@ -184,12 +183,13 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public override void Save(IEnumerable<TDomainEntity> entities)
         {
-            foreach (var entity in entities.Where(entity => entity.EntityId == null))
+            var entityArray = entities.ToArray();
+            foreach (var entity in entityArray.Where(entity => entity.EntityId == null))
             {
                 entity.EntityId = Guid.NewGuid();
             }
 
-            var databaseEntityMap = entities.Select(domainEntity => new Tuple<TDomainEntity, TDatabaseEntity>(domainEntity, Convert(domainEntity))).ToList();
+            var databaseEntityMap = entityArray.Select(domainEntity => new Tuple<TDomainEntity, TDatabaseEntity>(domainEntity, Convert(domainEntity))).ToList();
             var insertDatabaseEntities = databaseEntityMap.Where(tuple => tuple.Item1.NeverPersisted).Select(tuple => tuple.Item2).ToList();
             var updateDatabaseEntities = databaseEntityMap.Where(tuple => !tuple.Item1.NeverPersisted && tuple.Item1.HasChanged).Select(tuple => tuple.Item2).ToList();
 
@@ -207,7 +207,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                 CopyData(tuple.Item2, tuple.Item1);
             }
 
-            MarkAsPersisted(entities);
+            MarkAsPersisted(entityArray);
         }
 
         protected TDatabaseEntity Convert(TDomainEntity domainEntity) => domainEntity == null ? null : Convert(new[] { domainEntity }).First();
@@ -222,25 +222,27 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             }
 
             var mapManager = _container.Resolve<IMapManager>();
-            var domainEntities = mapManager.Map<TDatabaseEntity, TDomainEntity>(databaseEntities);
+            var domainEntities = mapManager.Map<TDatabaseEntity, TDomainEntity>(databaseEntities).ToList();
             if (domainEntities.Any())
             {
                 FillInDomainEntities(domainEntities);
             }
 
-            return MarkAsPersisted(domainEntities).ToList();
+            MarkAsPersisted(domainEntities);
+
+            return domainEntities;
         }
 
         protected virtual IEnumerable<TDatabaseEntity> Convert(IEnumerable<TDomainEntity> domainEntities)
         {
             var mapManager = _container.Resolve<IMapManager>();
-            var databaseEntities = mapManager.Map<TDomainEntity, TDatabaseEntity>(domainEntities);
+            var databaseEntities = mapManager.Map<TDomainEntity, TDatabaseEntity>(domainEntities).ToList();
             if (databaseEntities.Any())
             {
                 FillInDatabaseEntities(databaseEntities);
             }
 
-            return databaseEntities.ToList();
+            return databaseEntities;
         }
 
         protected virtual void CopyData(TDomainEntity domainEntity, TDatabaseEntity databaseEntity)
@@ -295,19 +297,19 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             return databaseEntities.Where(databaseEntity => domainEntityIds.Contains(GetDomainEntityId(databaseEntity)));
         }
 
-        protected IEnumerable<string> GetPersistedPropertyNames() => typeof(TDatabaseEntity).GetProperties().Where(property =>
+        protected IList<string> GetPersistedPropertyNames() => typeof(TDatabaseEntity).GetProperties().Where(property =>
             property.CanRead &&
             property.CanWrite &&
             (!DatabaseGeneratedPrimaryKey || property.Name != KeyColumnName) &&
             !_defaultIgnoredEntityProperties.Contains(property.Name) &&
-            !IgnoredEntityProperties.Contains(property.Name)).Select(property => property.Name);
+            !IgnoredEntityProperties.Contains(property.Name)).Select(property => property.Name).ToList();
 
         private Guid GetDomainEntityId(TDatabaseEntity databaseEntity)
         {
             if (_primaryKeyProperty == null)
             {
-                var keyAttributes = typeof(TDatabaseEntity).GetPropertiesWithCustomAttribute<KeyAttribute>().Union(typeof(TDatabaseEntity).GetPropertiesWithCustomAttribute<ExplicitKeyAttribute>());
-                if (keyAttributes.Count() != 1)
+                var keyAttributes = typeof(TDatabaseEntity).GetPropertiesWithCustomAttribute<KeyAttribute>().Union(typeof(TDatabaseEntity).GetPropertiesWithCustomAttribute<ExplicitKeyAttribute>()).ToList();
+                if (keyAttributes.Count != 1)
                 {
                     throw new InvalidOperationException($"The type {typeof(TDatabaseEntity).FullName} must have exactly one property decorated by {typeof(KeyAttribute).FullName} or {typeof(ExplicitKeyAttribute).FullName}");
                 }
