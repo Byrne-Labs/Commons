@@ -11,7 +11,7 @@ namespace ByrneLabs.Commons
         {
             public bool Equals(T x, T y) => ReferenceEquals(x, y);
 
-            public int GetHashCode(T obj) => obj.GetHashCode();
+            public int GetHashCode(T obj) => 0;
         }
 
         public static IEnumerable<T> DistinctInstances<T>(this IEnumerable<T> enumeration) => enumeration.Distinct(new InstanceComparer<T>());

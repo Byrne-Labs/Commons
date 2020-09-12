@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA1502: 'SetPixels' has a cyclomatic complexity of '39'. Rewrite or refactor the code to decrease its complexity below '26'.
+dotnet_diagnostic.CA1502.severity = warning

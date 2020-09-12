@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
+      <None Include="..\..\.editorconfig" Link=".editorconfig" />
+    </ItemGroup>
+    <ItemGroup>
         <PackageReference Include="Ensure.That" Version="9.2.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.7" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />

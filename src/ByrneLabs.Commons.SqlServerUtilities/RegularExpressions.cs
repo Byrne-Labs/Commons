@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -9,31 +10,34 @@ namespace ByrneLabs.Commons.SqlServerUtilities
 {
     public partial class UserDefinedFunctions
     {
-        [SqlFunction(IsDeterministic = true, IsPrecise = true, TableDefinition = "Match NVARCHAR(4000)", FillRowMethodName = "MatchesFillRow")]
+        [SqlFunction(IsDeterministic = true, IsPrecise = true, TableDefinition = "MatchId INT, GroupIndex INT, Match NVARCHAR(4000)", FillRowMethodName = "AllMatchesFillRow")]
         public static IEnumerable AllMatches(string input, string pattern)
         {
-            IEnumerable returnValue;
-            if (input == null || pattern == null)
+            var allMatches = new List<Tuple<int, int, string>>();
+            if (input != null && pattern != null)
             {
-                returnValue = new List<string>();
-            }
-            else
-            {
-                var captures = new List<string>();
                 var matches = Regex.Matches(input, pattern, RegexOptions.IgnoreCase).Cast<Match>();
-                foreach (var match in matches)
+                var matchId = 1;
+                foreach (var match in matches.Where(m => m.Groups.Count > 0))
                 {
                     for (var groupIndex = 1; groupIndex < match.Groups.Count; groupIndex++)
                     {
                         var group = match.Groups[groupIndex];
-                        captures.AddRange(group.Captures.Cast<Capture>().Select(capture => capture.Value));
+                        allMatches.Add(new Tuple<int, int, string>(matchId, groupIndex, group.Value));
                     }
+                    matchId++;
                 }
-
-                returnValue = captures;
             }
 
-            return returnValue;
+            return allMatches;
+        }
+
+        public static void AllMatchesFillRow(object match, out SqlInt32 returnMatchId, out SqlInt32 returnGroupIndex, out SqlString returnMatch)
+        {
+            var matchTuple = (Tuple<int, int, string>)match;
+            returnMatchId = matchTuple.Item1;
+            returnGroupIndex = matchTuple.Item2;
+            returnMatch = matchTuple.Item3.Length > 4000 ? null : new SqlString(matchTuple.Item3);
         }
 
         [SqlFunction(IsDeterministic = true, IsPrecise = true)]
@@ -50,7 +54,7 @@ namespace ByrneLabs.Commons.SqlServerUtilities
 
         public static void MatchesFillRow(object match, out SqlString returnMatch)
         {
-            returnMatch = ((string) match).Length > 4000 ? null : new SqlString((string) match);
+            returnMatch = ((string)match).Length > 4000 ? null : new SqlString((string)match);
         }
 
         [SqlFunction(IsDeterministic = true, IsPrecise = true)]

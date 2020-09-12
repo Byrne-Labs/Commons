@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -21,7 +20,6 @@ namespace ByrneLabs.Commons.Domain
         public bool NeverPersisted { get; set; }
 
         [NotifyPropertyChangedInvocator]
-        [SuppressMessage("ReSharper", "VirtualMemberNeverOverridden.Global", Justification = "False positive -- this should not be possible on a public API")]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             HasChanged = true;

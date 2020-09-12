@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.Configuration;
 using JetBrains.Annotations;
@@ -32,12 +34,19 @@ namespace ByrneLabs.Commons.Mapping.AutoMapper
         public virtual IEnumerable<TTo> Map(IEnumerable<TFrom> fromSource)
         {
             Initialize();
-            var to = fromSource.Select(Map);
+
+            var toItems = new ConcurrentBag<TTo>();
+
+            Parallel.ForEach(fromSource, fromItem =>
+            {
+                var to = Map(fromItem);
+                toItems.Add(to);
+            });
             /*
-             * NOTE: If you are denormalizing an object, the same destination object will appear multiple times in the results. It is the actual instance that is duplicated, not multiple copies of the same entity. -- Jonathan Byrne 01/30/2018
+             * NOTE: If you are denormalizing an object, the same destination object will appear multiple times in the results. It is
+             * the actual instance that is duplicated, not multiple copies of the same entity. -- Jonathan Byrne 01/30/2018
              */
-            var distinctTo = to.DistinctInstances().ToList();
-            return distinctTo;
+            return toItems.ToList();
         }
 
         private void Initialize()

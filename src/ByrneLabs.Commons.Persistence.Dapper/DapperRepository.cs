@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using ByrneLabs.Commons.Domain;
 using ByrneLabs.Commons.Ioc;
 using ByrneLabs.Commons.Mapping;
@@ -145,11 +147,30 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public override IEnumerable<TDomainEntity> Find(IEnumerable<Guid> entityIds)
         {
-            using var connection = CreateConnection();
-            connection.Open();
             var command = $"{SelectCommand} WHERE {KeyColumnName} IN @EntityIds";
 
-            var databaseEntities = connection.Query<TDatabaseEntity>(command, new { EntityIds = entityIds.ToArray() }).ToList();
+            var queryBatches = new List<IEnumerable<Guid>>();
+            var start = 0;
+            while (start < entityIds.Count())
+            {
+                var queryBatch = entityIds.Skip(start).Take(2000).ToArray();
+                queryBatches.Add(queryBatch);
+                start += 2000;
+            }
+
+            var databaseEntities = new ConcurrentBag<TDatabaseEntity>();
+
+            Parallel.ForEach(queryBatches, queryBatch =>
+            {
+                using var connection = CreateConnection();
+                connection.Open();
+                var queryResults = connection.Query<TDatabaseEntity>(command, new { EntityIds = queryBatch }).ToList();
+                foreach (var queryResult in queryResults)
+                {
+                    databaseEntities.Add(queryResult);
+                }
+            });
+
             return Convert(databaseEntities);
         }
 
