@@ -46,7 +46,7 @@ namespace ByrneLabs.Commons.Mapping.AutoMapper
              * NOTE: If you are denormalizing an object, the same destination object will appear multiple times in the results. It is
              * the actual instance that is duplicated, not multiple copies of the same entity. -- Jonathan Byrne 01/30/2018
              */
-            return toItems.ToList();
+            return toItems.ToArray();
         }
 
         private void Initialize()

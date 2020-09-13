@@ -17,16 +17,16 @@ namespace ByrneLabs.Commons
         public static bool CanBeCastAs<T>(this Type type) => CanBeCastAs(type, typeof(T));
 
         public static IEnumerable<PropertyInfo> GetPropertiesWithCustomAttribute<T>(this Type type, bool inherit) where T : Attribute =>
-            type.GetProperties().Select(property => (property, property.GetCustomAttributes<T>(inherit).FirstOrDefault())).Where(tuple => tuple.Item2 != null).Select(tuple => tuple.Item1).ToList().AsReadOnly();
+            type.GetProperties().Select(property => (property, property.GetCustomAttributes<T>(inherit).FirstOrDefault())).Where(tuple => tuple.Item2 != null).Select(tuple => tuple.Item1).ToArray();
 
         public static IEnumerable<PropertyInfo> GetPropertiesWithCustomAttribute<T>(this Type type) where T : Attribute =>
-            type.GetProperties().Select(property => (property, property.GetCustomAttributes<T>().FirstOrDefault())).Where(tuple => tuple.Item2 != null).Select(tuple => tuple.Item1).ToList().AsReadOnly();
+            type.GetProperties().Select(property => (property, property.GetCustomAttributes<T>().FirstOrDefault())).Where(tuple => tuple.Item2 != null).Select(tuple => tuple.Item1).ToArray();
 
         public static IEnumerable<PropertyInfo> GetPropertiesWithCustomAttribute(this Type type, Type customAttributeType, bool inherit) =>
-            type.GetProperties().Select(property => (property, property.GetCustomAttributes(customAttributeType, inherit).FirstOrDefault())).Where(tuple => tuple.Item2 != null).Select(tuple => tuple.Item1).ToList().AsReadOnly();
+            type.GetProperties().Select(property => (property, property.GetCustomAttributes(customAttributeType, inherit).FirstOrDefault())).Where(tuple => tuple.Item2 != null).Select(tuple => tuple.Item1).ToArray();
 
         public static IEnumerable<PropertyInfo> GetPropertiesWithCustomAttribute(this Type type, Type customAttributeType) =>
-            type.GetProperties().Select(property => (property, property.GetCustomAttributes(customAttributeType).FirstOrDefault())).Where(tuple => tuple.Item2 != null).Select(tuple => tuple.Item1).ToList().AsReadOnly();
+            type.GetProperties().Select(property => (property, property.GetCustomAttributes(customAttributeType).FirstOrDefault())).Where(tuple => tuple.Item2 != null).Select(tuple => tuple.Item1).ToArray();
 
         [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Included because it is likely to be used in future")]
         public static bool IsSimple(this object value) => value == null || IsSimple(value.GetType());

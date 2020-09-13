@@ -63,7 +63,7 @@ namespace ByrneLabs.Commons.TestUtilities
 #pragma warning disable CA1806 // Do not ignore method results
             mockRepository.Setup(r => r.Delete(It.IsAny<IEnumerable<TEntity>>())).Callback((IEnumerable<TEntity> entities) => entities.Select(mockEntities.Remove));
 #pragma warning restore CA1806 // Do not ignore method results
-            mockRepository.Setup(r => r.FindAll()).Returns(mockEntities.Select(mockEntity => mockEntity.Clone(CloneDepth.Shallow)).Cast<TEntity>().ToList().AsReadOnly());
+            mockRepository.Setup(r => r.FindAll()).Returns(mockEntities.Select(mockEntity => mockEntity.Clone(CloneDepth.Shallow)).Cast<TEntity>().ToArray());
             mockRepository.Setup(r => r.Save(It.IsAny<IEnumerable<TEntity>>())).Callback((IEnumerable<TEntity> entities) =>
             {
                 var entitiesArray = entities as TEntity[] ?? entities.ToArray();

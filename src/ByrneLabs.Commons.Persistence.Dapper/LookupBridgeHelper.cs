@@ -55,7 +55,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             {
                 using var connection = CreateConnection();
                 connection.Open();
-                var queryResults = connection.Query<LookupBridge>(command, new { ConsumerEntityIds = queryBatch }).ToList();
+                var queryResults = connection.Query<LookupBridge>(command, new { ConsumerEntityIds = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     bridgeEntities.Add(queryResult);

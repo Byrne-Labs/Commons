@@ -22,7 +22,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             }
         }
 
-        protected static void AssertValid(IEnumerable<TEntity> entities) => AssertValid(entities.Cast<IEntity>().ToList());
+        protected static void AssertValid(IEnumerable<TEntity> entities) => AssertValid(entities.Cast<IEntity>().ToArray());
 
         [Fact]
         [Trait("Test Type", "Integration Test")]

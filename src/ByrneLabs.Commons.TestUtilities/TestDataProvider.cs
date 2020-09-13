@@ -46,12 +46,12 @@ namespace ByrneLabs.Commons.TestUtilities
             return TestData(type).RandomItems(minCount, maxCount);
         }
 
-        public IEnumerable<T> TestData<T>() => TestData(typeof(T)).Cast<T>().ToList();
+        public IEnumerable<T> TestData<T>() => TestData(typeof(T)).Cast<T>().ToArray();
 
         public virtual IEnumerable TestData(Type type)
         {
             AssertCanProvide(type);
-            return _testData.Where(data => data.Key.CanBeCastAs(type)).SelectMany(data => data.Value.Cast<object>()).ToList();
+            return _testData.Where(data => data.Key.CanBeCastAs(type)).SelectMany(data => data.Value.Cast<object>()).ToArray();
         }
 
         protected abstract object CreateTestObject(Type type);
@@ -86,7 +86,7 @@ namespace ByrneLabs.Commons.TestUtilities
 
         protected void SetTestData<T>(IEnumerable<T> testData)
         {
-            _testData[typeof(T)] = testData.ToList();
+            _testData[typeof(T)] = testData.ToArray();
         }
 
         [SuppressMessage("ReSharper", "VirtualMemberNeverOverridden.Global", Justification = "False positive -- this should not be possible on a public API")]

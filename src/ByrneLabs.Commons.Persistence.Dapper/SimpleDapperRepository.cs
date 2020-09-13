@@ -125,7 +125,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             {
                 using var connection = CreateConnection();
                 connection.Open();
-                var queryResults = connection.Query<T>(command, new { EntityIds = queryBatch }).ToList();
+                var queryResults = connection.Query<T>(command, new { EntityIds = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     entities.Add(queryResult);
@@ -171,7 +171,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
             using var connection = CreateConnection();
             connection.Open();
-            var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToList();
+            var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToArray();
             var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
 
             return connection.Query<T>(command, criteria).ToArray();
@@ -206,7 +206,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             {
                 using var connection = CreateConnection();
                 connection.Open();
-                var queryResults = connection.Query<T>(command, new { Values = queryBatch }).ToList();
+                var queryResults = connection.Query<T>(command, new { Values = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     entities.Add(queryResult);
@@ -221,6 +221,6 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             property.CanWrite &&
             (!DatabaseGeneratedPrimaryKey || property.Name != KeyColumnName) &&
             !_defaultIgnoredEntityProperties.Contains(property.Name) &&
-            !IgnoredEntityProperties.Contains(property.Name)).Select(property => property.Name).ToList();
+            !IgnoredEntityProperties.Contains(property.Name)).Select(property => property.Name).ToArray();
     }
 }

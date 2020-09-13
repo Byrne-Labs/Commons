@@ -104,7 +104,7 @@ namespace ByrneLabs.Commons.Ioc
         {
             lock (_serviceRegistry)
             {
-                _serviceRegistry.Cast<ServiceDescriptor>().ToList().CopyTo(array, arrayIndex);
+                _serviceRegistry.Cast<ServiceDescriptor>().ToArray().CopyTo(array, arrayIndex);
             }
         }
 

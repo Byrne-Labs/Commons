@@ -131,7 +131,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             {
                 using var connection = CreateConnection();
                 connection.Open();
-                var queryResults = connection.Query<TDatabaseEntity>(command, new { EntityIds = queryBatch }).ToList();
+                var queryResults = connection.Query<TDatabaseEntity>(command, new { EntityIds = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     databaseEntities.Add(queryResult);
@@ -145,7 +145,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
             using var connection = CreateConnection();
             connection.Open();
-            var databaseEntities = connection.Query<TDatabaseEntity>(SelectCommand).ToList();
+            var databaseEntities = connection.Query<TDatabaseEntity>(SelectCommand).ToArray();
             return Convert(databaseEntities);
         }
 
@@ -157,9 +157,9 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                 entity.EntityId = Guid.NewGuid();
             }
 
-            var databaseEntityMap = entityArray.Select(domainEntity => new Tuple<TDomainEntity, TDatabaseEntity>(domainEntity, Convert(domainEntity))).ToList();
-            var insertDatabaseEntities = databaseEntityMap.Where(tuple => tuple.Item1.NeverPersisted).Select(tuple => tuple.Item2).ToList();
-            var updateDatabaseEntities = databaseEntityMap.Where(tuple => !tuple.Item1.NeverPersisted && tuple.Item1.HasChanged).Select(tuple => tuple.Item2).ToList();
+            var databaseEntityMap = entityArray.Select(domainEntity => new Tuple<TDomainEntity, TDatabaseEntity>(domainEntity, Convert(domainEntity))).ToArray();
+            var insertDatabaseEntities = databaseEntityMap.Where(tuple => tuple.Item1.NeverPersisted).Select(tuple => tuple.Item2).ToArray();
+            var updateDatabaseEntities = databaseEntityMap.Where(tuple => !tuple.Item1.NeverPersisted && tuple.Item1.HasChanged).Select(tuple => tuple.Item2).ToArray();
 
             using (var connection = CreateConnection())
             {
@@ -190,7 +190,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             }
 
             var mapManager = _container.Resolve<IMapManager>();
-            var domainEntities = mapManager.Map<TDatabaseEntity, TDomainEntity>(databaseEntities).ToList();
+            var domainEntities = mapManager.Map<TDatabaseEntity, TDomainEntity>(databaseEntities).ToArray();
             if (domainEntities.Any())
             {
                 FillInDomainEntities(domainEntities);
@@ -204,7 +204,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         protected virtual IEnumerable<TDatabaseEntity> Convert(IEnumerable<TDomainEntity> domainEntities)
         {
             var mapManager = _container.Resolve<IMapManager>();
-            var databaseEntities = mapManager.Map<TDomainEntity, TDatabaseEntity>(domainEntities).ToList();
+            var databaseEntities = mapManager.Map<TDomainEntity, TDatabaseEntity>(domainEntities).ToArray();
             if (databaseEntities.Any())
             {
                 FillInDatabaseEntities(databaseEntities);
@@ -243,10 +243,10 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
             using var connection = CreateConnection();
             connection.Open();
-            var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToList();
+            var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToArray();
             var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
 
-            var databaseEntities = connection.Query<TDatabaseEntity>(command, criteria).ToList();
+            var databaseEntities = connection.Query<TDatabaseEntity>(command, criteria).ToArray();
             return Convert(databaseEntities);
         }
 
@@ -256,7 +256,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             connection.Open();
             var command = $"{SelectCommand} WHERE {whereClause}";
 
-            var databaseEntities = connection.Query<TDatabaseEntity>(command, parameterValues).ToList();
+            var databaseEntities = connection.Query<TDatabaseEntity>(command, parameterValues).ToArray();
             return Convert(databaseEntities);
         }
 
@@ -280,7 +280,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             {
                 using var connection = CreateConnection();
                 connection.Open();
-                var queryResults = connection.Query<TDatabaseEntity>(command, new { Values = queryBatch }).ToList();
+                var queryResults = connection.Query<TDatabaseEntity>(command, new { Values = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     databaseEntities.Add(queryResult);
@@ -300,14 +300,14 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             property.CanWrite &&
             (!DatabaseGeneratedPrimaryKey || property.Name != KeyColumnName) &&
             !_defaultIgnoredEntityProperties.Contains(property.Name) &&
-            !IgnoredEntityProperties.Contains(property.Name)).Select(property => property.Name).ToList();
+            !IgnoredEntityProperties.Contains(property.Name)).Select(property => property.Name).ToArray();
 
         private Guid GetDomainEntityId(TDatabaseEntity databaseEntity)
         {
             if (_primaryKeyProperty == null)
             {
-                var keyAttributes = typeof(TDatabaseEntity).GetPropertiesWithCustomAttribute<KeyAttribute>().Union(typeof(TDatabaseEntity).GetPropertiesWithCustomAttribute<ExplicitKeyAttribute>()).ToList();
-                if (keyAttributes.Count != 1)
+                var keyAttributes = typeof(TDatabaseEntity).GetPropertiesWithCustomAttribute<KeyAttribute>().Union(typeof(TDatabaseEntity).GetPropertiesWithCustomAttribute<ExplicitKeyAttribute>()).ToArray();
+                if (keyAttributes.Length != 1)
                 {
                     throw new InvalidOperationException($"The type {typeof(TDatabaseEntity).FullName} must have exactly one property decorated by {typeof(KeyAttribute).FullName} or {typeof(ExplicitKeyAttribute).FullName}");
                 }

@@ -27,7 +27,7 @@ namespace ByrneLabs.Commons.Ioc
 
         public abstract IDictionary<Type, Type> RegisteredTypes { get; }
 
-        private static IEnumerable<IContainerRegistrar> GetRegistrars(Assembly assembly) => assembly.GetTypes().Where(type => !type.IsInterface && typeof(IContainerRegistrar).IsAssignableFrom(type)).Select(type => (IContainerRegistrar) Activator.CreateInstance(type)).ToList();
+        private static IEnumerable<IContainerRegistrar> GetRegistrars(Assembly assembly) => assembly.GetTypes().Where(type => !type.IsInterface && typeof(IContainerRegistrar).IsAssignableFrom(type)).Select(type => (IContainerRegistrar) Activator.CreateInstance(type)).ToArray();
 
         private static bool IsAssemblyNotIgnored(Assembly assembly) => !_ignoredAutoRegistryAssemblies.Any(ignoredAssembly => assembly.GetName().Name.StartsWith(ignoredAssembly, true, CultureInfo.InvariantCulture));
 
@@ -120,8 +120,8 @@ namespace ByrneLabs.Commons.Ioc
             {
                 if (!_initialized)
                 {
-                    var nonSystemAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(IsAssemblyNotIgnored).ToList();
-                    var registrars = nonSystemAssemblies.SelectMany(GetRegistrars).ToList();
+                    var nonSystemAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(IsAssemblyNotIgnored).ToArray();
+                    var registrars = nonSystemAssemblies.SelectMany(GetRegistrars).ToArray();
                     Register(registrars);
                     AppDomain.CurrentDomain.AssemblyLoad += OnCurrentDomainOnAssemblyLoad;
                     _initialized = true;
