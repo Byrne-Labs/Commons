@@ -14,7 +14,7 @@ namespace ByrneLabs.Commons.Mapping.TestUtilities
 
         protected abstract IEnumerable<TFrom> CreateTestObjects();
 
-        protected abstract void ValidateMapping(TFrom from, TTo to);
+        protected abstract void ValidateMapping(TFrom fromEntity, TTo toEntity);
 
         protected void TestMapping()
         {

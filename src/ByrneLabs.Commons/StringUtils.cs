@@ -86,22 +86,6 @@ namespace ByrneLabs.Commons
             return result;
         }
 
-        public static string SubstringAfterLast(this string value, string substring)
-        {
-            var lastIndex = value.LastIndexOf(substring, StringComparison.Ordinal);
-            string result;
-            if (lastIndex < 0)
-            {
-                result = string.Empty;
-            }
-            else
-            {
-                result = value.Substring(lastIndex + substring.Length);
-            }
-
-            return result;
-        }
-
         public static string SubstringAfterLast(this string value, string substring, StringComparison stringComparison = StringComparison.Ordinal)
         {
             Ensure.That(value).IsNotNullOrEmpty();

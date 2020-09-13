@@ -20,14 +20,12 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         protected static void AssertValid(IEnumerable<IEntity> entities, IList<IEntity> examinedEntities = null)
         {
             Assert.NotNull(entities);
-            Assert.NotEmpty(entities);
+            var entitiesArray = entities as IEntity[] ?? entities.ToArray();
+            Assert.NotEmpty(entitiesArray);
 
-            if (examinedEntities == null)
-            {
-                examinedEntities = new List<IEntity>();
-            }
+            examinedEntities ??= new List<IEntity>();
 
-            foreach (var entity in entities.Where(e => !examinedEntities.Contains(e)))
+            foreach (var entity in entitiesArray.Where(e => !examinedEntities.Contains(e)))
             {
                 Assert.NotNull(entity?.EntityId);
 

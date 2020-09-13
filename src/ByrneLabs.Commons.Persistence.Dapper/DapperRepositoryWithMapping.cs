@@ -16,21 +16,14 @@ using JetBrains.Annotations;
 namespace ByrneLabs.Commons.Persistence.Dapper
 {
     [PublicAPI]
-    public abstract class DapperRepository<TDomainEntity, TDatabaseEntity> : Repository<TDomainEntity> where TDomainEntity : Entity where TDatabaseEntity : class
+    public abstract class DapperRepositoryWithMapping<TDomainEntity, TDatabaseEntity> : Repository<TDomainEntity> where TDomainEntity : Entity where TDatabaseEntity : Entity
     {
-        [SuppressMessage("ReSharper", "StaticMemberInGenericType", Justification = "We want this to be static to each generic type")]
-        private static string _defaultBulkInsertCommand;
-        [SuppressMessage("ReSharper", "StaticMemberInGenericType", Justification = "We want this to be static to each generic type")]
-        private static string _defaultBulkUpdateCommand;
-        [SuppressMessage("ReSharper", "StaticMemberInGenericType", Justification = "We want this to be static to each generic type")]
-        private static string _defaultSelectCommand;
         private readonly string _connectionFactoryName;
         private readonly IContainer _container;
         private readonly string[] _defaultIgnoredEntityProperties = { nameof(Entity.EntityId), nameof(Entity.NeverPersisted), nameof(Entity.HasChanged) };
-        private readonly object _lockSync = new object();
         private PropertyInfo _primaryKeyProperty;
 
-        protected DapperRepository(string connectionFactoryName, IContainer container)
+        protected DapperRepositoryWithMapping(string connectionFactoryName, IContainer container)
         {
             _container = container;
             _connectionFactoryName = connectionFactoryName;
@@ -66,18 +59,10 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
             get
             {
-                lock (_lockSync)
-                {
-                    if (_defaultBulkInsertCommand == null)
-                    {
-                        var properties = GetPersistedPropertyNames();
-                        var columns = string.Join(", ", properties);
-                        var parameters = string.Join(", ", properties.Select(property => "@" + property));
-                        _defaultBulkInsertCommand = $"INSERT {TableName} ({KeyColumnName}, {columns}) VALUES (@EntityId, {parameters})";
-                    }
-
-                    return _defaultBulkInsertCommand;
-                }
+                var properties = GetPersistedPropertyNames();
+                var columns = string.Join(", ", properties);
+                var parameters = string.Join(", ", properties.Select(property => "@" + property));
+                return $"INSERT {TableName} ({KeyColumnName}, {columns}) VALUES (@EntityId, {parameters})";
             }
         }
 
@@ -89,19 +74,9 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
             get
             {
-                string selectCommand;
-                if (!string.IsNullOrWhiteSpace(_defaultSelectCommand))
-                {
-                    selectCommand = _defaultSelectCommand;
-                }
-                else
-                {
-                    var properties = GetPersistedPropertyNames();
-                    var columns = string.Join(", ", properties);
-                    selectCommand = $"SELECT {KeyColumnName} AS EntityId, {columns} FROM {TableName}";
-                }
-
-                return selectCommand;
+                var properties = GetPersistedPropertyNames();
+                var columns = string.Join(", ", properties);
+                return $"SELECT {KeyColumnName} AS EntityId, {columns} FROM {TableName}";
             }
         }
 
@@ -111,16 +86,8 @@ namespace ByrneLabs.Commons.Persistence.Dapper
         {
             get
             {
-                lock (_lockSync)
-                {
-                    if (_defaultBulkUpdateCommand == null)
-                    {
-                        var properties = GetPersistedPropertyNames().Where(property => property != KeyColumnName).Select(property => property + " = " + "@" + property);
-                        _defaultBulkUpdateCommand = $"UPDATE {TableName} SET {string.Join(", ", properties)} WHERE {KeyColumnName} = @EntityId";
-                    }
-
-                    return _defaultBulkUpdateCommand;
-                }
+                var properties = GetPersistedPropertyNames().Where(property => property != KeyColumnName).Select(property => property + " = " + "@" + property);
+                return $"UPDATE {TableName} SET {string.Join(", ", properties)} WHERE {KeyColumnName} = @EntityId";
             }
         }
 
@@ -135,10 +102,11 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public override void Delete(IEnumerable<TDomainEntity> entities)
         {
+            var databaseEntities = Convert(entities);
             using var connection = CreateConnection();
             connection.Open();
             using var transaction = connection.BeginTransaction();
-            var failedDeletes = entities.Where(entity => !connection.Delete(entity, transaction));
+            var failedDeletes = databaseEntities.Where(databaseEntity => !connection.Delete(databaseEntity, transaction));
             transaction.Commit();
             throw new PersistenceException("Some entities were not deleted", failedDeletes);
         }
@@ -289,6 +257,36 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             var command = $"{SelectCommand} WHERE {whereClause}";
 
             var databaseEntities = connection.Query<TDatabaseEntity>(command, parameterValues).ToList();
+            return Convert(databaseEntities);
+        }
+
+        protected virtual IEnumerable<TDomainEntity> FindWhereIn(string columnName, IEnumerable<object> parameterValues)
+        {
+            var parameterValuesArray = parameterValues.ToArray();
+            var command = $"{SelectCommand} WHERE {columnName} IN @Values";
+
+            var queryBatches = new List<IEnumerable<object>>();
+            var start = 0;
+            while (start < parameterValuesArray.Length)
+            {
+                var queryBatch = parameterValuesArray.Skip(start).Take(2000).ToArray();
+                queryBatches.Add(queryBatch);
+                start += 2000;
+            }
+
+            var databaseEntities = new ConcurrentBag<TDatabaseEntity>();
+
+            Parallel.ForEach(queryBatches, queryBatch =>
+            {
+                using var connection = CreateConnection();
+                connection.Open();
+                var queryResults = connection.Query<TDatabaseEntity>(command, new { Values = queryBatch }).ToList();
+                foreach (var queryResult in queryResults)
+                {
+                    databaseEntities.Add(queryResult);
+                }
+            });
+
             return Convert(databaseEntities);
         }
 

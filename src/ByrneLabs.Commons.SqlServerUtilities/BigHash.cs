@@ -1,9 +1,12 @@
 using System.Data.SqlTypes;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using Microsoft.SqlServer.Server;
 
 namespace ByrneLabs.Commons.SqlServerUtilities
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public partial class UserDefinedFunctions
     {
         [SqlFunction]

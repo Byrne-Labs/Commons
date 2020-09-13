@@ -209,7 +209,11 @@ namespace ByrneLabs.Commons
 
         public static int NextInt(int minValue, int maxValue) => FrameworkRandom.Next(minValue, maxValue);
 
-        public static T NextItem<T>(IEnumerable<T> items) => items.Any() ? items.ToArray()[Next(items.Count() - 1)] : default;
+        public static T NextItem<T>(IEnumerable<T> items)
+        {
+            var itemsArray = items as T[] ?? items.ToArray();
+            return itemsArray.Any() ? itemsArray.ToArray()[Next(itemsArray.Length - 1)] : default;
+        }
 
         public static IEnumerable<T> NextItems<T>(int count)
         {
@@ -222,16 +226,21 @@ namespace ByrneLabs.Commons
             return items;
         }
 
-        public static IEnumerable<T> NextItems<T>(IEnumerable<T> items) => NextItems(items, 1, items.Count()).ToArray();
+        public static IEnumerable<T> NextItems<T>(IEnumerable<T> items)
+        {
+            var itemsArray = items as T[] ?? items.ToArray();
+            return NextItems(itemsArray, 1, itemsArray.Length).ToArray();
+        }
 
         public static IEnumerable<T> NextItems<T>(IEnumerable<T> items, int maxCount) => NextItems(items, 1, maxCount).ToArray();
 
         public static IEnumerable<T> NextItems<T>(IEnumerable<T> items, int minCount, int maxCount)
         {
-            var realMax = Math.Min(maxCount, items.Count());
+            var itemsArray = items as T[] ?? items.ToArray();
+            var realMax = Math.Min(maxCount, itemsArray.Length);
             var realMin = Math.Max(0, Math.Min(realMax, minCount));
             var itemCount = Next(realMin, realMax);
-            return items.OrderBy(item => Next()).Take(itemCount).ToArray();
+            return itemsArray.OrderBy(item => Next()).Take(itemCount).ToArray();
         }
 
         [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "long", Justification = "No other logical name in this case")]

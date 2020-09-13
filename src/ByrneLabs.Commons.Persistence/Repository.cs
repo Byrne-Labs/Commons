@@ -24,9 +24,9 @@ namespace ByrneLabs.Commons.Persistence
 
         public virtual T Find(Guid entityId) => Find(new[] { entityId }).FirstOrDefault();
 
-        public virtual void Save(T domainEntity)
+        public virtual void Save(T entity)
         {
-            Save(new[] { domainEntity });
+            Save(new[] { entity });
         }
     }
 }

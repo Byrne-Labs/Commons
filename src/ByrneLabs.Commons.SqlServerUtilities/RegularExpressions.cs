@@ -2,12 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Server;
 
 namespace ByrneLabs.Commons.SqlServerUtilities
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public partial class UserDefinedFunctions
     {
         [SqlFunction(IsDeterministic = true, IsPrecise = true, TableDefinition = "MatchId INT, GroupIndex INT, Match NVARCHAR(4000)", FillRowMethodName = "AllMatchesFillRow")]
@@ -25,6 +28,7 @@ namespace ByrneLabs.Commons.SqlServerUtilities
                         var group = match.Groups[groupIndex];
                         allMatches.Add(new Tuple<int, int, string>(matchId, groupIndex, group.Value));
                     }
+
                     matchId++;
                 }
             }
@@ -34,7 +38,7 @@ namespace ByrneLabs.Commons.SqlServerUtilities
 
         public static void AllMatchesFillRow(object match, out SqlInt32 returnMatchId, out SqlInt32 returnGroupIndex, out SqlString returnMatch)
         {
-            var matchTuple = (Tuple<int, int, string>)match;
+            var matchTuple = (Tuple<int, int, string>) match;
             returnMatchId = matchTuple.Item1;
             returnGroupIndex = matchTuple.Item2;
             returnMatch = matchTuple.Item3.Length > 4000 ? null : new SqlString(matchTuple.Item3);
@@ -54,7 +58,7 @@ namespace ByrneLabs.Commons.SqlServerUtilities
 
         public static void MatchesFillRow(object match, out SqlString returnMatch)
         {
-            returnMatch = ((string)match).Length > 4000 ? null : new SqlString((string)match);
+            returnMatch = ((string) match).Length > 4000 ? null : new SqlString((string) match);
         }
 
         [SqlFunction(IsDeterministic = true, IsPrecise = true)]

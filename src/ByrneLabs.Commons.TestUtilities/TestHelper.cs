@@ -66,7 +66,8 @@ namespace ByrneLabs.Commons.TestUtilities
             mockRepository.Setup(r => r.FindAll()).Returns(mockEntities.Select(mockEntity => mockEntity.Clone(CloneDepth.Shallow)).Cast<TEntity>().ToList().AsReadOnly());
             mockRepository.Setup(r => r.Save(It.IsAny<IEnumerable<TEntity>>())).Callback((IEnumerable<TEntity> entities) =>
             {
-                foreach (var entity in entities.Where(entity => entity.EntityId == null))
+                var entitiesArray = entities as TEntity[] ?? entities.ToArray();
+                foreach (var entity in entitiesArray.Where(entity => entity.EntityId == null))
                 {
                     entity.EntityId = Guid.NewGuid();
                 }
@@ -74,7 +75,7 @@ namespace ByrneLabs.Commons.TestUtilities
 #pragma warning disable CA1806 // Do not ignore method results
                 mockEntities.Where(mockEntity => entities.Any(entity => entity.EntityId == mockEntity.EntityId)).Select(mockEntities.Remove);
 #pragma warning restore CA1806 // Do not ignore method results
-                mockEntities.AddRange(entities);
+                mockEntities.AddRange(entitiesArray);
             });
             Container.RegisterInstance(mockRepository.Object);
 

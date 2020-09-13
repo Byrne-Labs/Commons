@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Persistence
 {
+    [PublicAPI]
     public interface IRepository<T>
     {
         void Delete(IEnumerable<T> entities);

@@ -40,13 +40,15 @@ namespace ByrneLabs.Commons
 
                 if (fieldValueX is IEnumerable<object> enumerableX && fieldValueY is IEnumerable<object> enumerableY)
                 {
-                    if (enumerableX.Count() != enumerableY.Count())
+                    var arrayX = enumerableX as object[] ?? enumerableX.ToArray();
+                    var arrayY = enumerableY as object[] ?? enumerableY.ToArray();
+                    if (arrayX.Length != arrayY.Length)
                     {
                         return false;
                     }
 
-                    var enumeratorX = enumerableX.GetEnumerator();
-                    var enumeratorY = enumerableY.GetEnumerator();
+                    var enumeratorX = arrayX.GetEnumerator();
+                    var enumeratorY = arrayY.GetEnumerator();
                     while (enumeratorX.MoveNext())
                     {
                         enumeratorY.MoveNext();

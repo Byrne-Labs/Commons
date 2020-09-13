@@ -15,20 +15,24 @@ namespace ByrneLabs.Commons.TestUtilities.XUnit
     {
         public static void ContainsSame<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
-            ContainsSame(expected, actual, "Expected '{0}' but was actually '{1}'", string.Join(",", expected.Select(expectedItem => expectedItem.ToString())), string.Join(",", actual.Select(actualItem => actualItem.ToString())));
+            var expectedArray = expected as T[] ?? expected.ToArray();
+            var actualArray = actual as T[] ?? actual.ToArray();
+            ContainsSame(expectedArray, actualArray, "Expected '{0}' but was actually '{1}'", string.Join(",", expectedArray.Select(expectedItem => expectedItem.ToString())), string.Join(",", actualArray.Select(actualItem => actualItem.ToString())));
         }
 
         public static void ContainsSame<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message, params object[] args)
         {
-            True(expected == null && actual == null || expected != null && actual != null && expected.Count() == actual.Count());
-            foreach (var actualItem in actual)
+            var actualArray = actual as T[] ?? actual.ToArray();
+            var expectedArray = expected as T[] ?? expected.ToArray();
+            True(expected == null && actual == null || expected != null && actual != null && expectedArray.Length == actualArray.Length);
+            foreach (var actualItem in actualArray)
             {
-                True(expected.Any(expectedItem => object.Equals(actualItem, expectedItem)), string.Format(CultureInfo.InvariantCulture, message, args));
+                True(expectedArray.Any(expectedItem => object.Equals(actualItem, expectedItem)), string.Format(CultureInfo.InvariantCulture, message, args));
             }
 
-            foreach (var expectedItem in expected)
+            foreach (var expectedItem in expectedArray)
             {
-                True(actual.Any(actualItem => object.Equals(expectedItem, actualItem)), string.Format(CultureInfo.InvariantCulture, message, args));
+                True(actualArray.Any(actualItem => object.Equals(expectedItem, actualItem)), string.Format(CultureInfo.InvariantCulture, message, args));
             }
         }
 

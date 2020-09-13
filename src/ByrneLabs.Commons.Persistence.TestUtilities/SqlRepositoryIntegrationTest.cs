@@ -40,7 +40,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
                 Assert.Contains(foundEntity.EntityId.Value, entityIds);
             }
 
-            var foundEntityIds = foundEntities.Select(entity => entity.EntityId.Value);
+            var foundEntityIds = foundEntities.Select(entity => entity.EntityId.Value).ToArray();
             foreach (var entityId in entityIds)
             {
                 Assert.Contains(entityId, foundEntityIds);
@@ -72,8 +72,8 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             var testEntities = testHelper.TestData<TEntity>();
             testHelper.TestedObject.Save(testEntities);
 
-            var entityIds = GetEntityIds(testHelper.Container);
-            var entities = testHelper.TestedObject.Find(entityIds);
+            var entityIds = GetEntityIds(testHelper.Container).ToArray();
+            var entities = testHelper.TestedObject.Find(entityIds).ToArray();
             AssertValid(entities);
             BetterAssert.ContainsSame(entityIds, entities.Select(entity => entity.EntityId.Value).ToArray());
         }
