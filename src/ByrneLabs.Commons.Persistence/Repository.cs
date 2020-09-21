@@ -17,14 +17,14 @@ namespace ByrneLabs.Commons.Persistence
 
         public abstract void Save(IEnumerable<T> entities);
 
-        public virtual void Delete(T domainEntity)
+        public virtual void Delete(T entity)
         {
-            Delete(new[] { domainEntity });
+            Delete(new[] { entity });
         }
 
-        public virtual T Find(Guid entityId) => Find(new[] { entityId }).FirstOrDefault();
+        public T Find(Guid entityId) => Find(new[] { entityId }).FirstOrDefault();
 
-        public virtual void Save(T entity)
+        public void Save(T entity)
         {
             Save(new[] { entity });
         }

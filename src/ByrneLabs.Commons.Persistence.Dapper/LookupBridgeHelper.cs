@@ -35,6 +35,27 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual string TableName => $"{typeof(TConsumer).Name}{typeof(TLookup).Name}";
 
+        public void DeleteLookupsForConsumers(IEnumerable<Guid> consumerIds)
+        {
+            var consumersIdsArray = consumerIds.ToArray();
+
+            var queryBatches = new List<IEnumerable<Guid>>();
+            var start = 0;
+            while (start < consumersIdsArray.Length)
+            {
+                var queryBatch = consumersIdsArray.Skip(start).Take(2000).ToArray();
+                queryBatches.Add(queryBatch);
+                start += 2000;
+            }
+
+            Parallel.ForEach(queryBatches, queryBatch =>
+            {
+                using var connection = CreateConnection();
+                connection.Open();
+                connection.Execute($"DELETE {TableName} WHERE {ConsumerEntityIdFieldName} IN @ConsumerIds", new { ConsumerIds = consumerIds });
+            });
+        }
+
         public IEnumerable<LookupBridge> Find(IEnumerable<Guid> consumersIds)
         {
             var consumersIdsArray = consumersIds.ToArray();

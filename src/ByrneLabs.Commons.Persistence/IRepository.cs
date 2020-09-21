@@ -9,6 +9,8 @@ namespace ByrneLabs.Commons.Persistence
     {
         void Delete(IEnumerable<T> entities);
 
+        void Delete(T entity);
+
         T Find(Guid entityId);
 
         IEnumerable<T> Find(IEnumerable<Guid> entityIds);
