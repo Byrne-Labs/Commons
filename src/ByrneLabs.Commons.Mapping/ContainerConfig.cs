@@ -2,7 +2,7 @@ using ByrneLabs.Commons.Ioc;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ByrneLabs.Commons.Mapping.AutoMapper
+namespace ByrneLabs.Commons.Mapping
 {
     [PublicAPI]
     public class ContainerConfig : IContainerRegistrar

@@ -29,8 +29,6 @@ namespace ByrneLabs.Commons
             return stringBuilder.ToString();
         }
 
-        [SuppressMessage("Microsoft.Usage", "CA2233:OperationsShouldNotOverflow", MessageId = "nestedCount+1", Justification = "A stack overflow would occur long before we would have 2147483648 nesting levels")]
-        [SuppressMessage("Microsoft.Usage", "CA2233:OperationsShouldNotOverflow", MessageId = "nestedCount-1", Justification = "A stack overflow would occur long before we would have 2147483648 nesting levels")]
         private void ReflectionToString(StringBuilder builder, int nestedCount, ICollection<HandyObject> outputEntities)
         {
             var indent = new string(' ', (nestedCount - 1) * 4) + "-   ";
