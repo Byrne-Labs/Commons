@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using ByrneLabs.Commons.Domain;
 using ByrneLabs.Commons.Ioc;
@@ -88,6 +89,8 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             AssertValid(testHelper.TestData<TEntity>());
         }
 
+        protected abstract IDbConnection GetConnection();
+
         protected abstract ITestHelper<TRepositoryInterface> GetNewRepositoryTestHelper();
 
         protected virtual Guid CreateEntityId(params object[] primaryKeys) => (Guid) primaryKeys[0];
@@ -97,7 +100,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         protected virtual IEnumerable<Guid> GetEntityIds(IContainer container)
         {
             var entityIds = new List<Guid>();
-            using (var connection = container.Resolve<IConnectionFactoryRegistry>().GetConnection(ConnectionName))
+            using (var connection = GetConnection())
             {
                 connection.Open();
                 var command = connection.CreateCommand();

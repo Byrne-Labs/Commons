@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ByrneLabs.Commons.Domain;
-using ByrneLabs.Commons.Ioc;
 using Dapper;
 using Dapper.Contrib.Extensions;
 using JetBrains.Annotations;
@@ -16,15 +15,10 @@ namespace ByrneLabs.Commons.Persistence.Dapper
     [PublicAPI]
     public abstract class SimpleDapperRepository<T> : Repository<T> where T : Entity
     {
-        private readonly string _connectionFactoryName;
-        private readonly IContainer _container;
         private readonly string[] _defaultIgnoredEntityProperties = { nameof(Entity.EntityId), nameof(Entity.NeverPersisted), nameof(Entity.HasChanged) };
 
-        protected SimpleDapperRepository(string connectionFactoryName, IContainer container)
+        protected SimpleDapperRepository()
         {
-            _container = container;
-            _connectionFactoryName = connectionFactoryName;
-
             var map = new CustomPropertyTypeMap(typeof(T), (type, columnName) =>
             {
                 PropertyInfo property;
@@ -165,7 +159,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             MarkAsPersisted(entityArray);
         }
 
-        protected IDbConnection CreateConnection() => _container.Resolve<IConnectionFactoryRegistry>().GetConnection(_connectionFactoryName);
+        protected abstract IDbConnection CreateConnection();
 
         protected virtual IEnumerable<T> FindByExample(object criteria)
         {

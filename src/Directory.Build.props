@@ -1,10 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Project>
-    <PropertyGroup Condition="'$(BuildNumber)' == ''">
-        <BuildNumber>0</BuildNumber>
-    </PropertyGroup>
-    <PropertyGroup>
+    <PropertyGroup Condition="'$(ReleaseNuGet)' == 'true' AND '$(BuildNumber)' != ''">
         <ReleaseType></ReleaseType>
         <AssemblyVersion>1.1.0.$(BuildNumber)</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>

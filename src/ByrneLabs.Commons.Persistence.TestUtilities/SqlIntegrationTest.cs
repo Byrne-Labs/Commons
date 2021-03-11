@@ -64,8 +64,6 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             var container = new SimpleContainerProvider(true);
 #pragma warning disable CA2000 // Dispose objects before losing scope
             var sqlTestDatabase = new SqlTestDatabaseServer(EmptyTestDatabaseFilePath);
-#pragma warning restore CA2000 // Dispose objects before losing scope
-            sqlTestDatabase.Register(container, ConnectionName);
             /*
              * We are registering this as an instance so that it gets disposed at the same time as the container
              */

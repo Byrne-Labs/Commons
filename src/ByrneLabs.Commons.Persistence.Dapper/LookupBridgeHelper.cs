@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ByrneLabs.Commons.Domain;
-using ByrneLabs.Commons.Ioc;
 using Dapper;
 using JetBrains.Annotations;
 
@@ -14,15 +13,6 @@ namespace ByrneLabs.Commons.Persistence.Dapper
     [PublicAPI]
     public abstract class LookupBridgeHelper<TConsumer, TLookup> where TConsumer : Entity where TLookup : Entity
     {
-        private readonly string _connectionFactoryName;
-        private readonly IContainer _container;
-
-        protected LookupBridgeHelper(string connectionFactoryName, IContainer container)
-        {
-            _connectionFactoryName = connectionFactoryName;
-            _container = container;
-        }
-
         protected virtual string ConsumerEntityIdFieldName => $"{typeof(TConsumer).Name}Id";
 
         protected virtual string InsertCommand => $"INSERT {TableName} ({KeyColumnName}, {ConsumerEntityIdFieldName}, {LookupEntityIdFieldName}) VALUES (@LookupBridgeId, @ConsumerId, @LookupId)";
@@ -107,6 +97,6 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             });
         }
 
-        protected IDbConnection CreateConnection() => _container.Resolve<IConnectionFactoryRegistry>().GetConnection(_connectionFactoryName);
+        protected abstract IDbConnection CreateConnection();
     }
 }

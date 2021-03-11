@@ -18,15 +18,13 @@ namespace ByrneLabs.Commons.Persistence.Dapper
     [PublicAPI]
     public abstract class DapperRepositoryWithMapping<TDomainEntity, TDatabaseEntity> : Repository<TDomainEntity> where TDomainEntity : Entity where TDatabaseEntity : Entity
     {
-        private readonly string _connectionFactoryName;
         private readonly IContainer _container;
         private readonly string[] _defaultIgnoredEntityProperties = { nameof(Entity.EntityId), nameof(Entity.NeverPersisted), nameof(Entity.HasChanged) };
         private PropertyInfo _primaryKeyProperty;
 
-        protected DapperRepositoryWithMapping(string connectionFactoryName, IContainer container)
+        protected DapperRepositoryWithMapping(IContainer container)
         {
             _container = container;
-            _connectionFactoryName = connectionFactoryName;
 
             var map = new CustomPropertyTypeMap(typeof(TDatabaseEntity), (type, columnName) =>
             {
@@ -107,6 +105,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             {
                 return;
             }
+
             var databaseEntities = Convert(entitiesArray);
             using var connection = CreateConnection();
             connection.Open();
@@ -181,6 +180,8 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             MarkAsPersisted(entityArray);
         }
 
+        protected abstract IDbConnection CreateConnection();
+
         protected TDatabaseEntity Convert(TDomainEntity domainEntity) => domainEntity == null ? null : Convert(new[] { domainEntity }).First();
 
         protected TDomainEntity Convert(TDatabaseEntity databaseEntity) => databaseEntity == null ? null : Convert(new[] { databaseEntity }).First();
@@ -229,8 +230,6 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             mapManager.Map(databaseEntity, domainEntity);
             FillInDomainEntities(new[] { domainEntity });
         }
-
-        protected IDbConnection CreateConnection() => _container.Resolve<IConnectionFactoryRegistry>().GetConnection(_connectionFactoryName);
 
         [SuppressMessage("ReSharper", "UnusedParameter.Global", Justification = "This method by default does nothing but it is important to allow inheriting classes to override it")]
         protected virtual void FillInDatabaseEntities(IEnumerable<TDatabaseEntity> databaseEntities)

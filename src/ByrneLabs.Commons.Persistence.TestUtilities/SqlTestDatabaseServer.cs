@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using ByrneLabs.Commons.Ioc;
 using JetBrains.Annotations;
 
 namespace ByrneLabs.Commons.Persistence.TestUtilities
@@ -35,17 +35,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             Cleanup();
         }
 
-        public void Register(IContainer container, string connectionName)
-        {
-            container.Resolve<IConnectionFactoryRegistry>().RegisterFactory(connectionName, () =>
-                {
-                    var connection = new SqlConnection(ConnectionString);
-                    _connections.Add(new WeakReference<SqlConnection>(connection));
-
-                    return connection;
-                }
-            );
-        }
+        public IDbConnection GetConnection() => new SqlConnection(ConnectionString);
 
         private void Cleanup()
         {
