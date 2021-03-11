@@ -1,8 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Project>
+    <PropertyGroup Condition="'$(BuildNumber)' == ''">
+        <BuildNumber>0</BuildNumber>
+    </PropertyGroup>
     <PropertyGroup>
-        <BuildNumber>195</BuildNumber>
         <ReleaseType></ReleaseType>
         <AssemblyVersion>1.1.0.$(BuildNumber)</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>

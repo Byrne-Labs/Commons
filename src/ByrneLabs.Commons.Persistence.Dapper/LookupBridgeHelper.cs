@@ -23,7 +23,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             _container = container;
         }
 
-        protected virtual string ConsumerEntityIdFieldName => $"{typeof(TLookup).Name}Id";
+        protected virtual string ConsumerEntityIdFieldName => $"{typeof(TConsumer).Name}Id";
 
         protected virtual string InsertCommand => $"INSERT {TableName} ({KeyColumnName}, {ConsumerEntityIdFieldName}, {LookupEntityIdFieldName}) VALUES (@LookupBridgeId, @ConsumerId, @LookupId)";
 

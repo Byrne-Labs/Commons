@@ -33,6 +33,21 @@ namespace ByrneLabs.Commons.Ioc.DotNetCore
             }
         }
 
+        public DotNetCoreContainerProvider(bool autoRegister, IServiceCollection services)
+        {
+            var defaultServiceCollection = new ServiceCollection
+            {
+                services
+            };
+            _services = new ConcurrentDictionary<string, IServiceCollection>(new Dictionary<string, IServiceCollection> { { string.Empty, services } });
+            _serviceProviders = new ConcurrentDictionary<string, IServiceProvider>(new Dictionary<string, IServiceProvider> { { string.Empty, defaultServiceCollection.BuildServiceProvider() } });
+            _services[string.Empty].AddSingleton<IContainer>(this);
+            if (autoRegister)
+            {
+                AutoRegister();
+            }
+        }
+
         public DotNetCoreContainerProvider(bool autoRegister, IServiceCollection services, IServiceProvider serviceProvider)
         {
             _services = new ConcurrentDictionary<string, IServiceCollection>(new Dictionary<string, IServiceCollection> { { string.Empty, services } });

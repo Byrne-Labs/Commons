@@ -102,13 +102,21 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public override void Delete(IEnumerable<TDomainEntity> entities)
         {
-            var databaseEntities = Convert(entities);
+            var entitiesArray = entities.ToArray();
+            if (entitiesArray?.Any() != true)
+            {
+                return;
+            }
+            var databaseEntities = Convert(entitiesArray);
             using var connection = CreateConnection();
             connection.Open();
             using var transaction = connection.BeginTransaction();
-            var failedDeletes = databaseEntities.Where(databaseEntity => !connection.Delete(databaseEntity, transaction));
+            var failedDeletes = databaseEntities.Where(databaseEntity => !connection.Delete(databaseEntity, transaction)).ToArray();
             transaction.Commit();
-            throw new PersistenceException("Some entities were not deleted", failedDeletes);
+            if (failedDeletes.Any())
+            {
+                throw new PersistenceException("Some entities were not deleted", failedDeletes);
+            }
         }
 
         public override IEnumerable<TDomainEntity> Find(IEnumerable<Guid> entityIds)
@@ -168,11 +176,6 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                 connection.Execute(InsertCommand, insertDatabaseEntities, transaction);
                 connection.Execute(UpdateCommand, updateDatabaseEntities, transaction);
                 transaction.Commit();
-            }
-
-            foreach (var tuple in databaseEntityMap)
-            {
-                CopyData(tuple.Item2, tuple.Item1);
             }
 
             MarkAsPersisted(entityArray);
