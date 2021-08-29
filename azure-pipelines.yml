@@ -25,7 +25,7 @@ steps:
   inputs:
     solution: '$(solution)'
     vsVersion: '16.0'
-    msbuildArgs: '/property:BuildNumber=$(Build.BuildId)'
+    msbuildArgs: '/property:BuildNumber=$(Build.BuildId) /unsafe'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
