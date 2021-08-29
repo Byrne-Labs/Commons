@@ -10,6 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  solution: 'ByrneLabs.Commons.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
@@ -18,11 +19,11 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: 'ByrneLabs.Commons.sln'
+    restoreSolution: '$(solution)'
 
 - task: VSBuild@1
   inputs:
-    solution: 'ByrneLabs.Commons.sln'
+    solution: '$(solution)'
     vsVersion: '16.0'
     msbuildArgs: '/property:BuildNumber=$(Build.BuildId)'
     platform: '$(buildPlatform)'
