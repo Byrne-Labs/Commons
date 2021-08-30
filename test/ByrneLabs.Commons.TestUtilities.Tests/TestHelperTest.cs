@@ -62,6 +62,10 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
                 throw new NotImplementedException();
             }
 
+            public void Dispose()
+            {
+            }
+
             public IEntityA1 Find(Guid entityId) => throw new NotImplementedException();
 
             public IEnumerable<IEntityA1> Find(IEnumerable<Guid> entityIds) => throw new NotImplementedException();
@@ -92,6 +96,10 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
             public void Delete(IEntityA2 entity)
             {
                 throw new NotImplementedException();
+            }
+
+            public void Dispose()
+            {
             }
 
             public IEntityA2 Find(Guid entityId) => throw new NotImplementedException();
@@ -126,6 +134,10 @@ namespace ByrneLabs.Commons.TestUtilities.Tests
             public void Delete(IEntityA3 entity)
             {
                 throw new NotImplementedException();
+            }
+
+            public void Dispose()
+            {
             }
 
             public IEntityA3 Find(Guid entityId) => throw new NotImplementedException();

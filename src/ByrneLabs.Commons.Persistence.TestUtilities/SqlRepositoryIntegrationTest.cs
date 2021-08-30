@@ -100,21 +100,16 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         protected virtual IEnumerable<Guid> GetEntityIds(IContainer container)
         {
             var entityIds = new List<Guid>();
-            using (var connection = GetConnection())
+            var connection = GetConnection();
+            var command = connection.CreateCommand();
+            command.CommandText = CreateQueryForPrimaryKeys();
+            var reader = command.ExecuteReader();
+            while (reader.Read())
             {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = CreateQueryForPrimaryKeys();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    var fieldValues = new object[reader.FieldCount];
-                    reader.GetValues(fieldValues);
-                    var entityId = CreateEntityId(fieldValues);
-                    entityIds.Add(entityId);
-                }
-
-                connection.Close();
+                var fieldValues = new object[reader.FieldCount];
+                reader.GetValues(fieldValues);
+                var entityId = CreateEntityId(fieldValues);
+                entityIds.Add(entityId);
             }
 
             Assert.NotEmpty(entityIds);

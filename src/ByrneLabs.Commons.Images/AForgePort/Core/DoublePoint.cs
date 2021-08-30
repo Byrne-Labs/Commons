@@ -34,17 +34,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
     [Serializable]
     public struct DoublePoint
     {
-        /// <summary> 
-        /// X coordinate.
-        /// </summary> 
-        /// 
-        public double X;
-        /// <summary> 
-        /// Y coordinate.
-        /// </summary> 
-        /// 
-        public double Y;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DoublePoint"/> structure.
         /// </summary>
@@ -57,6 +46,17 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
             X = x;
             Y = y;
         }
+
+        /// <summary>
+        /// X coordinate.
+        /// </summary>
+        /// 
+        public double X { get; set; }
+        /// <summary>
+        /// Y coordinate.
+        /// </summary>
+        /// 
+        public double Y { get; set; }
 
         /// <summary>
         /// Addition operator - adds values of two points.
@@ -152,6 +152,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
         /// <returns>Returns <see langword="true"/> if coordinates of specified
         /// points are equal.</returns>
         ///
+        // ReSharper disable twice CompareOfFloatsByEqualityOperator
         public static bool operator ==(DoublePoint point1, DoublePoint point2) => point1.X == point2.X && point1.Y == point2.Y;
 
         /// <summary>
@@ -278,7 +279,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
         public override bool Equals(object obj) => obj is DoublePoint ? this == (DoublePoint)obj : false;
 
         /// <summary>
-        /// Calculate Euclidean norm of the vector comprised of the point's 
+        /// Calculate Euclidean norm of the vector comprised of the point's
         /// coordinates - distance from (0, 0) in other words.
         /// </summary>
         /// 

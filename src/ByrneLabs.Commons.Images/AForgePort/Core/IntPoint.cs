@@ -33,14 +33,14 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
     [Serializable]
     public struct IntPoint
     {
-        /// <summary> 
+        /// <summary>
         /// X coordinate.
-        /// </summary> 
+        /// </summary>
         /// 
         public int X;
-        /// <summary> 
+        /// <summary>
         /// Y coordinate.
-        /// </summary> 
+        /// </summary>
         /// 
         public int Y;
 
@@ -275,7 +275,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
         public override bool Equals(object obj) => obj is IntPoint ? this == (IntPoint)obj : false;
 
         /// <summary>
-        /// Calculate Euclidean norm of the vector comprised of the point's 
+        /// Calculate Euclidean norm of the vector comprised of the point's
         /// coordinates - distance from (0, 0) in other words.
         /// </summary>
         /// 

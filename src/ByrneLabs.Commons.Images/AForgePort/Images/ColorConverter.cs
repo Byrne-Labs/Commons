@@ -215,10 +215,12 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
                 // get hue value
                 float hue;
 
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
                 if (r == max)
                 {
                     hue = (g - b) / 6 / delta;
                 }
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
                 else if (g == max)
                 {
                     hue = 1.0f / 3 + (b - r) / 6 / delta;

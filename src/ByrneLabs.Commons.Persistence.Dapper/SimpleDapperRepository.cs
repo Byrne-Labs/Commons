@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using ByrneLabs.Commons.Domain;
 using Dapper;
 using Dapper.Contrib.Extensions;
@@ -91,8 +90,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public override void Delete(IEnumerable<T> entities)
         {
-            using var connection = CreateConnection();
-            connection.Open();
+            var connection = GetConnection();
             using var transaction = connection.BeginTransaction();
             var failedDeletes = entities.Where(entity => !connection.Delete(entity, transaction));
             transaction.Commit();
@@ -115,24 +113,22 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
             var entities = new ConcurrentBag<T>();
 
-            Parallel.ForEach(queryBatches, queryBatch =>
+            var connection = GetConnection();
+            foreach (var queryBatch in queryBatches)
             {
-                using var connection = CreateConnection();
-                connection.Open();
                 var queryResults = connection.Query<T>(command, new { EntityIds = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     entities.Add(queryResult);
                 }
-            });
+            }
 
             return entities.ToArray();
         }
 
         public override IEnumerable<T> FindAll()
         {
-            using var connection = CreateConnection();
-            connection.Open();
+            var connection = GetConnection();
             return connection.Query<T>(SelectCommand).ToArray();
         }
 
@@ -147,24 +143,20 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             var insertEntities = entityArray.Where(entity => entity.NeverPersisted).ToArray();
             var updateEntities = entityArray.Where(entity => !entity.NeverPersisted && entity.HasChanged);
 
-            using (var connection = CreateConnection())
-            {
-                connection.Open();
-                using var transaction = connection.BeginTransaction();
-                connection.Execute(InsertCommand, insertEntities, transaction);
-                connection.Execute(UpdateCommand, updateEntities, transaction);
-                transaction.Commit();
-            }
+            var connection = GetConnection();
+            using var transaction = connection.BeginTransaction();
+            connection.Execute(InsertCommand, insertEntities, transaction);
+            connection.Execute(UpdateCommand, updateEntities, transaction);
+            transaction.Commit();
 
             MarkAsPersisted(entityArray);
         }
 
-        protected abstract IDbConnection CreateConnection();
+        protected abstract IDbConnection GetConnection();
 
         protected virtual IEnumerable<T> FindByExample(object criteria)
         {
-            using var connection = CreateConnection();
-            connection.Open();
+            var connection = GetConnection();
             var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToArray();
             var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
 
@@ -173,8 +165,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual IEnumerable<T> FindWhere(string whereClause, object parameterValues)
         {
-            using var connection = CreateConnection();
-            connection.Open();
+            var connection = GetConnection();
             var command = $"{SelectCommand} WHERE {whereClause}";
 
             return connection.Query<T>(command, parameterValues).ToArray();
@@ -196,16 +187,15 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
             var entities = new ConcurrentBag<T>();
 
-            Parallel.ForEach(queryBatches, queryBatch =>
+            var connection = GetConnection();
+            foreach (var queryBatch in queryBatches)
             {
-                using var connection = CreateConnection();
-                connection.Open();
                 var queryResults = connection.Query<T>(command, new { Values = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     entities.Add(queryResult);
                 }
-            });
+            }
 
             return entities.ToArray();
         }

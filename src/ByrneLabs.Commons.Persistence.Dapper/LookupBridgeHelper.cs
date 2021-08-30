@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
 using ByrneLabs.Commons.Domain;
 using Dapper;
 using JetBrains.Annotations;
@@ -38,12 +37,11 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                 start += 2000;
             }
 
-            Parallel.ForEach(queryBatches, queryBatch =>
+            var connection = GetConnection();
+            foreach (var queryBatch in queryBatches)
             {
-                using var connection = CreateConnection();
-                connection.Open();
-                connection.Execute($"DELETE {TableName} WHERE {ConsumerEntityIdFieldName} IN @ConsumerIds", new { ConsumerIds = consumerIds });
-            });
+                connection.Execute($"DELETE {TableName} WHERE {ConsumerEntityIdFieldName} IN @ConsumerIds", new { ConsumerIds = queryBatch });
+            }
         }
 
         public IEnumerable<LookupBridge> Find(IEnumerable<Guid> consumersIds)
@@ -62,26 +60,25 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
             var bridgeEntities = new ConcurrentBag<LookupBridge>();
 
-            Parallel.ForEach(queryBatches, queryBatch =>
+            var connection = GetConnection();
+            foreach (var queryBatch in queryBatches)
             {
-                using var connection = CreateConnection();
-                connection.Open();
                 var queryResults = connection.Query<LookupBridge>(command, new { ConsumerEntityIds = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     bridgeEntities.Add(queryResult);
                 }
-            });
+            }
 
             return bridgeEntities;
         }
 
         public void Save(IEnumerable<Tuple<TConsumer, IEnumerable<TLookup>>> relationships)
         {
-            Parallel.ForEach(relationships, relationship =>
+            var connection = GetConnection();
+            using var transaction = connection.BeginTransaction();
+            foreach (var relationship in relationships)
             {
-                using var connection = CreateConnection();
-                connection.Open();
                 var existingBridges = connection.Query<LookupBridge>($"{SelectCommand} WHERE {ConsumerEntityIdFieldName} = @ConsumerEntityId", new { ConsumerEntityId = relationship.Item1.EntityId.Value }).ToArray();
 
                 var bridgesToRemove = existingBridges.Where(existingBridge => relationship.Item2.All(newLookup => existingBridge.LookupId != newLookup.EntityId.Value)).ToArray();
@@ -90,13 +87,13 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                     .Select(newLookup => new LookupBridge { LookupBridgeId = Guid.NewGuid(), ConsumerId = relationship.Item1.EntityId.Value, LookupId = newLookup.EntityId.Value })
                     .ToArray();
 
-                using var transaction = connection.BeginTransaction();
                 connection.Execute($"DELETE {TableName} WHERE {KeyColumnName} IN @LookupBridgeIds", new { LookupBridgeIds = bridgesToRemove.Select(bridgeToRemove => bridgeToRemove.LookupBridgeId) }, transaction);
                 connection.Execute(InsertCommand, bridgesToAdd, transaction);
-                transaction.Commit();
-            });
+            }
+
+            transaction.Commit();
         }
 
-        protected abstract IDbConnection CreateConnection();
+        protected abstract IDbConnection GetConnection();
     }
 }

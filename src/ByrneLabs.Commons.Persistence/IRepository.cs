@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace ByrneLabs.Commons.Persistence
 {
     [PublicAPI]
-    public interface IRepository<T>
+    public interface IRepository<T> : IDisposable
     {
         void Delete(IEnumerable<T> entities);
 

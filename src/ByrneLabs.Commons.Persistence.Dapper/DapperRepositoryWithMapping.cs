@@ -5,7 +5,6 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using ByrneLabs.Commons.Domain;
 using ByrneLabs.Commons.Ioc;
 using ByrneLabs.Commons.Mapping;
@@ -107,8 +106,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             }
 
             var databaseEntities = Convert(entitiesArray);
-            using var connection = CreateConnection();
-            connection.Open();
+            var connection = GetConnection();
             using var transaction = connection.BeginTransaction();
             var failedDeletes = databaseEntities.Where(databaseEntity => !connection.Delete(databaseEntity, transaction)).ToArray();
             transaction.Commit();
@@ -134,24 +132,22 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
             var databaseEntities = new ConcurrentBag<TDatabaseEntity>();
 
-            Parallel.ForEach(queryBatches, queryBatch =>
+            var connection = GetConnection();
+            foreach (var queryBatch in queryBatches)
             {
-                using var connection = CreateConnection();
-                connection.Open();
                 var queryResults = connection.Query<TDatabaseEntity>(command, new { EntityIds = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     databaseEntities.Add(queryResult);
                 }
-            });
+            }
 
             return Convert(databaseEntities);
         }
 
         public override IEnumerable<TDomainEntity> FindAll()
         {
-            using var connection = CreateConnection();
-            connection.Open();
+            var connection = GetConnection();
             var databaseEntities = connection.Query<TDatabaseEntity>(SelectCommand).ToArray();
             return Convert(databaseEntities);
         }
@@ -168,9 +164,8 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             var insertDatabaseEntities = databaseEntityMap.Where(tuple => tuple.Item1.NeverPersisted).Select(tuple => tuple.Item2).ToArray();
             var updateDatabaseEntities = databaseEntityMap.Where(tuple => !tuple.Item1.NeverPersisted && tuple.Item1.HasChanged).Select(tuple => tuple.Item2).ToArray();
 
-            using (var connection = CreateConnection())
+            using (var connection = GetConnection())
             {
-                connection.Open();
                 using var transaction = connection.BeginTransaction();
                 connection.Execute(InsertCommand, insertDatabaseEntities, transaction);
                 connection.Execute(UpdateCommand, updateDatabaseEntities, transaction);
@@ -180,7 +175,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             MarkAsPersisted(entityArray);
         }
 
-        protected abstract IDbConnection CreateConnection();
+        protected abstract IDbConnection GetConnection();
 
         protected TDatabaseEntity Convert(TDomainEntity domainEntity) => domainEntity == null ? null : Convert(new[] { domainEntity }).First();
 
@@ -243,8 +238,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual IEnumerable<TDomainEntity> FindByExample(object criteria)
         {
-            using var connection = CreateConnection();
-            connection.Open();
+            var connection = GetConnection();
             var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToArray();
             var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
 
@@ -254,8 +248,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual IEnumerable<TDomainEntity> FindWhere(string whereClause, object parameterValues)
         {
-            using var connection = CreateConnection();
-            connection.Open();
+            var connection = GetConnection();
             var command = $"{SelectCommand} WHERE {whereClause}";
 
             var databaseEntities = connection.Query<TDatabaseEntity>(command, parameterValues).ToArray();
@@ -278,16 +271,15 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
             var databaseEntities = new ConcurrentBag<TDatabaseEntity>();
 
-            Parallel.ForEach(queryBatches, queryBatch =>
+            var connection = GetConnection();
+            foreach (var queryBatch in queryBatches)
             {
-                using var connection = CreateConnection();
-                connection.Open();
                 var queryResults = connection.Query<TDatabaseEntity>(command, new { Values = queryBatch }).ToArray();
                 foreach (var queryResult in queryResults)
                 {
                     databaseEntities.Add(queryResult);
                 }
-            });
+            }
 
             return Convert(databaseEntities);
         }

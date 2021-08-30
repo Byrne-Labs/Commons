@@ -21,6 +21,7 @@
 	<s:Int64 x:Key="/Default/CodeEditing/NullCheckPatterns/PatternTypeNamesToPriority/=JetBrains_002EReSharper_002EFeature_002EServices_002ECSharp_002ENullChecking_002ETraceAssertPattern/@EntryIndexedValue">99</s:Int64>
 	<s:Int64 x:Key="/Default/CodeEditing/NullCheckPatterns/PatternTypeNamesToPriority/=JetBrains_002EReSharper_002EFeature_002EServices_002ECSharp_002ENullChecking_002EYodaIfThenThrowPattern/@EntryIndexedValue">300</s:Int64>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=4AC9DC0A_002DEA00_002D49C6_002DA18C_002D65242259934D_002Fd_003AAForgePort/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=699AC762_002D90BA_002D4E95_002DB9A8_002D98F9B67FBA88_002Fd_003AAForgePort/@EntryIndexedValue">ExplicitlyExcluded</s:String>
 	
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/GeneratedFilesAndFolders/=BFF82658_002DA224_002D4B79_002DA88C_002D7090158B29B7_002Fd_003ADataEntities/@EntryIndexedValue">BFF82658-A224-4B79-A88C-7090158B29B7/d:DataEntities</s:String>
 	<s:String x:Key="/Default/CodeInspection/GeneratedCode/GeneratedFileMasks/=PetaPocoRelationExtensions_002Ecs/@EntryIndexedValue">PetaPocoRelationExtensions.cs</s:String>

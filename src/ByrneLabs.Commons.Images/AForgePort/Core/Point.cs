@@ -34,14 +34,14 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
     [Serializable]
     public struct Point
     {
-        /// <summary> 
+        /// <summary>
         /// X coordinate.
-        /// </summary> 
+        /// </summary>
         /// 
         public float X;
-        /// <summary> 
+        /// <summary>
         /// Y coordinate.
-        /// </summary> 
+        /// </summary>
         /// 
         public float Y;
 
@@ -152,6 +152,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
         /// <returns>Returns <see langword="true"/> if coordinates of specified
         /// points are equal.</returns>
         ///
+        // ReSharper disable twice CompareOfFloatsByEqualityOperator
         public static bool operator ==(Point point1, Point point2) => point1.X == point2.X && point1.Y == point2.Y;
 
         /// <summary>
@@ -277,7 +278,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
         public override bool Equals(object obj) => obj is Point ? this == (Point)obj : false;
 
         /// <summary>
-        /// Calculate Euclidean norm of the vector comprised of the point's 
+        /// Calculate Euclidean norm of the vector comprised of the point's
         /// coordinates - distance from (0, 0) in other words.
         /// </summary>
         /// 
