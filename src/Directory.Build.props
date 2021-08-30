@@ -3,7 +3,7 @@
 <Project>
     <PropertyGroup Condition="'$(ReleaseNuGet)' == 'true' AND '$(BuildNumber)' != ''">
         <ReleaseType></ReleaseType>
-        <AssemblyVersion>1.1.0.$(BuildNumber)</AssemblyVersion>
+        <AssemblyVersion>1.1.1.$(BuildNumber)</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>
         <Version>$(FileVersion)$(ReleaseType)</Version>
     </PropertyGroup>
