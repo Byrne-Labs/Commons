@@ -34,17 +34,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
     public struct IntPoint
     {
         /// <summary>
-        /// X coordinate.
-        /// </summary>
-        /// 
-        public int X;
-        /// <summary>
-        /// Y coordinate.
-        /// </summary>
-        /// 
-        public int Y;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="IntPoint"/> structure.
         /// </summary>
         /// 
@@ -56,6 +45,17 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
             X = x;
             Y = y;
         }
+
+        /// <summary>
+        /// X coordinate.
+        /// </summary>
+        /// 
+        public int X { get; set; }
+        /// <summary>
+        /// Y coordinate.
+        /// </summary>
+        /// 
+        public int Y { get; set; }
 
         /// <summary>
         /// Addition operator - adds values of two points.
@@ -272,7 +272,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
         /// 
         /// <returns>Return <see langword="true"/> if objects are equal.</returns>
         /// 
-        public override bool Equals(object obj) => obj is IntPoint ? this == (IntPoint)obj : false;
+        public override bool Equals(object obj) => obj is IntPoint point && this == point;
 
         /// <summary>
         /// Calculate Euclidean norm of the vector comprised of the point's

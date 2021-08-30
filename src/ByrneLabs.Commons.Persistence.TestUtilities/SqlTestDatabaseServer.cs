@@ -35,7 +35,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             Cleanup();
         }
 
-        public IDbConnection GetConnection() => new SqlConnection(ConnectionString);
+        public IDbConnection OpenConnection() => new SqlConnection(ConnectionString);
 
         private void Cleanup()
         {

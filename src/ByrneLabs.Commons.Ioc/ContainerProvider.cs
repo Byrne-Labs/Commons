@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ByrneLabs.Commons.Ioc
 {
-    [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "This class is technically a collection but only secondarily to being a container.")]
     public abstract class ContainerProvider : IContainer
     {
         private static readonly string[] _ignoredAutoRegistryAssemblies = { "mscorlib", "system.", "microsoft." };

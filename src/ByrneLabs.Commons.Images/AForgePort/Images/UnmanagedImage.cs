@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -174,32 +175,16 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
             var bytesPerPixel = 0;
 
             // calculate bytes per pixel
-            switch (pixelFormat)
+            bytesPerPixel = pixelFormat switch
             {
-                case PixelFormat.Format8bppIndexed:
-                    bytesPerPixel = 1;
-                    break;
-                case PixelFormat.Format16bppGrayScale:
-                    bytesPerPixel = 2;
-                    break;
-                case PixelFormat.Format24bppRgb:
-                    bytesPerPixel = 3;
-                    break;
-                case PixelFormat.Format32bppRgb:
-                case PixelFormat.Format32bppArgb:
-                case PixelFormat.Format32bppPArgb:
-                    bytesPerPixel = 4;
-                    break;
-                case PixelFormat.Format48bppRgb:
-                    bytesPerPixel = 6;
-                    break;
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
-                    bytesPerPixel = 8;
-                    break;
-                default:
-                    throw new UnsupportedImageFormatException("Can not create image with specified pixel format.");
-            }
+                PixelFormat.Format8bppIndexed => 1,
+                PixelFormat.Format16bppGrayScale => 2,
+                PixelFormat.Format24bppRgb => 3,
+                PixelFormat.Format32bppRgb or PixelFormat.Format32bppArgb or PixelFormat.Format32bppPArgb => 4,
+                PixelFormat.Format48bppRgb => 6,
+                PixelFormat.Format64bppArgb or PixelFormat.Format64bppPArgb => 8,
+                _ => throw new UnsupportedImageFormatException("Can not create image with specified pixel format."),
+            };
 
             // check image size
             if (width <= 0 || height <= 0)
@@ -220,8 +205,10 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
             SystemTools.SetUnmanagedMemory(imageData, 0, stride * height);
             GC.AddMemoryPressure(stride * height);
 
-            var image = new UnmanagedImage(imageData, width, height, stride, pixelFormat);
-            image.mustBeDisposed = true;
+            var image = new UnmanagedImage(imageData, width, height, stride, pixelFormat)
+            {
+                mustBeDisposed = true
+            };
 
             return image;
         }
@@ -316,8 +303,10 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
             var newImageData = Marshal.AllocHGlobal(Stride * Height);
             GC.AddMemoryPressure(Stride * Height);
 
-            var newImage = new UnmanagedImage(newImageData, Width, Height, Stride, PixelFormat);
-            newImage.mustBeDisposed = true;
+            var newImage = new UnmanagedImage(newImageData, Width, Height, Stride, PixelFormat)
+            {
+                mustBeDisposed = true
+            };
 
             SystemTools.CopyUnmanagedMemory(newImageData, imageData, Stride * Height);
 
@@ -350,7 +339,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// <exception cref="UnsupportedImageFormatException">Unsupported pixel format of the source image. Use Collect8bppPixelValues() method for
         /// images with 8 bpp channels.</exception>
         ///
-        public ushort[] Collect16bppPixelValues(List<IntPoint> points)
+        public ushort[] Collect16bppPixelValues(ReadOnlyCollection<IntPoint> points)
         {
             var pixelSize = System.Drawing.Image.GetPixelFormatSize(PixelFormat) / 8;
 
@@ -419,7 +408,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// <exception cref="UnsupportedImageFormatException">Unsupported pixel format of the source image. Use Collect16bppPixelValues() method for
         /// images with 16 bpp channels.</exception>
         /// 
-        public byte[] Collect8bppPixelValues(List<IntPoint> points)
+        public byte[] Collect8bppPixelValues(ReadOnlyCollection<IntPoint> points)
         {
             var pixelSize = System.Drawing.Image.GetPixelFormatSize(PixelFormat) / 8;
 
@@ -468,7 +457,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// 
         /// <returns>Returns list of points, which have other than black color.</returns>
         /// 
-        public List<IntPoint> CollectActivePixels() => CollectActivePixels(new Rectangle(0, 0, Width, Height));
+        public ReadOnlyCollection<IntPoint> CollectActivePixels() => CollectActivePixels(new Rectangle(0, 0, Width, Height));
 
         /// <summary>
         /// Collect coordinates of none black pixels within specified rectangle of the image.
@@ -478,7 +467,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// 
         /// <returns>Returns list of points, which have other than black color.</returns>
         ///
-        public List<IntPoint> CollectActivePixels(Rectangle rect)
+        public ReadOnlyCollection<IntPoint> CollectActivePixels(Rectangle rect)
         {
             var pixels = new List<IntPoint>();
 
@@ -560,7 +549,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
                 }
             }
 
-            return pixels;
+            return pixels.AsReadOnly();
         }
 
         /// <summary>
@@ -679,24 +668,13 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
                 var pixelSize = System.Drawing.Image.GetPixelFormatSize(PixelFormat) / 8;
                 var ptr = (byte*)imageData.ToPointer() + y * Stride + x * pixelSize;
 
-                switch (PixelFormat)
+                color = PixelFormat switch
                 {
-                    case PixelFormat.Format8bppIndexed:
-                        color = Color.FromArgb(*ptr, *ptr, *ptr);
-                        break;
-
-                    case PixelFormat.Format24bppRgb:
-                    case PixelFormat.Format32bppRgb:
-                        color = Color.FromArgb(ptr[RGB.R], ptr[RGB.G], ptr[RGB.B]);
-                        break;
-
-                    case PixelFormat.Format32bppArgb:
-                        color = Color.FromArgb(ptr[RGB.A], ptr[RGB.R], ptr[RGB.G], ptr[RGB.B]);
-                        break;
-
-                    default:
-                        throw new UnsupportedImageFormatException("The pixel format is not supported: " + PixelFormat);
-                }
+                    PixelFormat.Format8bppIndexed => Color.FromArgb(*ptr, *ptr, *ptr),
+                    PixelFormat.Format24bppRgb or PixelFormat.Format32bppRgb => Color.FromArgb(ptr[RGB.R], ptr[RGB.G], ptr[RGB.B]),
+                    PixelFormat.Format32bppArgb => Color.FromArgb(ptr[RGB.A], ptr[RGB.R], ptr[RGB.G], ptr[RGB.B]),
+                    _ => throw new UnsupportedImageFormatException("The pixel format is not supported: " + PixelFormat),
+                };
             }
 
             return color;
@@ -772,7 +750,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// value to 16 bit by multiplying it by 256.</note></para></remarks>
         ///
         [SuppressMessage("Microsoft.Maintainability", "CA1502")]
-        public void SetPixels(List<IntPoint> coordinates, Color color)
+        public void SetPixels(ReadOnlyCollection<IntPoint> coordinates, Color color)
         {
             unsafe
             {
@@ -804,8 +782,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
                     case PixelFormat.Format24bppRgb:
                     case PixelFormat.Format32bppRgb:
                         {
-
-
                             foreach (var point in coordinates)
                             {
                                 if (point.X >= 0 && point.Y >= 0 && point.X < Width && point.Y < Height)
@@ -908,7 +884,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// 
         public Bitmap ToManagedImage() => ToManagedImage(true);
 
-#pragma warning disable 1580
         /// <summary>
         /// Create managed image from the unmanaged.
         /// </summary>
@@ -928,7 +903,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// <see cref="UnmanagedImage(IntPtr, int, int, int, PixelFormat)"/> constructor specifying some
         /// invalid parameters.</exception>
         /// 
-#pragma warning restore 1580
         public Bitmap ToManagedImage(bool makeCopy)
         {
             Bitmap dstImage = null;

@@ -20,7 +20,9 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
     /// implementation is different on different platform, like .NET and Mono.</para>
     /// </remarks>
     /// 
+#pragma warning disable CA1060 // Move pinvokes to native methods class
     public static class SystemTools
+#pragma warning restore CA1060 // Move pinvokes to native methods class
     {
         /// <summary>
         /// Copy block of unmanaged memory.

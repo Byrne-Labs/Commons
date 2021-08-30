@@ -16,18 +16,18 @@ using JetBrains.Annotations;
 namespace ByrneLabs.Commons.Images.AForgePort.Images
 {
     /// <summary>
-    /// Exhaustive template matching.
+    /// Exhaustive unmanagedImageTemplate matching.
     /// </summary>
     /// 
-    /// <remarks><para>The class implements exhaustive template matching algorithm,
+    /// <remarks><para>The class implements exhaustive unmanagedImageTemplate matching algorithm,
     /// which performs complete scan of source image, comparing each pixel with corresponding
-    /// pixel of template.</para>
+    /// pixel of unmanagedImageTemplate.</para>
     /// 
     /// <para>The class processes only grayscale 8 bpp and color 24 bpp images.</para>
     /// 
     /// <para>Sample usage:</para>
     /// <code>
-    /// // create template matching algorithm's instance
+    /// // create unmanagedImageTemplate matching algorithm's instance
     /// ExhaustiveTemplateMatching tm = new ExhaustiveTemplateMatching( 0.9f );
     /// // find all matchings with specified above similarity
     /// TemplateMatch[] matchings = tm.ProcessImage( sourceImage, templateImage );
@@ -46,7 +46,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
     /// <para>The class also can be used to get similarity level between two image of the same
     /// size, which can be useful to get information about how different/similar are images:</para>
     /// <code>
-    /// // create template matching algorithm's instance
+    /// // create unmanagedImageTemplate matching algorithm's instance
     /// // use zero similarity to make sure algorithm will provide anything
     /// ExhaustiveTemplateMatching tm = new ExhaustiveTemplateMatching( 0 );
     /// // compare two images
@@ -97,9 +97,9 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// Similarity threshold, [0..1].
         /// </summary>
         /// 
-        /// <remarks><para>The property sets the minimal acceptable similarity between template
+        /// <remarks><para>The property sets the minimal acceptable similarity between unmanagedImageTemplate
         /// and potential found candidate. If similarity is lower than this value,
-        /// then object is not treated as matching with template.
+        /// then object is not treated as matching with unmanagedImageTemplate.
         /// </para>
         /// 
         /// <para>Default value is set to <b>0.9</b>.</para>
@@ -112,150 +112,159 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         }
 
         /// <summary>
-        /// Process image looking for matchings with specified template.
+        /// Process image looking for matchings with specified unmanagedImageTemplate.
         /// </summary>
         /// 
         /// <param name="image">Source image to process.</param>
-        /// <param name="template">Template image to search for.</param>
+        /// <param name="bitmapTemplate">Template image to search for.</param>
         /// 
-        /// <returns>Returns array of found template matches. The array is sorted by similarity
+        /// <returns>Returns array of found unmanagedImageTemplate matches. The array is sorted by similarity
         /// of found matches in descending order.</returns>
         /// 
         /// <exception cref="UnsupportedImageFormatException">The source image has incorrect pixel format.</exception>
         /// <exception cref="InvalidImagePropertiesException">Template image is bigger than source image.</exception>
         /// 
-        public TemplateMatch[] ProcessImage(Bitmap image, Bitmap template) => ProcessImage(image, template, new Rectangle(0, 0, image.Width, image.Height));
+        public TemplateMatch[] ProcessImage(Bitmap image, Bitmap bitmapTemplate) => ProcessImage(image, bitmapTemplate, new Rectangle(0, 0, image.Width, image.Height));
 
         /// <summary>
-        /// Process image looking for matchings with specified template.
+        /// Process image looking for matchings with specified unmanagedImageTemplate.
         /// </summary>
         /// 
         /// <param name="image">Source image to process.</param>
-        /// <param name="template">Template image to search for.</param>
-        /// <param name="searchZone">Rectangle in source image to search template for.</param>
+        /// <param name="bitmapTemplate">Template image to search for.</param>
+        /// <param name="searchZone">Rectangle in source image to search unmanagedImageTemplate for.</param>
         /// 
-        /// <returns>Returns array of found template matches. The array is sorted by similarity
+        /// <returns>Returns array of found unmanagedImageTemplate matches. The array is sorted by similarity
         /// of found matches in descending order.</returns>
         /// 
         /// <exception cref="UnsupportedImageFormatException">The source image has incorrect pixel format.</exception>
         /// <exception cref="InvalidImagePropertiesException">Template image is bigger than source image.</exception>
         /// 
-        public TemplateMatch[] ProcessImage(Bitmap image, Bitmap template, Rectangle searchZone)
+        public TemplateMatch[] ProcessImage(Bitmap image, Bitmap bitmapTemplate, Rectangle searchZone)
         {
             // check image format
             if (
                 image.PixelFormat != PixelFormat.Format8bppIndexed &&
                 image.PixelFormat != PixelFormat.Format24bppRgb ||
-                image.PixelFormat != template.PixelFormat)
+                image.PixelFormat != bitmapTemplate.PixelFormat)
             {
-                throw new UnsupportedImageFormatException("Unsupported pixel format of the source or template image.");
+                throw new UnsupportedImageFormatException("Unsupported pixel format of the source or unmanagedImageTemplate image.");
             }
 
-            // check template's size
-            if (template.Width > image.Width || template.Height > image.Height)
+            // check unmanagedImageTemplate's size
+            if (bitmapTemplate.Width > image.Width || bitmapTemplate.Height > image.Height)
             {
                 throw new InvalidImagePropertiesException("Template's size should be smaller or equal to source image's size.");
             }
 
-            // lock source and template images
+            // lock source and unmanagedImageTemplate images
             var imageData = image.LockBits(
                 new Rectangle(0, 0, image.Width, image.Height),
                 ImageLockMode.ReadOnly, image.PixelFormat);
-            var templateData = template.LockBits(
-                new Rectangle(0, 0, template.Width, template.Height),
-                ImageLockMode.ReadOnly, template.PixelFormat);
+            var templateData = bitmapTemplate.LockBits(
+                new Rectangle(0, 0, bitmapTemplate.Width, bitmapTemplate.Height),
+                ImageLockMode.ReadOnly, bitmapTemplate.PixelFormat);
 
             TemplateMatch[] matchings;
 
             try
             {
+                using var unmanagedImage = new UnmanagedImage(imageData);
+                using var unmanagedImageTemplate = new UnmanagedImage(templateData);
                 // process the image
-                matchings = ProcessImage(
-                    new UnmanagedImage(imageData),
-                    new UnmanagedImage(templateData),
-                    searchZone);
+                matchings = ProcessImage(unmanagedImage, unmanagedImageTemplate, searchZone);
             }
             finally
             {
                 // unlock images
                 image.UnlockBits(imageData);
-                template.UnlockBits(templateData);
+                bitmapTemplate.UnlockBits(templateData);
             }
 
             return matchings;
         }
 
         /// <summary>
-        /// Process image looking for matchings with specified template.
+        /// Process image looking for matchings with specified unmanagedImageTemplate.
         /// </summary>
         /// 
         /// <param name="imageData">Source image data to process.</param>
         /// <param name="templateData">Template image to search for.</param>
         /// 
-        /// <returns>Returns array of found template matches. The array is sorted by similarity
+        /// <returns>Returns array of found unmanagedImageTemplate matches. The array is sorted by similarity
         /// of found matches in descending order.</returns>
         /// 
         /// <exception cref="UnsupportedImageFormatException">The source image has incorrect pixel format.</exception>
         /// <exception cref="InvalidImagePropertiesException">Template image is bigger than source image.</exception>
         /// 
-        public TemplateMatch[] ProcessImage(BitmapData imageData, BitmapData templateData) =>
-            ProcessImage(new UnmanagedImage(imageData), new UnmanagedImage(templateData),
-                new Rectangle(0, 0, imageData.Width, imageData.Height));
+        public TemplateMatch[] ProcessImage(BitmapData imageData, BitmapData templateData)
+        {
+            using var unmanagedImage = new UnmanagedImage(imageData);
+            using var unmanagedImageTemplate = new UnmanagedImage(templateData);
+
+            return ProcessImage(unmanagedImage, unmanagedImageTemplate, new Rectangle(0, 0, imageData.Width, imageData.Height));
+        }
 
         /// <summary>
-        /// Process image looking for matchings with specified template.
+        /// Process image looking for matchings with specified unmanagedImageTemplate.
         /// </summary>
         /// 
         /// <param name="imageData">Source image data to process.</param>
         /// <param name="templateData">Template image to search for.</param>
-        /// <param name="searchZone">Rectangle in source image to search template for.</param>
+        /// <param name="searchZone">Rectangle in source image to search unmanagedImageTemplate for.</param>
         /// 
-        /// <returns>Returns array of found template matches. The array is sorted by similarity
+        /// <returns>Returns array of found unmanagedImageTemplate matches. The array is sorted by similarity
         /// of found matches in descending order.</returns>
         /// 
         /// <exception cref="UnsupportedImageFormatException">The source image has incorrect pixel format.</exception>
         /// <exception cref="InvalidImagePropertiesException">Template image is bigger than source image.</exception>
         /// 
-        public TemplateMatch[] ProcessImage(BitmapData imageData, BitmapData templateData, Rectangle searchZone) => ProcessImage(new UnmanagedImage(imageData), new UnmanagedImage(templateData), searchZone);
+        public TemplateMatch[] ProcessImage(BitmapData imageData, BitmapData templateData, Rectangle searchZone)
+        {
+            using var unmanagedImage = new UnmanagedImage(imageData);
+            using var unmanagedImageTemplate = new UnmanagedImage(templateData);
+
+            return ProcessImage(unmanagedImage, unmanagedImageTemplate, searchZone);
+        }
 
         /// <summary>
-        /// Process image looking for matchings with specified template.
+        /// Process image looking for matchings with specified unmanagedImageTemplate.
         /// </summary>
         /// 
         /// <param name="image">Unmanaged source image to process.</param>
-        /// <param name="template">Unmanaged template image to search for.</param>
+        /// <param name="unmanagedImageTemplate">Unmanaged unmanagedImageTemplate image to search for.</param>
         /// 
-        /// <returns>Returns array of found template matches. The array is sorted by similarity
+        /// <returns>Returns array of found unmanagedImageTemplate matches. The array is sorted by similarity
         /// of found matches in descending order.</returns>
         /// 
         /// <exception cref="UnsupportedImageFormatException">The source image has incorrect pixel format.</exception>
         /// <exception cref="InvalidImagePropertiesException">Template image is bigger than source image.</exception>
         ///
-        public TemplateMatch[] ProcessImage(UnmanagedImage image, UnmanagedImage template) => ProcessImage(image, template, new Rectangle(0, 0, image.Width, image.Height));
+        public TemplateMatch[] ProcessImage(UnmanagedImage image, UnmanagedImage unmanagedImageTemplate) => ProcessImage(image, unmanagedImageTemplate, new Rectangle(0, 0, image.Width, image.Height));
 
         /// <summary>
-        /// Process image looking for matchings with specified template.
+        /// Process image looking for matchings with specified unmanagedImageTemplate.
         /// </summary>
         /// 
         /// <param name="image">Unmanaged source image to process.</param>
-        /// <param name="template">Unmanaged template image to search for.</param>
-        /// <param name="searchZone">Rectangle in source image to search template for.</param>
+        /// <param name="unmanagedImageTemplate">Unmanaged unmanagedImageTemplate image to search for.</param>
+        /// <param name="searchZone">Rectangle in source image to search unmanagedImageTemplate for.</param>
         /// 
-        /// <returns>Returns array of found template matches. The array is sorted by similarity
+        /// <returns>Returns array of found unmanagedImageTemplate matches. The array is sorted by similarity
         /// of found matches in descending order.</returns>
         /// 
         /// <exception cref="UnsupportedImageFormatException">The source image has incorrect pixel format.</exception>
         /// <exception cref="InvalidImagePropertiesException">Template image is bigger than search zone.</exception>
         ///
-        public TemplateMatch[] ProcessImage(UnmanagedImage image, UnmanagedImage template, Rectangle searchZone)
+        public TemplateMatch[] ProcessImage(UnmanagedImage image, UnmanagedImage unmanagedImageTemplate, Rectangle searchZone)
         {
             // check image format
             if (
                 image.PixelFormat != PixelFormat.Format8bppIndexed &&
                 image.PixelFormat != PixelFormat.Format24bppRgb ||
-                image.PixelFormat != template.PixelFormat)
+                image.PixelFormat != unmanagedImageTemplate.PixelFormat)
             {
-                throw new UnsupportedImageFormatException("Unsupported pixel format of the source or template image.");
+                throw new UnsupportedImageFormatException("Unsupported pixel format of the source or unmanagedImageTemplate image.");
             }
 
             // clip search zone
@@ -266,13 +275,13 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
             var startX = zone.X;
             var startY = zone.Y;
 
-            // get source and template image size
+            // get source and unmanagedImageTemplate image size
             var sourceWidth = zone.Width;
             var sourceHeight = zone.Height;
-            var templateWidth = template.Width;
-            var templateHeight = template.Height;
+            var templateWidth = unmanagedImageTemplate.Width;
+            var templateHeight = unmanagedImageTemplate.Height;
 
-            // check template's size
+            // check unmanagedImageTemplate's size
             if (templateWidth > sourceWidth || templateHeight > sourceHeight)
             {
                 throw new InvalidImagePropertiesException("Template's size should be smaller or equal to search zone.");
@@ -287,23 +296,23 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
             var mapHeight = sourceHeight - templateHeight + 1;
             var map = new int[mapHeight + 4, mapWidth + 4];
 
-            // maximum possible difference with template
+            // maximum possible difference with unmanagedImageTemplate
             var maxDiff = templateWidth * templateHeight * pixelSize * 255;
 
             // integer similarity threshold
             var threshold = (int)(similarityThreshold * maxDiff);
 
-            // width of template in bytes
+            // width of unmanagedImageTemplate in bytes
             var templateWidthInBytes = templateWidth * pixelSize;
 
             // do the job
             unsafe
             {
                 var baseSrc = (byte*)image.ImageData.ToPointer();
-                var baseTpl = (byte*)template.ImageData.ToPointer();
+                var baseTpl = (byte*)unmanagedImageTemplate.ImageData.ToPointer();
 
                 var sourceOffset = image.Stride - templateWidth * pixelSize;
-                var templateOffset = template.Stride - templateWidth * pixelSize;
+                var templateOffset = unmanagedImageTemplate.Stride - templateWidth * pixelSize;
 
                 // for each row of the source image
                 for (var y = 0; y < mapHeight; y++)
@@ -314,13 +323,13 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
                         var src = baseSrc + sourceStride * (y + startY) + pixelSize * (x + startX);
                         var tpl = baseTpl;
 
-                        // compare template with source image starting from current X,Y
+                        // compare unmanagedImageTemplate with source image starting from current X,Y
                         var dif = 0;
 
-                        // for each row of the template
+                        // for each row of the unmanagedImageTemplate
                         for (var i = 0; i < templateHeight; i++)
                         {
-                            // for each pixel of the template
+                            // for each pixel of the unmanagedImageTemplate
                             for (var j = 0; j < templateWidthInBytes; j++, src++, tpl++)
                             {
                                 var d = *src - *tpl;

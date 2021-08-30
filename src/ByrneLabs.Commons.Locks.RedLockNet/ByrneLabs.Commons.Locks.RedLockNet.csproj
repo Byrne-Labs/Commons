@@ -1,11 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="RedLock.net" Version="2.2.0" />
+    <PackageReference Include="RedLock.net" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ByrneLabs.Commons.Locks\ByrneLabs.Commons.Locks.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="JetBrains.Annotations" Version="2021.2.0" />
   </ItemGroup>
 
 </Project>

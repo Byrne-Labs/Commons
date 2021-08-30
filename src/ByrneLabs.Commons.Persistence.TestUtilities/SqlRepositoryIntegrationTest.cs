@@ -19,7 +19,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             get
             {
                 var entityType = typeof(TEntity);
-                return entityType.IsInterface && entityType.Name.Length > 1 && entityType.Name.Substring(0, 2).IsAllUpper() ? entityType.Name.Substring(1) : entityType.Name;
+                return entityType.IsInterface && entityType.Name.Length > 1 && entityType.Name.Substring(0, 2).IsAllUpper() ? entityType.Name[1..] : entityType.Name;
             }
         }
 
@@ -89,9 +89,9 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
             AssertValid(testHelper.TestData<TEntity>());
         }
 
-        protected abstract IDbConnection GetConnection();
-
         protected abstract ITestHelper<TRepositoryInterface> GetNewRepositoryTestHelper();
+
+        protected abstract IDbConnection OpenConnection();
 
         protected virtual Guid CreateEntityId(params object[] primaryKeys) => (Guid) primaryKeys[0];
 
@@ -100,7 +100,7 @@ namespace ByrneLabs.Commons.Persistence.TestUtilities
         protected virtual IEnumerable<Guid> GetEntityIds(IContainer container)
         {
             var entityIds = new List<Guid>();
-            var connection = GetConnection();
+            var connection = OpenConnection();
             var command = connection.CreateCommand();
             command.CommandText = CreateQueryForPrimaryKeys();
             var reader = command.ExecuteReader();

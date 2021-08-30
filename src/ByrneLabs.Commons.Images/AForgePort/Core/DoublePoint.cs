@@ -276,7 +276,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
         /// 
         /// <returns>Return <see langword="true"/> if objects are equal.</returns>
         /// 
-        public override bool Equals(object obj) => obj is DoublePoint ? this == (DoublePoint)obj : false;
+        public override bool Equals(object obj) => obj is DoublePoint point && this == point;
 
         /// <summary>
         /// Calculate Euclidean norm of the vector comprised of the point's

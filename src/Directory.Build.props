@@ -20,7 +20,8 @@
         </PackageReference>
     </ItemGroup>
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <Features>IOperation</Features>
         <CodeAnalysisRuleSet>../../analyzer-bugs-excluded.ruleset</CodeAnalysisRuleSet>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

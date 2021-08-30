@@ -35,17 +35,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
     public struct Point
     {
         /// <summary>
-        /// X coordinate.
-        /// </summary>
-        /// 
-        public float X;
-        /// <summary>
-        /// Y coordinate.
-        /// </summary>
-        /// 
-        public float Y;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Point"/> structure.
         /// </summary>
         /// 
@@ -57,6 +46,17 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
             X = x;
             Y = y;
         }
+
+        /// <summary>
+        /// X coordinate.
+        /// </summary>
+        /// 
+        public float X { get; set; }
+        /// <summary>
+        /// Y coordinate.
+        /// </summary>
+        /// 
+        public float Y { get; set; }
 
         /// <summary>
         /// Addition operator - adds values of two points.
@@ -275,7 +275,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Core
         /// 
         /// <returns>Return <see langword="true"/> if objects are equal.</returns>
         /// 
-        public override bool Equals(object obj) => obj is Point ? this == (Point)obj : false;
+        public override bool Equals(object obj) => obj is Point point && this == point;
 
         /// <summary>
         /// Calculate Euclidean norm of the vector comprised of the point's

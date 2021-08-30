@@ -4,9 +4,12 @@
       <None Include="..\..\.editorconfig" Link=".editorconfig" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Ensure.That" Version="10.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.12" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.12" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.12" />
+        <PackageReference Include="Ensure.That" Version="10.1.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Update="JetBrains.Annotations" Version="2021.2.0" />
     </ItemGroup>
 </Project>

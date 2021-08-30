@@ -380,7 +380,9 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// </remarks>
         ///
         [Obsolete("Use Clone(Bitmap, PixelFormat) method instead and specify desired pixel format")]
+#pragma warning disable CA1045 // Do not pass types by reference
         public static void FormatImage(ref Bitmap image)
+#pragma warning restore CA1045 // Do not pass types by reference
         {
             if (
                 image.PixelFormat != PixelFormat.Format24bppRgb &&
@@ -428,7 +430,7 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
             {
                 // read image to temporary memory stream
                 stream = File.OpenRead(fileName);
-                var memoryStream = new MemoryStream();
+                using var memoryStream = new MemoryStream();
 
                 var buffer = new byte[10000];
                 while (true)

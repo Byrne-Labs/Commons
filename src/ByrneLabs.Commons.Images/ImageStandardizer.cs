@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
+
+[assembly: SuppressMessage("Microsoft.Maintainability",
+    "CA1502:AvoidExcessiveComplexity",
+    Scope = "member",
+    Target = "~M:ByrneLabs.Commons.Images.ImageStandardizer.RemoveBorder0(System.Drawing.Bitmap)~System.Drawing.Bitmap")]
 
 namespace ByrneLabs.Commons.Images
 {

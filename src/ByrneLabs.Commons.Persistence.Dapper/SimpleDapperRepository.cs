@@ -90,7 +90,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public override void Delete(IEnumerable<T> entities)
         {
-            var connection = GetConnection();
+            var connection = OpenConnection();
             using var transaction = connection.BeginTransaction();
             var failedDeletes = entities.Where(entity => !connection.Delete(entity, transaction));
             transaction.Commit();
@@ -113,7 +113,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
             var entities = new ConcurrentBag<T>();
 
-            var connection = GetConnection();
+            var connection = OpenConnection();
             foreach (var queryBatch in queryBatches)
             {
                 var queryResults = connection.Query<T>(command, new { EntityIds = queryBatch }).ToArray();
@@ -128,7 +128,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public override IEnumerable<T> FindAll()
         {
-            var connection = GetConnection();
+            var connection = OpenConnection();
             return connection.Query<T>(SelectCommand).ToArray();
         }
 
@@ -143,7 +143,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             var insertEntities = entityArray.Where(entity => entity.NeverPersisted).ToArray();
             var updateEntities = entityArray.Where(entity => !entity.NeverPersisted && entity.HasChanged);
 
-            var connection = GetConnection();
+            var connection = OpenConnection();
             using var transaction = connection.BeginTransaction();
             connection.Execute(InsertCommand, insertEntities, transaction);
             connection.Execute(UpdateCommand, updateEntities, transaction);
@@ -152,11 +152,11 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             MarkAsPersisted(entityArray);
         }
 
-        protected abstract IDbConnection GetConnection();
+        protected abstract IDbConnection OpenConnection();
 
         protected virtual IEnumerable<T> FindByExample(object criteria)
         {
-            var connection = GetConnection();
+            var connection = OpenConnection();
             var criteriaFields = criteria.GetType().GetFields().Select(field => $"{field.Name} = @{field.Name}").Union(criteria.GetType().GetProperties().Where(property => property.CanRead).Select(property => $"{property.Name} = @{property.Name}")).ToArray();
             var command = $"{SelectCommand} WHERE {string.Join(" AND ", criteriaFields)}";
 
@@ -165,7 +165,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         protected virtual IEnumerable<T> FindWhere(string whereClause, object parameterValues)
         {
-            var connection = GetConnection();
+            var connection = OpenConnection();
             var command = $"{SelectCommand} WHERE {whereClause}";
 
             return connection.Query<T>(command, parameterValues).ToArray();
@@ -187,7 +187,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
             var entities = new ConcurrentBag<T>();
 
-            var connection = GetConnection();
+            var connection = OpenConnection();
             foreach (var queryBatch in queryBatches)
             {
                 var queryResults = connection.Query<T>(command, new { Values = queryBatch }).ToArray();

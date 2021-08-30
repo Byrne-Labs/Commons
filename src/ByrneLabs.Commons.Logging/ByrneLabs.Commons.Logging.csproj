@@ -1,9 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.12" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ByrneLabs.Commons.Ioc\ByrneLabs.Commons.Ioc.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="JetBrains.Annotations" Version="2021.2.0" />
   </ItemGroup>
 </Project>

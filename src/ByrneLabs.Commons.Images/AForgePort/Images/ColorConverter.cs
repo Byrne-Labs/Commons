@@ -37,22 +37,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// Index of red component.
         /// </summary>
         public const short R = 2;
-        /// <summary>
-        /// Alpha component.
-        /// </summary>
-        public byte Alpha;
-        /// <summary>
-        /// Blue component.
-        /// </summary>
-        public byte Blue;
-        /// <summary>
-        /// Green component.
-        /// </summary>
-        public byte Green;
-        /// <summary>
-        /// Red component.
-        /// </summary>
-        public byte Red;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RGB"/> class.
@@ -113,6 +97,14 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         }
 
         /// <summary>
+        /// Alpha component.
+        /// </summary>
+        public byte Alpha { get; set; }
+        /// <summary>
+        /// Blue component.
+        /// </summary>
+        public byte Blue { get; set; }
+        /// <summary>
         /// <see cref="System.Drawing.Color">Color</see> value of the class.
         /// </summary>
         public Color Color
@@ -126,6 +118,14 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
                 Alpha = value.A;
             }
         }
+        /// <summary>
+        /// Green component.
+        /// </summary>
+        public byte Green { get; set; }
+        /// <summary>
+        /// Red component.
+        /// </summary>
+        public byte Red { get; set; }
     }
 
     /// <summary>
@@ -136,28 +136,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
     /// 
     public class HSL
     {
-        /// <summary>
-        /// Hue component.
-        /// </summary>
-        /// 
-        /// <remarks>Hue is measured in the range of [0, 359].</remarks>
-        /// 
-        public int Hue;
-        /// <summary>
-        /// Luminance value.
-        /// </summary>
-        /// 
-        /// <remarks>Luminance is measured in the range of [0, 1].</remarks>
-        /// 
-        public float Luminance;
-        /// <summary>
-        /// Saturation component.
-        /// </summary>
-        /// 
-        /// <remarks>Saturation is measured in the range of [0, 1].</remarks>
-        /// 
-        public float Saturation;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="HSL"/> class.
         /// </summary>
@@ -177,6 +155,28 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
             Saturation = saturation;
             Luminance = luminance;
         }
+
+        /// <summary>
+        /// Hue component.
+        /// </summary>
+        /// 
+        /// <remarks>Hue is measured in the range of [0, 359].</remarks>
+        /// 
+        public int Hue { get; set; }
+        /// <summary>
+        /// Luminance value.
+        /// </summary>
+        /// 
+        /// <remarks>Luminance is measured in the range of [0, 1].</remarks>
+        /// 
+        public float Luminance { get; set; }
+        /// <summary>
+        /// Saturation component.
+        /// </summary>
+        /// 
+        /// <remarks>Saturation is measured in the range of [0, 1].</remarks>
+        /// 
+        public float Saturation { get; set; }
 
         /// <summary>
         /// Convert from RGB to HSL color space.
@@ -360,18 +360,6 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
         /// Index of <b>Y</b> component.
         /// </summary>
         public const short YIndex = 0;
-        /// <summary>
-        /// <b>Cb</b> component.
-        /// </summary>
-        public float Cb;
-        /// <summary>
-        /// <b>Cr</b> component.
-        /// </summary>
-        public float Cr;
-        /// <summary>
-        /// <b>Y</b> component.
-        /// </summary>
-        public float Y;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="YCbCr"/> class.
@@ -392,6 +380,19 @@ namespace ByrneLabs.Commons.Images.AForgePort.Images
             Cb = Math.Max(-0.5f, Math.Min(0.5f, cb));
             Cr = Math.Max(-0.5f, Math.Min(0.5f, cr));
         }
+
+        /// <summary>
+        /// <b>Cb</b> component.
+        /// </summary>
+        public float Cb { get; set; }
+        /// <summary>
+        /// <b>Cr</b> component.
+        /// </summary>
+        public float Cr { get; set; }
+        /// <summary>
+        /// <b>Y</b> component.
+        /// </summary>
+        public float Y { get; set; }
 
         /// <summary>
         /// Convert from RGB to YCbCr color space (Rec 601-1 specification). 

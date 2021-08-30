@@ -37,7 +37,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
                 start += 2000;
             }
 
-            var connection = GetConnection();
+            var connection = OpenConnection();
             foreach (var queryBatch in queryBatches)
             {
                 connection.Execute($"DELETE {TableName} WHERE {ConsumerEntityIdFieldName} IN @ConsumerIds", new { ConsumerIds = queryBatch });
@@ -60,7 +60,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
             var bridgeEntities = new ConcurrentBag<LookupBridge>();
 
-            var connection = GetConnection();
+            var connection = OpenConnection();
             foreach (var queryBatch in queryBatches)
             {
                 var queryResults = connection.Query<LookupBridge>(command, new { ConsumerEntityIds = queryBatch }).ToArray();
@@ -75,7 +75,7 @@ namespace ByrneLabs.Commons.Persistence.Dapper
 
         public void Save(IEnumerable<Tuple<TConsumer, IEnumerable<TLookup>>> relationships)
         {
-            var connection = GetConnection();
+            var connection = OpenConnection();
             using var transaction = connection.BeginTransaction();
             foreach (var relationship in relationships)
             {
@@ -94,6 +94,6 @@ namespace ByrneLabs.Commons.Persistence.Dapper
             transaction.Commit();
         }
 
-        protected abstract IDbConnection GetConnection();
+        protected abstract IDbConnection OpenConnection();
     }
 }
